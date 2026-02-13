@@ -28,8 +28,12 @@ export class Login {
     this.isLoading.set(true);
     
     this.authService.login(this.email, this.password).subscribe({
-      next: () => {
-        this.router.navigate(['/']); // Redirect to home/dashboard
+      next: (res) => {
+        if (res.role === 'admin') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       error: (err) => {
         console.error('Login failed', err);

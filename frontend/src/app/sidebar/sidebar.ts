@@ -36,9 +36,9 @@ export class Sidebar {
     if (page === 'logout') {
       this.authService.logout();
     } else if (page === 'reports') {
-      this.router.navigate(['/relatorios']);
+      this.router.navigate(['/admin/relatorios']);
     } else if (page === 'drivers') {
-      this.router.navigate(['/motoristas']);
+      this.router.navigate(['/admin/motoristas']);
     }
   }
 }

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { MainLayout } from './layout/main-layout';
+import { AdminLayout } from './layout/admin-layout';
+import { ClientLayout } from './layout/client-layout';
 
 
 export const routes: Routes = [
@@ -8,11 +10,10 @@ export const routes: Routes = [
   { path: 'register', loadComponent: () => import('./pages/register/register').then(m => m.Register) },
   { path: 'register-driver-1', loadComponent: () => import('./pages/register-driver/register-driver-1/register-driver-1').then(m => m.RegisterDriverOne) },
   { path: 'register-driver-2', loadComponent: () => import('./pages/register-driver/register-driver-2/register-driver-2').then(m => m.RegisterDriverTwo) },
-  { path: 'home', loadComponent: () => import('./pages/home/home').then(m => m.Home) },
   { path: 'buttons', loadComponent: () => import('./pages/button-showcase/button-showcase').then(m => m.ButtonShowcase) },
   { 
-    path: '', 
-    component: MainLayout,
+    path: 'admin', 
+    component: AdminLayout,
     canActivate: [authGuard], 
     children: [
       { path: '', redirectTo: 'relatorios', pathMatch: 'full' },
@@ -20,4 +21,14 @@ export const routes: Routes = [
       { path: 'motoristas', loadComponent: () => import('./pages/motoristas/motoristas.component').then(m => m.MotoristasComponent)}
     ] 
   },
+  {
+    path: '',
+    component: ClientLayout,
+    canActivate: [authGuard],
+    children: [
+      { path: 'home', loadComponent: () => import('./pages/home/home').then(m => m.Home) },
+      // Adicione outras rotas de cliente (passenger/driver) aqui
+    ]
+  },
+  { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

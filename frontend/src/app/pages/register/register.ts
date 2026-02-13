@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +18,7 @@ export class Register {
   showPassword = signal(false);
   isLoading = signal(false);
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onCpfInput(event: any) {
     const input = event.target as HTMLInputElement;
@@ -60,11 +61,26 @@ export class Register {
   onRegister(): void {
     if (!this.name || !this.email || !this.password) return;
     
-    // For now, simple mock register
     this.isLoading.set(true);
-    setTimeout(() => {
+    
+    const data = {
+      name: this.name,
+      email: this.email,
+      cpf: this.cpf,
+      telephone: this.telephone,
+      password: this.password
+    };
+
+    this.authService.register(data).subscribe({
+      next: () => {
         this.isLoading.set(false);
         this.router.navigate(['/login']);
-    }, 1000);
+      },
+      error: (err) => {
+        console.error('Registration failed', err);
+        this.isLoading.set(false);
+        // Here you might want to show an error message to the user
+      }
+    });
   }
 }

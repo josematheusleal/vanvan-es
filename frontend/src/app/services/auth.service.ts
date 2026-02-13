@@ -1,43 +1,65 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
+  private readonly ROLE_KEY = 'auth_role';
+  private readonly API_URL = 'http://localhost:8080/api/auth';
   
   // Mock user for testing without backend
-  currentUser = signal<{email: string} | null>(null);
+  currentUser = signal<{email: string, role: string} | null>(null);
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private http: HttpClient) {
     // Check if token exists on startup
     if (this.getToken()) {
-      // In a real app we'd decode the token or fetch user details here
-      this.currentUser.set({ email: 'user@example.com' });
+      const email = 'user@example.com'; // In a real app we'd decode the token
+      const role = this.getRole() || 'client';
+      this.currentUser.set({ email, role });
     }
   }
 
-  // Simulates a backend call
-  login(email: string, pass: string): Observable<{token: string}> {
-    // MOCK: Generate a fake token
-    const mockResponse = {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock.token'
+  register(data: any): Observable<any> {
+    // Determine role based on email if not present, default to passenger/client
+    const isAdmin = data.email && data.email.toLowerCase().includes('admin');
+    const role = isAdmin ? 'admin' : 'passenger';
+    
+    // Map frontend fields (telephone) to backend (phone) and add role
+    const payload = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      cpf: data.cpf,
+      phone: data.telephone, 
+      role: role
     };
     
-    return of(mockResponse).pipe(
-      delay(1000), // Simulate network latency
-      tap(response => {
-        this.setToken(response.token);
-        this.currentUser.set({ email });
+    return this.http.post(`${this.API_URL}/register`, payload);
+  }
+
+  login(email: string, pass: string): Observable<{token: string, role: string}> {
+    return this.http.post<{token: string}>(`${this.API_URL}/login`, { email, password: pass }).pipe(
+      map(response => {
+        // Backend only returns token, so we deduce role from email as per instructions
+        const isAdmin = email.toLowerCase().includes('admin');
+        const role = isAdmin ? 'admin' : 'client';
+        return { token: response.token, role };
+      }),
+      tap(res => {
+        this.setSession(res.token, res.role);
+        this.currentUser.set({ email, role: res.role });
       })
     );
   }
 
   logout() {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.ROLE_KEY);
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
@@ -49,9 +71,17 @@ export class AuthService {
     return null;
   }
 
-  setToken(token: string) {
+  getRole(): string | null {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(this.ROLE_KEY);
+    }
+    return null;
+  }
+
+  private setSession(token: string, role: string) {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(this.TOKEN_KEY, token);
+      localStorage.setItem(this.ROLE_KEY, role);
     }
   }
 

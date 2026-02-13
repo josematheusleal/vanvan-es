@@ -13,7 +13,7 @@ interface Motorista {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './motoristas.html',
-  styleUrl: './motoristas.scss',
+  styleUrl: './motoristas.css',
 })
 export class Motoristas {
   filtro = '';
