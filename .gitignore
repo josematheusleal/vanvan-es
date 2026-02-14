@@ -32,19 +32,26 @@ buildNumber.properties
 .sts4-cache
 
 # Node
-/node_modules
+node_modules/
+**/node_modules/
 npm-debug.log
 yarn-error.log
 
 # Miscellaneous
-/.angular/cache
+.angular/cache
 .sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
+connect.lock
+coverage/
+libpeerconnection.log
 testem.log
-/typings
+typings/
 __screenshots__/
+
+# Compiled output
+dist/
+tmp/
+out-tsc/
+bazel-out/
 
 ### IntelliJ IDEA ###
 .idea
@@ -69,13 +76,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
 
 # System files
 .DS_Store
