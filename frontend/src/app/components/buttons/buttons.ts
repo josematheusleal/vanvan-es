@@ -18,7 +18,7 @@ export class Buttons {
   @Input() fullWidth: boolean = false;
   
   get buttonClasses(): string {
-    const baseClasses = 'font-google-sans-flex font-bold uppercase rounded-lg transition-all duration-200 cursor-pointer inline-flex items-center justify-center gap-2';
+    const baseClasses = 'font-google-sans-flex font-bold uppercase rounded-lg transition-all duration-200 cursor-pointer inline-flex items-center justify-center gap-2 active:scale-95';
     
     // Size classes
     const sizeClasses = {

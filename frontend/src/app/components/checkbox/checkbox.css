@@ -1,0 +1,5 @@
+.shadow-inner {
+  /* Using the specific shadow from Figma design */
+  background-color: theme('colors.accent'); /* #B1B1B1 */
+  box-shadow: inset 0px 2px 2px -1px rgba(74, 74, 104, 0.1);
+}

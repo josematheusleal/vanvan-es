@@ -15,6 +15,7 @@ export class Login {
   password = '';
   showPassword = signal(false);
   isLoading = signal(false);
+  errorMessage = signal('');
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -26,6 +27,7 @@ export class Login {
     if (!this.email || !this.password) return;
     
     this.isLoading.set(true);
+    this.errorMessage.set('');
     
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
@@ -37,6 +39,15 @@ export class Login {
       },
       error: (err) => {
         console.error('Login failed', err);
+        if (err.status === 401 || err.status === 403) {
+          this.errorMessage.set('E-mail ou senha incorretos.');
+        } else if (err.error && typeof err.error === 'object' && err.error.message) {
+          this.errorMessage.set(err.error.message);
+        } else if (typeof err.error === 'string') {
+          this.errorMessage.set(err.error);
+        } else {
+           this.errorMessage.set('Erro ao conectar com o servidor. Tente novamente mais tarde.');
+        }
         this.isLoading.set(false);
       },
       complete: () => {

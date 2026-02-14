@@ -81,5 +81,118 @@
         </div>
       </div>
     </section>
+
+    <!-- Textfields Section -->
+    <section class="mb-16">
+      <h2 class="text-header-2 font-bold text-dark mb-6 pb-2 border-b-2 border-light">Textfields</h2>
+      
+      <div class="flex flex-wrap gap-8 items-start">
+        <!-- Default -->
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Textfield/Default</h3>
+          <app-textfield placeholder="Textfield text"></app-textfield>
+        </div>
+
+        <!-- Active (Simulated visual via manual focus or just showing default which becomes active on click) -->
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Textfield/Active</h3>
+          <!-- Note: The component highlights on focus. To force it visually static, we'd need a prop, but interaction is better -->
+          <app-textfield placeholder="Click me to see active state"></app-textfield>
+        </div>
+
+        <!-- Valid -->
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Textfield/Valid</h3>
+          <app-textfield state="valid" value="email@domain.com"></app-textfield>
+        </div>
+
+        <!-- Error -->
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Textfield/Error</h3>
+          <app-textfield state="error" value="Invalid input"></app-textfield>
+        </div>
+
+        <!-- Disabled -->
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Textfield/Disabled</h3>
+          <app-textfield [disabled]="true" value="Disabled text"></app-textfield>
+        </div>
+
+        <!-- Multiline -->
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Textfield/Multiline</h3>
+          <app-textfield type="textarea" value="Multiline text field that can be resized."></app-textfield>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tags Section -->
+    <section class="mb-16">
+      <h2 class="text-header-2 font-bold text-dark mb-6 pb-2 border-b-2 border-light">Tags</h2>
+      
+      <div class="mb-8">
+        <h3 class="text-header-3 font-bold text-subtle-text mb-4">Design Variants</h3>
+        <div class="flex gap-4 items-center flex-wrap">
+          <app-tag label="Ativo" variant="success"></app-tag>
+          <app-tag label="Em análise" variant="info"></app-tag>
+          <app-tag label="Recusado" variant="error"></app-tag>
+          <app-tag label="Aguardando" variant="warning"></app-tag>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <h3 class="text-header-3 font-bold text-subtle-text mb-4">Custom Configuration</h3>
+        <div class="flex gap-4 items-center flex-wrap">
+          <app-tag label="Custom Purple" bgColor="#F3E5F5" textColor="#9C27B0"></app-tag>
+          <app-tag label="Custom Dark" bgColor="#333" textColor="#FFF"></app-tag>
+        </div>
+      </div>
+    </section>
+
+    <!-- Checkbox Section -->
+    <section class="mb-16">
+      <h2 class="text-header-2 font-bold text-dark mb-6 pb-2 border-b-2 border-light">Checkboxes</h2>
+      
+      <div class="flex gap-12">
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Checkbox/Off</h3>
+          <div class="flex gap-4 items-center">
+            <app-checkbox [checked]="false"></app-checkbox>
+            <span class="text-body text-subtle-text">Unchecked</span>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Checkbox/On</h3>
+          <div class="flex gap-4 items-center">
+            <app-checkbox [checked]="true"></app-checkbox>
+            <span class="text-body text-subtle-text">Checked</span>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-header-3 font-bold text-subtle-text mb-4">Disabled</h3>
+          <div class="flex gap-4 items-center">
+            <app-checkbox [disabled]="true" [checked]="false"></app-checkbox>
+            <app-checkbox [disabled]="true" [checked]="true"></app-checkbox>
+            <span class="text-body text-subtle-text">Disabled</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toasts Section -->
+    <section class="mb-16">
+      <h2 class="text-header-2 font-bold text-dark mb-6 pb-2 border-b-2 border-light">Toasts</h2>
+      <p class="text-body text-subtle-text mb-4">Click buttons to trigger toasts (fixed position bottom-right)</p>
+      
+      <div class="flex gap-4">
+        <app-buttons variant="primary" (click)="showSuccessToast()">Trigger Success</app-buttons>
+        <app-buttons variant="tertiary" (click)="showErrorToast()">Trigger Error</app-buttons>
+      </div>
+    </section>
   </div>
+  
+  <!-- Global Toast Container -->
+  <app-toast></app-toast>
 </div>

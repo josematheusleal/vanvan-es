@@ -17,6 +17,7 @@ export class Register {
   password = '';
   showPassword = signal(false);
   isLoading = signal(false);
+  errorMessage = signal('');
 
   constructor(private router: Router, private authService: AuthService) {}
 
@@ -62,6 +63,7 @@ export class Register {
     if (!this.name || !this.email || !this.password) return;
     
     this.isLoading.set(true);
+    this.errorMessage.set('');
     
     const data = {
       name: this.name,
@@ -78,8 +80,14 @@ export class Register {
       },
       error: (err) => {
         console.error('Registration failed', err);
+        if (err.error && typeof err.error === 'object' && err.error.message) {
+          this.errorMessage.set(err.error.message);
+        } else if (typeof err.error === 'string') {
+          this.errorMessage.set(err.error);
+        } else {
+          this.errorMessage.set('Falha ao realizar cadastro. Verifique os dados e tente novamente.');
+        }
         this.isLoading.set(false);
-        // Here you might want to show an error message to the user
       }
     });
   }

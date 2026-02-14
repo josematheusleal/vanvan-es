@@ -52,13 +52,13 @@ export class Toggle implements ControlValueAccessor {
 
   get containerClasses(): string {
     return this.checked
-      ? 'bg-primary'
+      ? 'bg-primary border-2 border-primary'
       : 'bg-light border-2 border-accent';
   }
 
   get handleClasses(): string {
     return this.checked
-      ? 'bg-white right-0'
-      : 'bg-accent left-0';
+      ? 'bg-white translate-x-5'
+      : 'bg-accent translate-x-0';
   }
 }
