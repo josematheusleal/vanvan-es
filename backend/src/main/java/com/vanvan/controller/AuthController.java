@@ -3,6 +3,7 @@ package com.vanvan.controller;
 import com.vanvan.config.security.JwtService;
 import com.vanvan.dto.*;
 import com.vanvan.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDTO data) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO data) {
         try {
             var user = userService.register(data);
             return ResponseEntity
@@ -43,7 +44,10 @@ public class AuthController {
 
             var user = (UserDetails) auth.getPrincipal();
 
-            String token = jwtService.generateToken(user.getUsername());
+            //adicionado devido a warning
+            assert user != null;
+
+            String token = jwtService.generateToken( user.getUsername());
 
             return ResponseEntity.ok(new TokenResponseDTO(token));
         } catch (AuthenticationException e) {
