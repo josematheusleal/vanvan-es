@@ -34,14 +34,25 @@ export class AuthService {
     else if (isDriver) role = 'driver';
     
     // Map frontend fields (telephone) to backend (phone) and add role
-    const payload = {
+    // Strip mask characters from phone: (11)98765-4321 -> 11987654321
+    const rawPhone = data.telephone ? data.telephone.replace(/\D/g, '') : '';
+    const finalRole = data.role || role;
+
+    const payload: any = {
       name: data.name,
       email: data.email,
       password: data.password,
       cpf: data.cpf,
-      phone: data.telephone, 
-      role: role
+      phone: rawPhone,
+      birthDate: data.birthDate,
+      role: finalRole
     };
+
+    // Include driver-specific fields when registering a driver
+    if (finalRole === 'driver') {
+      payload.cnh = data.cnh;
+      payload.pixKey = data.pixKey;
+    }
     
     return this.http.post(`${this.API_URL}/register`, payload);
   }

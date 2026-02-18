@@ -18,7 +18,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'relatorios', pathMatch: 'full' },
       { path: 'relatorios', loadComponent: () => import('./pages/relatorios/relatorios').then(m => m.Relatorios) },
-      { path: 'motoristas', loadComponent: () => import('./pages/motoristas/motoristas.component').then(m => m.MotoristasComponent)}
+      { path: 'motoristas', loadComponent: () => import('./pages/motoristas/motoristas.component').then(m => m.MotoristasComponent)},
+      { path: 'aprovar-motoristas', loadComponent: () => import('./pages/approve-drivers/approve-drivers').then(m => m.ApproveDrivers)}
     ] 
   },
   {

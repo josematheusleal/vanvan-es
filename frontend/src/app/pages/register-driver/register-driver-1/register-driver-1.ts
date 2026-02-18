@@ -66,18 +66,18 @@ export class RegisterDriverOne {
     
     // 2. Prepara o objeto com os dados desta etapa
     const dadosEtapa1 = {
-      nome: this.name,
+      name: this.name,
       email: this.email,
       cpf: this.cpf,
-      telefone: this.telephone, 
-      senha: this.password
+      telephone: this.telephone, 
+      password: this.password
     };
 
     console.log('Indo para etapa 2 com:', dadosEtapa1);
 
     // 3. Navega para a rota da Etapa 2 enviando os dados no "state"
     this.router.navigate(['/register-driver-2'], { 
-      state: { user: dadosEtapa1 } 
+      state: { driver: dadosEtapa1 } 
     });
   }
 }

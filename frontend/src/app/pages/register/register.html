@@ -23,7 +23,7 @@
         </div>
   
         <!-- Form Section -->
-      <div class="flex flex-col flex-1 gap-[32px] short:gap-6 items-start w-full px-6 py-[70px] short:py-8 sm:px-10 lg:px-[50px] justify-start overflow-y-auto">
+      <div class="flex flex-col flex-1 gap-6 short:gap-6 items-start w-full px-6 py-12 short:py-8 sm:px-10 lg:px-[50px] justify-start overflow-y-auto">
 
         <!-- Title -->
         <div class="flex flex-col gap-1">
@@ -32,9 +32,9 @@
           </div>
   
           <!-- Form -->
-          <form class="flex flex-col gap-[2rem] short:gap-5 w-full" (ngSubmit)="onRegister()">
+          <form class="flex flex-col gap-4 short:gap-5 w-full" (ngSubmit)="onRegister()">
   
-            <div class="flex flex-col gap-4 short:gap-3 w-full">
+            <div class="flex flex-col gap-3 short:gap-3 w-full">
                 
                <!-- Name Field -->
                <div class="flex flex-col gap-[3px] w-full">
@@ -58,6 +58,22 @@
                   placeholder="exemplo&#64;email.com"
                   [(ngModel)]="email"
                   name="email"
+                  class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <!-- Birthdate Field -->
+              <div class="flex flex-col gap-[3px] w-full">
+                <label for="birthdate" class="text-text text-small">Data de nascimento</label>
+                <input
+                  id="birthdate"
+                  type="text"
+                  placeholder="dd/mm/aaaa"
+                  [ngModel]="birthdate"
+                  (input)="onBirthdateInput($event)"
+                  name="birthdate"
+                  inputmode="numeric"
+                  maxlength="10"
                   class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>

@@ -39,6 +39,8 @@ export class Sidebar {
       this.router.navigate(['/admin/relatorios']);
     } else if (page === 'drivers') {
       this.router.navigate(['/admin/motoristas']);
+    } else if (page === 'verification') {
+      this.router.navigate(['/admin/aprovar-motoristas']);
     }
   }
 }

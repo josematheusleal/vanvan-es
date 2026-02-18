@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 export class Register {
   name = '';
   email = '';
+  birthdate = '';
   cpf = '';
   telephone = '';
   password = '';
@@ -55,13 +56,54 @@ export class Register {
     input.value = value;
   }
 
+  onBirthdateInput(event: any) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    
+    // Mask dd/MM/yyyy
+    if (value.length > 8) value = value.slice(0, 8);
+    
+    if (value.length > 4) {
+      value = value.replace(/^(\d{2})(\d{2})(\d{0,4}).*/, '$1/$2/$3');
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d{0,2}).*/, '$1/$2');
+    }
+
+    this.birthdate = value;
+    input.value = value;
+  }
+
   togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);
   }
 
   onRegister(): void {
-    if (!this.name || !this.email || !this.password) return;
+    if (!this.name || !this.email || !this.password || !this.birthdate) {
+        this.errorMessage.set('Preencha todos os campos obrigatórios.');
+        return;
+    }
     
+    // Validate Birthdate
+    const dateParts = this.birthdate.split('/');
+    if (dateParts.length !== 3) {
+        this.errorMessage.set('Data de nascimento inválida. Use o formato dd/mm/aaaa.');
+        return;
+    }
+    
+    const day = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10);
+    const year = parseInt(dateParts[2], 10);
+    
+    if (year < 1920 || year > 2020) {
+        this.errorMessage.set('O ano de nascimento deve ser entre 1920 e 2020.');
+        return;
+    }
+    
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+        this.errorMessage.set('Data de nascimento inválida.');
+        return;
+    }
+
     this.isLoading.set(true);
     this.errorMessage.set('');
     
@@ -70,7 +112,9 @@ export class Register {
       email: this.email,
       cpf: this.cpf,
       telephone: this.telephone,
-      password: this.password
+      password: this.password,
+      birthDate: this.birthdate, // Send formatted string dd/MM/yyyy
+      role: 'passenger' // Default role as passenger since this seems to be passenger registration
     };
 
     this.authService.register(data).subscribe({

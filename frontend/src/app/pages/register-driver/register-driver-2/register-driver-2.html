@@ -17,7 +17,7 @@
             />
           </div>
     
-            <div class="flex flex-col flex-1 gap-[32px] short:gap-6 items-start w-full px-6 py-[70px] short:py-8 sm:px-10 lg:px-[50px] justify-start overflow-y-auto">
+    <div class="flex flex-col flex-1 gap-6 short:gap-6 items-start w-full px-6 py-12 short:py-8 sm:px-10 lg:px-[50px] justify-start overflow-y-auto">
 
             <div class="flex flex-row justify-between items-start self-stretch">
               <div class="flex flex-col gap-1">
@@ -38,10 +38,42 @@
             </div>  
             
       
-              <form class="flex flex-col gap-[2rem] w-full" (ngSubmit)="finalizarCadastro()">
+              <form class="flex flex-col gap-4 w-full" (ngSubmit)="finalizarCadastro()">
       
-                <div class="flex flex-col gap-4 w-full">
+                <div class="flex flex-col gap-3 w-full">
                     
+                  <!-- Birthdate Field -->
+                  <div class="flex flex-col gap-[3px] w-full">
+                    <label for="birthdate" class="text-text text-small">Data de nascimento</label>
+                    <input
+                      id="birthdate"
+                      type="text"
+                      placeholder="dd/mm/aaaa"
+                      [ngModel]="birthdate"
+                      (input)="onBirthdateInput($event)"
+                      name="birthdate"
+                      inputmode="numeric"
+                      maxlength="10"
+                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
+                  <!-- CNH Field -->
+                  <div class="flex flex-col gap-[3px] w-full">
+                    <label for="cnh" class="text-text text-small">CNH</label>
+                    <input
+                      id="cnh"
+                      name="cnh"
+                      type="text"
+                      placeholder="Número da CNH (11 dígitos)"
+                      [ngModel]="cnh"
+                      (input)="onCnhInput($event)"
+                      inputmode="numeric"
+                      maxlength="11"
+                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
                   <div class="flex flex-col gap-[3px] w-full">
                     <label for="chavePix" class="text-text text-small">Chave PIX</label>
                     <input
@@ -50,7 +82,7 @@
                       type="text"
                       placeholder="Digite sua chave PIX"
                       [(ngModel)]="chavePix"
-                      class="w-full bg-white rounded-lg px-4 py-3 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -62,7 +94,7 @@
                       type="text"
                       placeholder="Modelo do veículo - Ano"
                       [(ngModel)]="vehicle"
-                      class="w-full bg-white rounded-lg px-4 py-3 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -74,11 +106,18 @@
                       type="text"
                       placeholder="ABC-1234"
                       [(ngModel)]="licensePlate"
-                      class="w-full bg-white rounded-lg px-4 py-3 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary uppercase"
+                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary uppercase"
                     />
                   </div>
                   
                   <div class="flex flex-col w-full gap-[20px] mt-4">
+                  
+                    @if (errorMessage) {
+                        <div class="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative text-center text-sm font-['Work_Sans']">
+                          {{ errorMessage }}
+                        </div>
+                    }
+
                     <button
                       type="submit"
                       class="w-full shadow-primary bg-primary text-white text-button-text py-4 rounded-lg hover:bg-primary/90 transition-colors cursor-pointer uppercase tracking-wider h-[3.4375rem] flex items-center justify-center"
