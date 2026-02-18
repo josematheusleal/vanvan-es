@@ -1,8 +1,17 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, map, firstValueFrom } from 'rxjs';
+import { tap, switchMap } from 'rxjs/operators';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  registrationStatus?: string; // PENDING | APPROVED | REJECTED (drivers only)
+  rejectionReason?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,27 +20,23 @@ export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly ROLE_KEY = 'auth_role';
   private readonly API_URL = 'http://localhost:8080/api/auth';
-  
-  // Mock user for testing without backend
-  currentUser = signal<{email: string, role: string} | null>(null);
+  private readonly USER_API_URL = 'http://localhost:8080/api/user';
+
+  currentUser = signal<UserProfile | null>(null);
 
   constructor(private router: Router, private http: HttpClient) {
-    // Check if token exists on startup
+    // If token exists, fetch the real user profile from backend
     if (this.getToken()) {
-      const email = 'user@example.com'; // In a real app we'd decode the token
-      const role = this.getRole() || 'client';
-      this.currentUser.set({ email, role });
+      this.fetchMe();
     }
   }
 
   register(data: any): Observable<any> {
-    // Determine role based on email if not present, default to passenger/client
+    // Determine role: use explicit role from data, detect admin by email, or default to passenger
     const isAdmin = data.email && data.email.toLowerCase().includes('admin');
-    const isDriver = data.email && data.email.toLowerCase().includes('motorista');
     
     let role = 'passenger';
     if (isAdmin) role = 'admin';
-    else if (isDriver) role = 'driver';
     
     // Map frontend fields (telephone) to backend (phone) and add role
     // Strip mask characters from phone: (11)98765-4321 -> 11987654321
@@ -59,22 +64,38 @@ export class AuthService {
 
   login(email: string, pass: string): Observable<{token: string, role: string}> {
     return this.http.post<{token: string}>(`${this.API_URL}/login`, { email, password: pass }).pipe(
-      map(response => {
-        // Backend only returns token, so we deduce role from email as per instructions
-        const isAdmin = email.toLowerCase().includes('admin');
-        const isDriver = email.toLowerCase().includes('motorista');
-        
-        let role = 'client';
-        if (isAdmin) role = 'admin';
-        else if (isDriver) role = 'driver';
-
-        return { token: response.token, role };
+      tap(response => {
+        // Store token first so getMe() can use it via interceptor
+        this.setSession(response.token, 'client');
       }),
-      tap(res => {
-        this.setSession(res.token, res.role);
-        this.currentUser.set({ email, role: res.role });
-      })
+      switchMap(response => this.getMe().pipe(
+        tap(profile => this.currentUser.set(profile)),
+        map(profile => {
+          // Use the real role from the backend profile
+          const role = profile.role?.toLowerCase() === 'admin' ? 'admin'
+            : profile.role?.toLowerCase() === 'driver' ? 'driver'
+            : 'client';
+          this.setSession(response.token, role);
+          return { token: response.token, role };
+        })
+      ))
     );
+  }
+
+  /** Fetch the authenticated user's profile from backend */
+  getMe(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.USER_API_URL}/me`);
+  }
+
+  /** Fire-and-forget profile fetch for constructor/startup */
+  private fetchMe(): void {
+    this.getMe().subscribe({
+      next: (profile) => this.currentUser.set(profile),
+      error: () => {
+        // Token expired or invalid — clear session
+        this.logout();
+      }
+    });
   }
 
   logout() {

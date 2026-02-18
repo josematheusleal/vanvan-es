@@ -16,7 +16,10 @@ export class ClientSidebar implements AfterViewInit {
   
   currentUser = this.authService.currentUser;
   isLoggedIn = computed(() => !!this.currentUser());
-  isDriver = computed(() => this.currentUser()?.role === 'driver');
+  isDriver = computed(() => {
+    const user = this.currentUser();
+    return user?.role?.toUpperCase() === 'DRIVER' && user?.registrationStatus === 'APPROVED';
+  });
 
   @ViewChildren('navItem') navItems!: QueryList<ElementRef>;
   sliderStyle = signal({ left: '0px', width: '0px', opacity: '0' });

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { driverApprovedGuard } from './guards/driver-approved.guard';
 import { MainLayout } from './layout/main-layout';
 import { AdminLayout } from './layout/admin-layout';
 import { ClientLayout } from './layout/client-layout';
@@ -28,7 +29,7 @@ export const routes: Routes = [
     children: [
       { path: 'home', loadComponent: () => import('./pages/home/home').then(m => m.Home) },
       { path: 'viagens', loadComponent: () => import('./pages/viagens/viagens').then(m => m.Viagens), canActivate: [authGuard] },
-      { path: 'motorista', loadComponent: () => import('./pages/motorista-page/motorista-page').then(m => m.MotoristaPage), canActivate: [authGuard] },
+      { path: 'motorista', loadComponent: () => import('./pages/motorista-page/motorista-page').then(m => m.MotoristaPage), canActivate: [authGuard, driverApprovedGuard] },
     ]
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' }

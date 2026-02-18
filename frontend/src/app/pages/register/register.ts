@@ -114,7 +114,7 @@ export class Register {
       telephone: this.telephone,
       password: this.password,
       birthDate: this.birthdate, // Send formatted string dd/MM/yyyy
-      role: 'passenger' // Default role as passenger since this seems to be passenger registration
+      // role is determined by AuthService based on email (admin/motorista/passenger)
     };
 
     this.authService.register(data).subscribe({
