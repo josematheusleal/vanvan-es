@@ -249,16 +249,22 @@ class AdminServiceTest {
     }
     
     @Test
-    @DisplayName("Deve lançar erro ao atualizar cliente sem telefone")
-    void updateClientFailWithoutPhone() {
+    @DisplayName("Deve manter os dados antigos se a atualização for parcial (sem telefone)")
+    void updateClientPartialSuccess() {
         UUID id = UUID.randomUUID();
         User existingUser = new Passenger();
+        existingUser.setName("Nome Antigo");
+        existingUser.setPhone("81988888888"); // Ele já tinha um telefone
         User updatedInfo = new Passenger();
-        updatedInfo.setName("Novo"); // Enviando sem telefone
+        updatedInfo.setName("Nome Novo"); // O front mandou só o nome, sem telefone
 
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
 
-        assertThrows(IllegalArgumentException.class, () -> adminService.updateClient(id, updatedInfo));
+        adminService.updateClient(id, updatedInfo);
+
+        assertEquals("Nome Novo", existingUser.getName());
+        assertEquals("81988888888", existingUser.getPhone(), "O telefone antigo deve ser mantido");
     }
 
     @Test
