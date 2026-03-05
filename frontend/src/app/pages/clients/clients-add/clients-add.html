@@ -7,7 +7,7 @@
     <div class="p-6 md:px-[68px] md:py-[24px] flex flex-col gap-6">
       
       <h2 class="text-[#112B3C] text-4xl md:text-[64px] font-bold leading-tight">
-        Adicionar clientes
+        Adicionar cliente
       </h2>
 
       <div class="flex flex-col gap-6">
@@ -15,37 +15,45 @@
         <div class="flex flex-col gap-1">
           <label class="text-[#112B3C] text-sm font-medium">Nome completo</label>
           <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-            <input type="text" [(ngModel)]="novoCliente.nome" placeholder="Digite o nome" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
+            <input type="text" [(ngModel)]="novoCliente.name" placeholder="Digite o nome" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="flex flex-col gap-1">
-            <label class="text-[#112B3C] text-sm font-medium">Identidade</label>
+            <label class="text-[#112B3C] text-sm font-medium">CPF</label>
             <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-              <input type="text" [(ngModel)]="novoCliente.identidade" placeholder="xxx.xxx.xxx-xx" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
+              <input type="text" [(ngModel)]="novoCliente.cpf" (input)="onCpfInput($event)" placeholder="xxx.xxx.xxx-xx" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
             </div>
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-[#112B3C] text-sm font-medium">Telefone</label>
             <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-              <input type="text" [(ngModel)]="novoCliente.telefone" placeholder="(xx)xxxxx-xxxx" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
+              <input type="text" [(ngModel)]="novoCliente.telephone" (input)="onPhoneInput($event)" placeholder="(xx)xxxxx-xxxx" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
             </div>
           </div>
         </div>
 
-        <div class="flex flex-col gap-1">
-          <label class="text-[#112B3C] text-sm font-medium">E-mail</label>
-          <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-            <input type="email" [(ngModel)]="novoCliente.email" placeholder="exemplo@email.com" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex flex-col gap-1">
+            <label class="text-[#112B3C] text-sm font-medium">E-mail</label>
+            <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
+              <input type="email" [(ngModel)]="novoCliente.email" placeholder="exemplo@email.com" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[#112B3C] text-sm font-medium">Data de Nascimento</label>
+            <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
+              <input type="text" [(ngModel)]="novoCliente.birthDate" (input)="onBirthdateInput($event)" placeholder="DD/MM/AAAA" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60">
+            </div>
           </div>
         </div>
 
         <div class="flex flex-col gap-1">
           <label class="text-[#112B3C] text-sm font-medium">Senha</label>
           <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center justify-between">
-            <input [type]="mostrarSenha ? 'text' : 'password'" [(ngModel)]="novoCliente.senha" placeholder="Digite a senha" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60"/>
-            <button (click)="mostrarSenha = !mostrarSenha" type="button" class="focus:outline-none opacity-60 hover:opacity-100">
+            <input [type]="mostrarSenha ? 'text' : 'password'" [(ngModel)]="novoCliente.password" placeholder="Digite a senha" class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-[#646464]/60"/>
+            <button (click)="alternarVisualizacaoSenha()" type="button" class="focus:outline-none opacity-60 hover:opacity-100 cursor-pointer">
                <img src="assets/icons/eye.svg" class="w-5 h-5"/>
             </button>
           </div>
@@ -54,11 +62,11 @@
       </div>
 
       <div class="flex gap-6 mt-6 pt-4 justify-start">
-        <button (click)="fechar()" class="bg-[#EEEEEF] h-[48px] rounded-lg px-12 text-[#557D96] font-bold text-base uppercase hover:brightness-95 transition flex items-center justify-center">
+        <button (click)="fechar()" class="bg-[#EEEEEF] h-[48px] rounded-lg px-12 text-[#557D96] font-bold text-base uppercase hover:brightness-95 transition flex items-center justify-center cursor-pointer">
           Cancelar
         </button>
-        <button (click)="salvar()" [disabled]="carregando" class="bg-[#F66B0E] h-[48px] rounded-lg px-12 text-[#EEEEEF] font-bold text-base uppercase hover:brightness-110 transition flex items-center justify-center shadow-md disabled:opacity-50">
-          {{ carregando ? 'Salvando...' : 'Salvar' }}
+        <button (click)="salvar()" [disabled]="carregando()" class="bg-[#F66B0E] h-[48px] rounded-lg px-12 text-[#EEEEEF] font-bold text-base uppercase hover:brightness-110 transition flex items-center justify-center shadow-md disabled:opacity-50 cursor-pointer">
+          {{ carregando() ? 'Salvando...' : 'Salvar' }}
         </button>
       </div>
 
