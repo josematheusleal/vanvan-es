@@ -38,19 +38,14 @@
               <span class="text-[#112B3C] text-body font-bold">{{ distance }}km</span>
             </div>
           </div>
-<<<<<<< HEAD
           <div (click)="addTrip()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] hover:brightness-110 transition rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center tracking-wide shadow-md">
             Adicionar Viagem
-=======
-          <div (click)="addJourney()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] shadow-primary rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center tracking-wide">
-            adicionar
->>>>>>> 6a6eb2cd2eec88392b6d72bf9e761dd98ba19dc3
           </div>
         </div>
       </div>
 
       <div class="flex flex-col w-full p-6 bg-[#EEEEEF] rounded-b-3xl gap-2.5 overflow-x-auto">
-        
+
         <div class="flex px-4 py-3.5 bg-[#FAFAFA] rounded-xl justify-between items-center font-google-sans-flex font-bold text-[#112B3C] text-[15px] gap-4 min-w-[950px]">
           <div class="w-[220px]">Motorista</div>
           <div class="flex-1 min-w-[200px]">Rota e Horário</div>
@@ -62,7 +57,7 @@
 
         @for (trip of trips(); track trip.id) {
           <div class="flex px-4 py-3 justify-between items-center font-google-sans-flex text-[14px] text-[#646464] gap-4 min-w-[950px] hover:bg-white/50 rounded-lg transition-colors border-b border-[#646464]/10 last:border-0">
-            
+
             <div class="w-[220px] flex items-center gap-3">
               <div class="w-11 h-11 bg-gray-300 rounded-full flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
                 <img src="assets/icons/user-tag.svg" class="w-5 h-5 opacity-50" alt="Sem foto">
@@ -72,7 +67,7 @@
                 <span class="text-[12px] text-[#646464] truncate">ID: {{ trip.id || 'N/A' }}</span>
               </div>
             </div>
-            
+
             <div class="flex-1 flex flex-col justify-center min-w-[200px]">
               <div class="flex items-center gap-2 text-[#112B3C] font-bold text-[15px] truncate">
                 <span class="truncate">{{ trip.departureCity }}</span>
@@ -84,18 +79,18 @@
                 {{ trip.date | date:'dd/MM/yyyy' }} às {{ trip.time }}
               </div>
             </div>
-            
+
             <div class="w-32 flex justify-center">
               <button (click)="openPassengersModal(trip)" class="flex items-center gap-2 px-3 py-1.5 bg-[#FAFAFA] border border-[#D1D1D1] hover:bg-gray-200 rounded-lg text-[#557D96] font-bold text-[13px] transition-colors shadow-sm">
                 <img src="assets/icons/profile-2user.svg" class="w-4 h-4 opacity-80" alt="Passageiros">
-                {{ trip.passengers?.length || 0 }}
+                {{ trip.passengers.length }}
               </button>
             </div>
-            
+
             <div class="w-28 font-bold text-[#F66B0E] text-[15px]">
               {{ trip.totalAmount | number:'1.2-2' }}
             </div>
-            
+
             <div class="w-32 flex justify-center">
               <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm"
                     [ngClass]="{
@@ -107,7 +102,7 @@
                 {{ trip.status }}
               </span>
             </div>
-            
+
             <div class="w-16 flex justify-end gap-3">
               <button (click)="openEditModal(trip)" class="hover:scale-110 transition-transform">
                 <img src="assets/icons/edit.svg" class="w-5 h-5 opacity-70 hover:opacity-100" alt="Editar" />
@@ -119,7 +114,7 @@
 
           </div>
         }
-        
+
         @if (trips().length === 0) {
           <div class="w-full py-8 text-center text-[#646464] font-medium text-[16px]">
             Nenhuma viagem encontrada.
@@ -149,11 +144,7 @@
           <img src="assets/icons/dollar-circle.svg" class="w-4 h-4 opacity-70 inline ml-1" alt="Valor">
           <strong class="text-[#112B3C]">R${{ currentRate * 100 | number:'1.2-2' }}</strong>
         </div>
-<<<<<<< HEAD
         <div (click)="saveRate()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] hover:brightness-110 transition shadow-md rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center">
-=======
-        <div (click)="saveRate()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] shadow-primary rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center">
->>>>>>> 6a6eb2cd2eec88392b6d72bf9e761dd98ba19dc3
           Salvar
         </div>
       </div>
@@ -210,7 +201,7 @@
       <div class="text-[#112B3C] text-[32px] font-google-sans-flex font-bold">Passageiros na Viagem</div>
       <div class="bg-[#EEEEEF] text-[#557D96] font-bold px-4 py-2 rounded-lg">Total: {{ selectedTripPassengers.length }}</div>
     </div>
-    
+
     <div class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2">
       @for (passenger of selectedTripPassengers; track passenger.id) {
         <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-[#EEEEEF]">

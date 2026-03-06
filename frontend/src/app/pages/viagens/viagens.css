@@ -20,3 +20,28 @@
   z-index: -1;
 }
 
+.blur-layer-1 {
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
+
+.blur-layer-2 {
+  -webkit-mask-image: linear-gradient(to top, black 10%, transparent 80%);
+  mask-image: linear-gradient(to bottom, black 10%, transparent 80%);
+}
+
+.blur-layer-3 {
+  -webkit-mask-image: linear-gradient(to top, black 15%, transparent 85%);
+  mask-image: linear-gradient(to bottom, black 15%, transparent 85%);
+}
+
+.blur-layer-4 {
+  -webkit-mask-image: linear-gradient(to top, black 25%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 25%, transparent 100%);
+}
+
+.blur-layer-5 {
+  -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+}
+

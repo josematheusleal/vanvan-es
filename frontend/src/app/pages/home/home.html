@@ -6,14 +6,16 @@
     <!-- Background Image -->
     <div class="absolute inset-0 z-0">
       <img src="assets/c17769e5ef51ec9742a0bfa8c880cbfdc523b0cf.png"
-           class="w-full h-full object-cover absolute -top-[180px] left-0 right-0" alt="background">
-      <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/30"></div>
+           class="w-full h-full object-cover absolute -top-[100px] left-0 right-0" alt="background">
+      <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/0"></div>
+      <div class="absolute bottom-0 left-0 right-0 h-[40px] pointer-events-none backdrop-blur-[0px] blur-layer-4 z-[1]"></div>
+      <div class="absolute bottom-0 left-0 right-0 h-[700px] pointer-events-none backdrop-blur-[50px] blur-layer-5 z-[1]"></div>
     </div>
     <!-- Gradient fade to white at bottom -->
-    <div class="absolute bottom-0 left-0 right-0 h-[200px] md:h-[380px] bg-gradient-to-t from-white via-white/90 to-transparent z-[1]"></div>
+
 
     <!-- Hero Content -->
-    <div class="relative z-10 flex flex-col gap-8 lg:gap-[50px] items-center px-4 md:px-[40px] pt-[100px] md:pt-[110px] pb-[60px] md:pb-[80px]">
+    <div class="relative z-10 flex flex-col gap-8 lg:gap-[50px] items-center px-4 md:px-[40px] pt-[100px] md:pt-[110px] pb-[20px]">
       <!-- Hero Title -->
       <div class="flex flex-col gap-[6px] items-center">
         <h1 class="font-sans text-[2rem] md:text-header-1 text-white text-center drop-shadow-lg">
@@ -120,22 +122,13 @@
 
           <!-- Search Button -->
           <div class="w-full lg:w-[330px] rounded-lg shadow-primary">
-            <app-buttons variant="primary" [fullWidth]="true" class="block">
+            <app-buttons variant="primary" [fullWidth]="true" class="block" (click)="navigateToSearchTrips()">
               BUSCAR
               <div class="size-5 bg-light shrink-0"
                    style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
             </app-buttons>
           </div>
         </div>
-      </div>
-
-      <!-- Search Button -->
-      <div class="w-[330px] rounded-lg shadow-primary">
-        <app-buttons variant="primary" [fullWidth]="true" class="block" (click)="navigateToSearchTrips()">
-          BUSCAR
-          <div class="size-5 bg-light shrink-0"
-               style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
-        </app-buttons>
       </div>
     </div>
   </div>

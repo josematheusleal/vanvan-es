@@ -1,29 +1,71 @@
-<div class="flex justify-start items-stretch gap-6 overflow-x-auto p-4">
-  
+<div class="relative h-full" #scrollWrapper>
+  <!-- Floating Left Arrow -->
+  <div class="absolute left-0 top-0 h-full flex items-center z-10 pointer-events-none transition-opacity duration-300"
+       [class.opacity-0]="!canScrollLeft"
+       [class.pointer-events-none]="!canScrollLeft">
+
+    <!-- Stacked blur layers -->
+    <div class="absolute left-0 top-0 h-full w-[160px] pointer-events-none backdrop-blur-[4px] blur-left-1"></div>
+    <div class="absolute left-0 top-0 h-full w-[130px] pointer-events-none backdrop-blur-[10px] blur-left-2"></div>
+
+
+    <button
+      (click)="scrollCardsLeft()"
+      [disabled]="!canScrollLeft"
+      class="relative ml-4 w-14 h-14 bg-secondary hover:brightness-110 active:scale-95 transition-all rounded-full flex items-center justify-center shadow-lg cursor-pointer pointer-events-auto z-10">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.825 13L13.425 18.6L12 20L4 12L12 4L13.425 5.4L7.825 11H20V13H7.825Z" fill="#FAFAFA"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Floating Right Arrow -->
+  <div class="absolute right-0 top-0 h-full flex items-center z-10 pointer-events-none transition-opacity duration-300"
+       [class.opacity-0]="!canScrollRight"
+       [class.pointer-events-none]="!canScrollRight">
+
+    <!-- Stacked blur layers -->
+    <div class="absolute right-0 top-0 h-full w-[160px] pointer-events-none backdrop-blur-[4px] blur-right-1"></div>
+    <div class="absolute right-0 top-0 h-full w-[130px] pointer-events-none backdrop-blur-[10px] blur-right-2"></div>
+
+
+    <button
+      (click)="scrollCardsRight()"
+      [disabled]="!canScrollRight"
+      class="relative mr-4 w-14 h-14 bg-secondary hover:brightness-110 active:scale-95 transition-all rounded-full flex items-center justify-center shadow-lg cursor-pointer pointer-events-auto z-10">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="rotate-180">
+        <path d="M7.825 13L13.425 18.6L12 20L4 12L12 4L13.425 5.4L7.825 11H20V13H7.825Z" fill="#FAFAFA"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Cards Container -->
+  <div #cardsContainer class="flex justify-start items-stretch h-full gap-6 p-4 overflow-x-auto scroll-smooth" style="scrollbar-width: none; -ms-overflow-style: none;">
+
   @for (viagem of viagens; track viagem.id) {
-    <div class="w-[480px] p-6 bg-[#F4F4F5] rounded-[24px] flex flex-col justify-between shrink-0 shadow-md font-sans">
-      
-      <div class="w-full flex flex-col gap-4">
-        
+    <div class="w-[480px] h-full p-6 bg-light rounded-[24px] flex flex-col justify-between shrink-0 font-sans">
+
+      <div class="w-full h-full flex flex-col gap-4">
+
         <div class="flex items-center justify-center gap-3">
           <span class="text-[#112B3C] text-[32px] font-extrabold tracking-tight">{{ viagem.origem }}</span>
-          <img src="assets/icons/arrow_forward.svg" class="w-6 h-6 opacity-50" alt="Para">
+          <img src="assets/icons/arrow_forward.svg" class="w-8 h-8 opacity-80" alt="Para">
           <span class="text-[#112B3C] text-[32px] font-extrabold tracking-tight">{{ viagem.destino }}</span>
         </div>
 
-        <div class="flex items-stretch gap-2">
-          <div class="w-[110px] bg-white rounded-tl-[20px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-[20px] flex flex-col justify-center items-center py-3 shadow-sm">
-            <span class="text-[#646464] text-xs font-bold uppercase tracking-widest">{{ viagem.mes }}</span>
-            <span class="text-[#112B3C] text-[40px] font-extrabold leading-none mt-1">{{ viagem.dia }}</span>
+        <div class="flex items-stretch gap-1">
+          <div class="w-fit px-6 bg-white rounded-tl-[20px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-[20px] flex flex-col justify-center items-center py-3 ">
+            <span class="text-[#646464] text-xs uppercase tracking-widest">{{ viagem.mes }}</span>
+            <span class="text-[#112B3C] text-[40px] font-extrabold leading-none mt-1 mb-2">{{ viagem.dia }}</span>
           </div>
-          
-          <div class="flex-1 bg-white px-5 rounded-tl-[6px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[6px] flex flex-col justify-center gap-2 shadow-sm py-3">
-            <div class="flex items-center gap-3 text-[#646464] text-lg font-semibold">
-              <img src="assets/icons/clock.svg" class="w-5 h-5 opacity-70" alt="Horário">
+
+          <div class="flex-1 bg-white px-5 rounded-tl-[6px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[6px] flex flex-col justify-center gap-2  py-3">
+            <div class="flex items-center gap-3 text-subtle-text text-lg font-semibold">
+              <img src="assets/icons/clock.svg" class="w-6 h-6 opacity-80" alt="Horário">
               {{ viagem.horario }}
             </div>
-            <div class="flex items-center gap-3 text-[#646464] text-lg font-semibold">
-              <img src="assets/icons/verify.svg" class="w-5 h-5 opacity-70" alt="Vagas">
+            <div class="flex items-center gap-3 text-subtle-text text-lg font-semibold">
+              <img src="assets/icons/verify.svg" class="w-6 h-6 opacity-80" alt="Vagas">
               {{ viagem.vagas }} Vagas disponíveis
             </div>
           </div>
@@ -32,31 +74,34 @@
         <hr class="border-[#D1D1D1] border-t-2 w-full my-1 rounded-full">
 
         <div class="flex flex-col gap-1 w-full text-[14px]">
-          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between shadow-sm">
+          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between
+">
             <div class="flex items-center gap-2 text-[#112B3C] font-bold shrink-0">
                 <img src="assets/icons/dollar-circle.svg" class="w-5 h-5" alt="Valor">
                 Valor:
             </div>
             <span class="text-[#646464] font-medium">R$ {{ viagem.preco | number:'1.2-2' }}</span>
           </div>
-          
-          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between shadow-sm">
+
+          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between
+">
             <div class="flex items-center gap-2 text-[#112B3C] font-bold shrink-0">
                 <img src="assets/icons/routing.svg" class="w-5 h-5" alt="Distância">
                 Distância:
             </div>
             <span class="text-[#646464] font-medium">{{ viagem.distancia }}km</span>
           </div>
-          
-          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between shadow-sm">
+
+          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between
+">
             <div class="flex items-center gap-2 text-[#112B3C] font-bold shrink-0">
                 <img src="assets/icons/location.svg" class="w-5 h-5" alt="Partida">
                 Partida:
             </div>
             <span class="text-[#646464] font-medium truncate text-right max-w-[65%]">{{ viagem.localPartida }}</span>
           </div>
-          
-          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between shadow-sm">
+
+          <div class="bg-white rounded-[8px] py-2 px-4 flex items-center justify-between ">
             <div class="flex items-center gap-2 text-[#112B3C] font-bold shrink-0">
                 <img src="assets/icons/location.svg" class="w-5 h-5" alt="Referência">
                 Referência:
@@ -65,9 +110,9 @@
           </div>
         </div>
 
-        <div class="bg-white p-3 rounded-[16px] flex items-center gap-4 shadow-sm">
+        <div class="bg-white p-3 rounded-[16px] flex items-center gap-4 ">
           <img src="assets/VAN-EMPTY.png" class="w-[160px] h-auto object-contain" alt="Veículo">
-          
+
           <div class="flex-1 flex flex-col gap-2 justify-center w-full min-w-0">
             <div class="text-[#646464] text-[13px] font-medium flex items-center gap-2">
               <img src="assets/icons/bus.svg" class="w-4 h-4 opacity-70 shrink-0" alt="Modelo">
@@ -90,13 +135,13 @@
 
       </div>
 
-      <button 
+      <button
         (click)="selecionarViagem(viagem)"
-        class="w-full mt-4 shrink-0 bg-[#F66B0E] hover:brightness-110 transition h-[56px] rounded-[12px] text-white font-bold text-[15px] uppercase tracking-wider flex justify-center items-center gap-2 shadow-md">
-        
+        class="w-full mt-4 shrink-0 bg-[#F66B0E] hover:brightness-110 transition h-[56px] rounded-[12px] text-white font-bold text-[15px] uppercase tracking-wider flex justify-center items-center gap-2 -md">
+
         <div class="w-6 h-6 bg-white"
              style="-webkit-mask: url(assets/icons/car.svg) no-repeat center / contain; mask: url(assets/icons/car.svg) no-repeat center / contain;"></div>
-        
+
         Viajar
       </button>
 
@@ -109,36 +154,37 @@
     </div>
   }
 
-
+  </div>
+</div>
 
 @if (showConfirmModal) {
 <div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000] p-4">
-  
-  <div class="w-[1178px] px-[68px] py-6 bg-[#FAFAFA] rounded-[24px] flex flex-col gap-6 shadow-2xl overflow-hidden font-sans">
-    
+
+  <div class="w-[1178px] px-[68px] py-6 bg-[#FAFAFA] rounded-[24px] flex flex-col gap-6 overflow-hidden font-sans">
+
     <div class="flex flex-col gap-6 w-full">
       <div class="text-[#112B3C] text-[64px] font-bold leading-tight">Confirmar viagem</div>
-      
+
       <div class="flex flex-col gap-4 w-full">
         <div class="text-[#112B3C] text-[24px] font-bold">Confirme a viagem</div>
-        
+
         <div class="flex flex-col gap-6 w-full">
-          
+
           <div class="flex items-stretch gap-1 w-full">
             <div class="w-[110px] bg-[#EEEEEF] rounded-tl-[24px] rounded-tr-[4px] rounded-br-[4px] rounded-bl-[24px] flex flex-col justify-center items-center py-4 px-3">
               <span class="text-[#646464] text-sm font-medium uppercase tracking-widest">{{ viagemSelecionada.mes || 'FEV' }}</span>
               <span class="text-[#112B3C] text-[40px] font-bold leading-none my-1">{{ viagemSelecionada.dia || '10' }}</span>
               <span class="text-[#646464] text-sm font-medium">{{ viagemSelecionada.horario || '08:00' }}</span>
             </div>
-            
+
             <div class="flex-1 bg-[#EEEEEF] rounded-tl-[4px] rounded-tr-[25px] rounded-br-[25px] rounded-bl-[4px] p-5 flex flex-col justify-center gap-3">
-               
+
                <div class="flex items-center gap-2">
                   <span class="text-[#112B3C] text-[24px] font-bold">{{ viagemSelecionada.origem || 'Garanhuns' }}</span>
                   <img src="assets/icons/arrow_forward.svg" class="w-6 h-6 opacity-70" alt="Para">
                   <span class="text-[#112B3C] text-[24px] font-bold">{{ viagemSelecionada.destino || 'Recife' }}</span>
                </div>
-               
+
                <div class="flex items-center gap-6">
                   <div class="flex items-center gap-1.5 text-[#646464] text-sm font-medium">
                      <img src="assets/icons/dollar-circle.svg" class="w-[18px] h-[18px]" alt="Valor">
@@ -149,16 +195,16 @@
                      {{ viagemSelecionada.veiculoModelo || 'Sprinter 2025' }} {{ viagemSelecionada.veiculoPlaca || 'XXXX-XXX' }}
                   </div>
                </div>
-               
+
                <div class="flex items-center gap-1.5 text-[#646464] text-sm font-medium">
                   <img src="assets/icons/location.svg" class="w-[18px] h-[18px]" alt="Embarque">
                   {{ viagemSelecionada.localPartida || 'Rodoviária - Garanhuns' }}
                </div>
             </div>
           </div>
-          
+
           <hr class="border-[#B1B1B1] w-full">
-          
+
           <div class="flex justify-between items-center w-full">
             <div class="flex items-center gap-4">
                <div class="w-[50px] h-[50px] bg-[#EEEEEF] rounded-full flex justify-center items-center">
@@ -181,29 +227,29 @@
     </div>
 
     <div class="flex justify-end items-center gap-6 w-full pt-4">
-      <button 
-        (click)="fecharModalConfirmacao()" 
+      <button
+        (click)="fecharModalConfirmacao()"
         class="px-[60px] py-[14px] bg-[#EEEEEF] hover:bg-gray-200 transition rounded-lg text-[#557D96] text-[16px] font-bold uppercase tracking-wider">
         Cancelar
       </button>
-      
-      <button 
-        (click)="fazerPagamento()" 
+
+      <button
+        (click)="fazerPagamento()"
         class="px-[60px] py-[14px] bg-[#F66B0E] hover:brightness-110 transition rounded-lg text-[#EEEEEF] text-[16px] font-bold uppercase tracking-wider flex items-center gap-2">
          <div class="w-5 h-5 bg-white" style="-webkit-mask: url(assets/icons/wallet.svg) no-repeat center / contain; mask: url(assets/icons/wallet.svg) no-repeat center / contain;"></div>
          Fazer pagamento
       </button>
     </div>
-    
+
   </div>
 </div>
 }
 
 @if (showPaymentModal) {
 <div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-  
+
   <div class="bg-white rounded-3xl flex flex-col py-6 px-[68px] w-full max-w-[800px]">
-    
+
     <h2 class="text-[#112B3C] text-[36px] font-bold mb-6">
       Aguardando pagamento
     </h2>
@@ -219,12 +265,12 @@
     </div>
 
     <div class="flex justify-center mb-6">
-      <div class="w-[240px] h-[240px] bg-[#333333]"></div> 
+      <div class="w-[240px] h-[240px] bg-[#333333]"></div>
     </div>
 
     <div class="flex justify-end mt-2">
-      <button 
-        (click)="fecharModalPagamento()" 
+      <button
+        (click)="fecharModalPagamento()"
         class="text-[#557D96] bg-[#EEEEEF] px-8 py-3 rounded-lg font-bold text-sm tracking-wider uppercase hover:bg-gray-200 transition-colors">
         FECHAR
       </button>
@@ -233,4 +279,3 @@
   </div>
 </div>
 }
-</div>

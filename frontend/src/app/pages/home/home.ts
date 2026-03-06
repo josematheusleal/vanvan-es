@@ -20,6 +20,7 @@ export class Home implements OnDestroy {
   private cityService = inject(CityService);
   private elementRef = inject(ElementRef);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   typedDestinations = ['Recife', 'Garanhuns', 'Caruaru', 'Petrolina', 'João Pessoa'];
   currentDestination = '';
@@ -38,7 +39,6 @@ export class Home implements OnDestroy {
   showPartidaDropdown = false;
   showDestinoDropdown = false;
 
-  constructor(private router: Router) {}
   private partidaSearch$ = new Subject<string>();
   private destinoSearch$ = new Subject<string>();
   private subscriptions: Subscription[] = [];
@@ -175,7 +175,7 @@ export class Home implements OnDestroy {
     if (this.passageiros < 5) this.passageiros++;
   }
 
-  navigateToSearchTrips() {
+  navigateToSearchTrips(): void {
     this.router.navigate(['/buscar-viagens']);
   }
 }

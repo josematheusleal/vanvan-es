@@ -1,0 +1,77 @@
+.blur-left-1 {
+  -webkit-mask-image: linear-gradient(to right, black 0%, transparent 100%);
+  mask-image: linear-gradient(to right, black 0%, transparent 100%);
+}
+.blur-left-2 {
+  -webkit-mask-image: linear-gradient(to right, black 10%, transparent 80%);
+  mask-image: linear-gradient(to right, black 10%, transparent 80%);
+}
+.blur-left-3 {
+  -webkit-mask-image: linear-gradient(to right, black 15%, transparent 85%);
+  mask-image: linear-gradient(to right, black 15%, transparent 85%);
+}
+.blur-left-4 {
+  -webkit-mask-image: linear-gradient(to right, black 25%, transparent 100%);
+  mask-image: linear-gradient(to right, black 25%, transparent 100%);
+}
+.blur-left-5 {
+  -webkit-mask-image: linear-gradient(to right, black 40%, transparent 100%);
+  mask-image: linear-gradient(to right, black 40%, transparent 100%);
+}
+
+.blur-right-1 {
+  -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);
+  mask-image: linear-gradient(to left, black 0%, transparent 100%);
+}
+.blur-right-2 {
+  -webkit-mask-image: linear-gradient(to left, black 10%, transparent 80%);
+  mask-image: linear-gradient(to left, black 10%, transparent 80%);
+}
+.blur-right-3 {
+  -webkit-mask-image: linear-gradient(to left, black 15%, transparent 85%);
+  mask-image: linear-gradient(to left, black 15%, transparent 85%);
+}
+.blur-right-4 {
+  -webkit-mask-image: linear-gradient(to left, black 25%, transparent 100%);
+  mask-image: linear-gradient(to left, black 25%, transparent 100%);
+}
+.blur-right-5 {
+  -webkit-mask-image: linear-gradient(to left, black 40%, transparent 100%);
+  mask-image: linear-gradient(to left, black 40%, transparent 100%);
+}
+
+.fade-left {
+  background: linear-gradient(to right,
+  rgba(250,250,250, 1)    0%,
+  rgba(250,250,250, 0.99) 6.25%,
+  rgba(250,250,250, 0.96) 12.5%,
+  rgba(250,250,250, 0.90) 18.75%,
+  rgba(250,250,250, 0.82) 25%,
+  rgba(250,250,250, 0.71) 31.25%,
+  rgba(250,250,250, 0.58) 37.5%,
+  rgba(250,250,250, 0.44) 43.75%,
+  rgba(250,250,250, 0.30) 50%,
+  rgba(250,250,250, 0.18) 56.25%,
+  rgba(250,250,250, 0.08) 62.5%,
+  rgba(250,250,250, 0.02) 75%,
+  rgba(250,250,250, 0)    100%
+  );
+}
+
+.fade-right {
+  background: linear-gradient(to left,
+  rgba(250,250,250, 1)    0%,
+  rgba(250,250,250, 0.99) 6.25%,
+  rgba(250,250,250, 0.96) 12.5%,
+  rgba(250,250,250, 0.90) 18.75%,
+  rgba(250,250,250, 0.82) 25%,
+  rgba(250,250,250, 0.71) 31.25%,
+  rgba(250,250,250, 0.58) 37.5%,
+  rgba(250,250,250, 0.44) 43.75%,
+  rgba(250,250,250, 0.30) 50%,
+  rgba(250,250,250, 0.18) 56.25%,
+  rgba(250,250,250, 0.08) 62.5%,
+  rgba(250,250,250, 0.02) 75%,
+  rgba(250,250,250, 0)    100%
+  );
+}
