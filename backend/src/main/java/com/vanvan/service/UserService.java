@@ -7,6 +7,7 @@ import com.vanvan.dto.VehicleResponseDTO;
 import com.vanvan.exception.UnderageUserException;
 import com.vanvan.exception.CnhAlreadyExistsException;
 import com.vanvan.exception.UnderageDriverException;
+import com.vanvan.exception.LicensePlateAlreadyExistsException;
 import com.vanvan.model.Driver;
 import com.vanvan.model.User;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,11 @@ public class UserService {
             MultipartFile vehicleDocument,
             MultipartFile vehiclePhoto
     ) throws IOException {
+        // Valida se a placa já existe ANTES de salvar o motorista
+        if (vehicleService.isLicensePlateTaken(vehicleLicensePlate)) {
+            throw new LicensePlateAlreadyExistsException(vehicleLicensePlate);
+        }
+
         // Registrar o motorista (salva na transação)
         var user = this.register(driverData);
         Driver driver = (Driver) user;

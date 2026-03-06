@@ -226,5 +226,9 @@ public class VehicleService {
 
         return fileStorageService.loadFile(vehicle.getPhotoPath());
     }
-}
 
+    public boolean isLicensePlateTaken(String licensePlate) {
+        String normalizedPlate = validateAndNormalizeLicensePlate(licensePlate);
+        return vehicleRepository.existsByLicensePlate(normalizedPlate);
+    }
+}

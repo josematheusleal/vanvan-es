@@ -116,7 +116,7 @@ export class Home implements OnDestroy {
       }
     };
 
-    type();
+    this.typingTimeoutId = setTimeout(type, 100);
   }
 
   onPartidaInput(): void {

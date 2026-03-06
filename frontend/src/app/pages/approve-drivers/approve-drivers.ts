@@ -227,9 +227,9 @@ export class ApproveDrivers implements OnInit {
     } else {
       const termo = this.termoBusca.toLowerCase();
       this.motoristasFiltrados = this.listaMotoristas.filter(m =>
-        m.name.toLowerCase().includes(termo) ||
-        m.cnh.includes(termo) ||
-        m.cpf.includes(termo)
+        (m.name && m.name.toLowerCase().includes(termo)) ||
+        (m.cnh && m.cnh.toLowerCase().includes(termo)) ||
+        (m.cpf && m.cpf.toLowerCase().includes(termo))
       );
     }
 

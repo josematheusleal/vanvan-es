@@ -5,18 +5,18 @@
              [ngClass]="useSecondaryColor() ? 'bg-secondary' : 'bg-white'"
              style="-webkit-mask: url(assets/logo/LOGO%20-%20VANVAN%20-%20SVG.svg) no-repeat center / contain; mask: url(assets/logo/LOGO%20-%20VANVAN%20-%20SVG.svg) no-repeat center / contain;">
         </div>
-        <p class="font-sans text-header-2 relative shrink-0 transition-colors duration-300 m-0" 
+        <p class="font-sans text-header-2 relative shrink-0 transition-colors duration-300 m-0"
            [ngClass]="useSecondaryColor() ? 'text-secondary' : 'text-white'">
             VanVan
         </p>
     </a>
 
     <!-- Center Navigation -->
-    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-[12px] bg-[#FAFAFA]/40 flex gap-[2px] items-center justify-center p-[3px] rounded-[72px]">
-        
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-[12px] bg-[#FAFAFA]/60 flex gap-[2px] items-center justify-center p-[3px] rounded-[72px]">
+
         <!-- Sliding Background -->
         <div class="absolute bg-light/90 rounded-[72px] transition-all duration-300 ease-in-out z-0 h-[50px] top-[3px]"
-             [style.left.px]="sliderStyle().left.replace('px','') " 
+             [style.left.px]="sliderStyle().left.replace('px','') "
              [style.width.px]="sliderStyle().width.replace('px','') "
              [style.opacity]="sliderStyle().opacity">
         </div>
