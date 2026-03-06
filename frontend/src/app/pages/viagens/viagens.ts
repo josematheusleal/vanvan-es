@@ -1,17 +1,22 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectorRef, afterNextRender, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Tag, TagVariant } from '../../components/tags/tags';
 import { Buttons } from '../../components/buttons/buttons';
+import { Skeleton } from '../../components/skeleton/skeleton';
 import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-viagens',
   standalone: true,
-  imports: [CommonModule, Tag, Buttons],
+  imports: [CommonModule, Tag, Buttons, Skeleton],
   templateUrl: './viagens.html',
   styleUrls: ['./viagens.css']
 })
-export class Viagens implements OnInit, OnDestroy {
+export class Viagens implements OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+
+  isLoading = true;
+
   // Countdown timer
   countdown = {
     days: 0,
@@ -24,8 +29,16 @@ export class Viagens implements OnInit, OnDestroy {
   // QR Code
   qrCodeDataUrl: string = '';
 
-  ngOnInit(): void {
-    this.startCountdown();
+  constructor() {
+    afterNextRender(() => {
+      this.startCountdown();
+
+      // TODO: replace with real API call
+      setTimeout(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }, 1200);
+    });
   }
 
   ngOnDestroy(): void {

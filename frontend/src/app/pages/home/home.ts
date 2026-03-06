@@ -1,34 +1,36 @@
-import { Component, inject, OnInit, OnDestroy, HostListener, ElementRef, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, inject, OnDestroy, HostListener, ElementRef, ChangeDetectorRef, afterNextRender } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Tag, TagVariant } from '../../components/tags/tags';
 import { Buttons } from '../../components/buttons/buttons';
+import { Skeleton } from '../../components/skeleton/skeleton';
 import { CityService, City } from '../../services/city.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, Tag, Buttons],
+  imports: [CommonModule, FormsModule, Tag, Buttons, Skeleton],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit, OnDestroy {
+export class Home implements OnDestroy {
   private cityService = inject(CityService);
   private elementRef = inject(ElementRef);
-  private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Typed text effect
   typedDestinations = ['Recife', 'Garanhuns', 'Caruaru', 'Petrolina', 'João Pessoa'];
   currentDestination = '';
   private typedIndex = 0;
   private charIndex = 0;
   private isDeleting = false;
-  private typingInterval: any = null;
+  private destroyed = false;
+  private typingTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  // City autocomplete
+  isLoading = true;
+
   partidaQuery = '';
   destinoQuery = '';
   partidaSuggestions: City[] = [];
@@ -39,37 +41,47 @@ export class Home implements OnInit, OnDestroy {
   constructor(private router: Router) {}
   private partidaSearch$ = new Subject<string>();
   private destinoSearch$ = new Subject<string>();
+  private subscriptions: Subscription[] = [];
 
-  ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
+  constructor() {
+    afterNextRender(() => {
+      this.startTypingEffect();
 
-    // Start typing effect
-    this.startTypingEffect();
+      this.cityService.getAllCities().subscribe();
 
-    // Preload cities on init
-    this.cityService.getAllCities().subscribe();
+      this.subscriptions.push(
+        this.partidaSearch$.pipe(
+          debounceTime(250),
+          switchMap(query => this.cityService.searchCities(query))
+        ).subscribe(cities => {
+          this.partidaSuggestions = cities;
+          this.showPartidaDropdown = cities.length > 0;
+        }),
+        this.destinoSearch$.pipe(
+          debounceTime(250),
+          switchMap(query => this.cityService.searchCities(query))
+        ).subscribe(cities => {
+          this.destinoSuggestions = cities;
+          this.showDestinoDropdown = cities.length > 0;
+        })
+      );
 
-    this.partidaSearch$.pipe(
-      debounceTime(250),
-      switchMap(query => this.cityService.searchCities(query))
-    ).subscribe(cities => {
-      this.partidaSuggestions = cities;
-      this.showPartidaDropdown = cities.length > 0;
-    });
-
-    this.destinoSearch$.pipe(
-      debounceTime(250),
-      switchMap(query => this.cityService.searchCities(query))
-    ).subscribe(cities => {
-      this.destinoSuggestions = cities;
-      this.showDestinoDropdown = cities.length > 0;
+      // TODO: replace with real API call
+      setTimeout(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }, 1200);
     });
   }
 
   ngOnDestroy(): void {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
+    this.destroyed = true;
+    if (this.typingTimeoutId !== null) {
+      clearTimeout(this.typingTimeoutId);
     }
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.partidaSearch$.complete();
+    this.destinoSearch$.complete();
   }
 
   private startTypingEffect(): void {
@@ -78,6 +90,8 @@ export class Home implements OnInit, OnDestroy {
     const pauseTime = 2000;
 
     const type = () => {
+      if (this.destroyed) return;
+
       const currentWord = this.typedDestinations[this.typedIndex];
 
       if (this.isDeleting) {
@@ -87,24 +101,24 @@ export class Home implements OnInit, OnDestroy {
         if (this.charIndex === 0) {
           this.isDeleting = false;
           this.typedIndex = (this.typedIndex + 1) % this.typedDestinations.length;
-          setTimeout(type, 500);
+          this.typingTimeoutId = setTimeout(type, 500);
           return;
         }
-        setTimeout(type, deleteSpeed);
+        this.typingTimeoutId = setTimeout(type, deleteSpeed);
       } else {
         this.currentDestination = currentWord.substring(0, this.charIndex + 1);
         this.charIndex++;
 
         if (this.charIndex === currentWord.length) {
           this.isDeleting = true;
-          setTimeout(type, pauseTime);
+          this.typingTimeoutId = setTimeout(type, pauseTime);
           return;
         }
-        setTimeout(type, typeSpeed);
+        this.typingTimeoutId = setTimeout(type, typeSpeed);
       }
     };
 
-    type();
+    this.typingTimeoutId = setTimeout(type, 100);
   }
 
   onPartidaInput(): void {
@@ -146,10 +160,7 @@ export class Home implements OnInit, OnDestroy {
     { month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', variant: 'success' as TagVariant, statusLabel: 'Finalizado' },
   ];
 
-  // Date field
   dataViagem = '';
-
-  // Passengers field
   passageiros = 1;
 
   get passageirosLabel(): string {

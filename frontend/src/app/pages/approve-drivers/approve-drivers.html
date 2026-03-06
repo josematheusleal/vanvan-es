@@ -42,7 +42,7 @@
         (click)="switchTab('REJECTED')"
         [class]="activeTab() === 'REJECTED'
           ? 'flex items-center justify-center gap-2 px-5 py-[10px] rounded-[24px] min-w-[48px] overflow-hidden transition-colors cursor-pointer bg-secondary text-white'
-          : 'flex items-center justify-center gap-2 px-5 py-[10px] rounded-r-[24px] rounded-l-[8px] min-w-[48px] overflow-hidden transition-colors cursor-pointer bg-light text-text hover:bg-accent/20'"
+          : 'flex items-center justify-center gap-2 px-5 py-[10px] rounded-r-[24px] rounded-l-[8px] min-w-[48px] overflow-hidden transition-colors cursor-pointer bg-light text-subtle-text hover:bg-accent/20'"
       >
         <img src="assets/icons/close-circle.svg" alt="" class="w-5 h-5"
           [style.filter]="activeTab() === 'REJECTED' ? 'brightness(0) invert(1)' : 'none'"

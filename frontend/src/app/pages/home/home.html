@@ -10,22 +10,22 @@
       <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/30"></div>
     </div>
     <!-- Gradient fade to white at bottom -->
-    <div class="absolute bottom-0 left-0 right-0 h-[380px] bg-gradient-to-t from-white via-white/90 to-transparent z-[1]"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-[200px] md:h-[380px] bg-gradient-to-t from-white via-white/90 to-transparent z-[1]"></div>
 
-    <!-- Hero Content (pt accounts for navbar: 96px layout + 14px extra spacing) -->
-    <div class="relative z-10 flex flex-col gap-[50px] items-center px-[40px] pt-[110px] pb-[80px]">
+    <!-- Hero Content -->
+    <div class="relative z-10 flex flex-col gap-8 lg:gap-[50px] items-center px-4 md:px-[40px] pt-[100px] md:pt-[110px] pb-[60px] md:pb-[80px]">
       <!-- Hero Title -->
       <div class="flex flex-col gap-[6px] items-center">
-        <h1 class="font-sans text-header-1 text-white whitespace-nowrap drop-shadow-lg">
+        <h1 class="font-sans text-[2rem] md:text-header-1 text-white text-center drop-shadow-lg">
           Vamos para <span class="text-secondary">{{ currentDestination }}</span><span class="animate-blink">|</span>
         </h1>
-        <p class="font-sans text-subtitle text-light text-center drop-shadow-md">
+        <p class="font-sans text-body md:text-subtitle text-light text-center drop-shadow-md">
           Explore novos destinos com conforto, segurança e o melhor preço.
         </p>
       </div>
 
       <!-- Search Panel -->
-      <div class="search-panel relative flex flex-col gap-5 items-start p-5 rounded-[24px] w-full overflow-visible hover-lift">
+      <div class="search-panel relative flex flex-col gap-4 md:gap-5 items-start p-4 md:p-5 rounded-[20px] md:rounded-[24px] w-full overflow-visible hover-lift">
         <!-- Search Header -->
         <div class="flex gap-[10px] items-center">
           <div class="size-6 shrink-0 bg-text"
@@ -34,11 +34,11 @@
         </div>
 
         <!-- Search Fields + Button -->
-        <div class="flex flex-col gap-5 items-end w-full">
-          <!-- Fields Row -->
-          <div class="flex gap-[10px] items-start w-full">
+        <div class="flex flex-col gap-4 md:gap-5 items-stretch lg:items-end w-full">
+          <!-- Fields Grid: 1 col mobile, 2 col tablet, 4 col desktop -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[10px] w-full">
             <!-- Partida -->
-            <div class="flex-1 flex flex-col gap-[3px] relative">
+            <div class="flex flex-col gap-[3px] relative">
               <label class="font-sans text-small text-text">Partida</label>
               <div class="bg-light rounded-lg px-4 py-3 flex items-center gap-2 overflow-hidden">
                 <div class="size-5 shrink-0 bg-subtle-text"
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Destino -->
-            <div class="flex-1 flex flex-col gap-[3px] relative">
+            <div class="flex flex-col gap-[3px] relative">
               <label class="font-sans text-small text-text">Destino</label>
               <div class="bg-light rounded-lg px-4 py-3 flex items-center gap-2 overflow-hidden">
                 <div class="size-5 shrink-0 bg-subtle-text"
@@ -84,7 +84,7 @@
             </div>
 
             <!-- Data -->
-            <div class="flex-1 flex flex-col gap-[3px]">
+            <div class="flex flex-col gap-[3px]">
               <label class="font-sans text-small text-text">Data</label>
               <div class="bg-light rounded-lg px-4 py-3 flex items-center gap-2 overflow-hidden">
                 <div class="size-5 shrink-0 bg-subtle-text"
@@ -96,7 +96,7 @@
             </div>
 
             <!-- Passageiros -->
-            <div class="flex-1 flex flex-col gap-[3px]">
+            <div class="flex flex-col gap-[3px]">
               <label class="font-sans text-small text-text">Passageiros</label>
               <div class="bg-light rounded-lg px-4 py-3 flex items-center gap-2 overflow-hidden">
                 <div class="size-5 shrink-0 bg-subtle-text"
@@ -105,12 +105,12 @@
                 <div class="flex items-center gap-1">
                   <button (click)="decrementPassageiros()"
                           [disabled]="passageiros <= 1"
-                          class="size-6 rounded-full flex items-center justify-center text-subtle-text hover:bg-white/60 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed font-bold text-[16px] leading-none">
+                          class="size-8 md:size-6 rounded-full flex items-center justify-center text-subtle-text hover:bg-white/60 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed font-bold text-[16px] leading-none">
                     −
                   </button>
                   <button (click)="incrementPassageiros()"
                           [disabled]="passageiros >= 5"
-                          class="size-6 rounded-full flex items-center justify-center text-subtle-text hover:bg-white/60 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed font-bold text-[16px] leading-none">
+                          class="size-8 md:size-6 rounded-full flex items-center justify-center text-subtle-text hover:bg-white/60 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed font-bold text-[16px] leading-none">
                     +
                   </button>
                 </div>
@@ -119,7 +119,7 @@
           </div>
 
           <!-- Search Button -->
-          <div class="w-[330px] rounded-lg shadow-primary">
+          <div class="w-full lg:w-[330px] rounded-lg shadow-primary">
             <app-buttons variant="primary" [fullWidth]="true" class="block">
               BUSCAR
               <div class="size-5 bg-light shrink-0"
@@ -140,86 +140,56 @@
     </div>
   </div>
 
-  <!-- Content Area (solid white background) -->
-  <div class="w-full bg-white flex flex-col gap-[50px] items-center pt-[30px] pb-[20px]">
+  <!-- Content Area -->
+  <div class="w-full bg-white flex flex-col gap-8 lg:gap-[50px] items-center pt-[30px] pb-[20px]">
 
-  <!-- Trips Section -->
-  <div class="flex gap-[50px] items-start justify-center w-full">
+    <!-- Trips Section -->
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-[50px] items-start justify-center w-full">
 
-    <!-- Left: Viagens Agendadas -->
-    <div class="flex-1 flex flex-col gap-[10px]">
-      <!-- Header -->
-      <div class="flex items-end justify-between w-full">
-        <span class="font-sans text-header-3 text-text">Viagens Agendadas</span>
-        <a class="font-sans text-[16px] font-normal text-primary underline cursor-pointer hover:opacity-70 transition-opacity">Ver todas</a>
-      </div>
-
-      <!-- Trip Cards -->
-      <div *ngFor="let trip of scheduledTrips"
-           class="bg-light flex gap-[10px] items-center p-[10px] rounded-[24px] w-full hover-scale cursor-pointer transition-all">
-        <!-- Date Badge -->
-        <div class="size-[64px] rounded-[18px] flex flex-col items-center justify-center shrink-0 overflow-hidden font-sans font-bold"
-             [ngClass]="trip.isFirst ? 'bg-secondary text-white' : 'bg-white text-subtle-text'">
-          <span class="text-[10px] uppercase tracking-[0.3px]">{{ trip.month }}</span>
-          <span class="text-header-3">{{ trip.day }}</span>
+      <!-- Left: Viagens Agendadas -->
+      <div class="flex-1 w-full flex flex-col gap-[10px]">
+        <!-- Header -->
+        <div class="flex items-end justify-between w-full">
+          <span class="font-sans text-header-3 text-text">Viagens Agendadas</span>
+          <a *ngIf="!isLoading && scheduledTrips.length > 0"
+             class="font-sans text-[14px] md:text-[16px] font-normal text-primary underline cursor-pointer hover:opacity-70 transition-opacity">Ver todas</a>
         </div>
 
-        <!-- Trip Info -->
-        <div class="flex-1 flex items-start justify-between min-w-0">
-          <div class="flex flex-col gap-[5px]">
-            <!-- Route + Price Row -->
-            <div class="flex items-center gap-[10px]">
-              <div class="flex gap-[5px] items-center">
-                <span class="font-sans text-bold text-text">{{ trip.origin }}</span>
-                <div class="size-6 shrink-0 bg-text"
-                     style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
-                <span class="font-sans text-bold text-text">{{ trip.destination }}</span>
-              </div>
-              <div class="flex gap-[5px] items-center">
-                <div class="size-6 shrink-0 bg-text"
-                     style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
-                <span class="font-sans text-small text-text">{{ trip.price }}</span>
-              </div>
+        <!-- Loading Skeletons -->
+        <ng-container *ngIf="isLoading">
+          <div *ngFor="let _ of [1,2,3]"
+               class="bg-light flex gap-[10px] items-center p-[10px] rounded-[24px] w-full">
+            <app-skeleton width="64px" height="64px" rounded="18px"></app-skeleton>
+            <div class="flex-1 flex flex-col gap-[5px]">
+              <app-skeleton height="18px" width="70%"></app-skeleton>
+              <app-skeleton height="14px" width="45%"></app-skeleton>
             </div>
-            <!-- Time + Vehicle Row -->
-            <div class="flex gap-[25px] items-center">
-              <div class="flex gap-1 items-center">
-                <div class="size-6 shrink-0 bg-subtle-text"
-                     style="-webkit-mask: url(assets/icons/clock.svg) no-repeat center / contain; mask: url(assets/icons/clock.svg) no-repeat center / contain;"></div>
-                <span class="font-sans text-small text-subtle-text">{{ trip.time }}</span>
-              </div>
-              <div class="flex gap-1 items-center">
-                <div class="size-6 shrink-0 bg-subtle-text"
-                     style="-webkit-mask: url(assets/icons/bus.svg) no-repeat center / contain; mask: url(assets/icons/bus.svg) no-repeat center / contain;"></div>
-                <span class="font-sans text-small text-subtle-text">{{ trip.vehicle }}</span>
-              </div>
+            <div class="hidden md:flex flex-col gap-[5px] items-end">
+              <app-skeleton width="90px" height="26px" rounded="18px"></app-skeleton>
+              <app-skeleton width="55px" height="16px"></app-skeleton>
             </div>
           </div>
+        </ng-container>
 
-          <!-- Status + Details -->
-          <div class="flex flex-col gap-[5px] items-end shrink-0">
-            <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
-            <a class="font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && scheduledTrips.length === 0"
+             class="flex flex-col items-center justify-center gap-4 py-16 rounded-[24px] bg-light/50 animate-fade-in">
+          <div class="size-16 bg-accent"
+               style="-webkit-mask: url(assets/icons/airplane-square.svg) no-repeat center / contain; mask: url(assets/icons/airplane-square.svg) no-repeat center / contain;"></div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="font-sans text-bold text-text">Nenhuma viagem agendada</span>
+            <span class="font-sans text-small text-subtle-text text-center">Busque uma viagem acima e comece a explorar!</span>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Right: Viagens Anteriores -->
-    <div class="w-[500px] max-w-[600px] shrink-0 flex flex-col gap-[25px]">
-      <!-- Header + Trips Container -->
-      <div class="flex flex-col gap-[5px] w-full">
-        <div class="flex items-center justify-between w-full">
-          <span class="font-sans text-header-3 text-text">Viagens anteriores</span>
-          <a class="font-sans text-[16px] font-normal text-primary underline cursor-pointer hover:opacity-70 transition-opacity">Ver todas</a>
-        </div>
-
-        <!-- Past Trips Container -->
-        <div class="bg-light rounded-[24px] p-5 flex flex-col gap-[10px] w-full overflow-hidden">
-          <div *ngFor="let trip of pastTrips"
-               class="bg-white flex gap-[10px] items-center p-[10px] rounded-[24px] w-full cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[2px]">
+        <!-- Trip Cards -->
+        <div *ngIf="!isLoading && scheduledTrips.length > 0"
+             class="flex flex-col gap-[10px] stagger-children">
+          <div *ngFor="let trip of scheduledTrips"
+               class="bg-light flex gap-[10px] items-center p-[10px] rounded-[24px] w-full hover-scale cursor-pointer transition-all animate-fade-in-up opacity-0">
             <!-- Date Badge -->
-            <div class="size-[64px] rounded-[18px] flex flex-col items-center justify-center shrink-0 overflow-hidden font-sans font-bold bg-light text-subtle-text">
+            <div class="size-[64px] rounded-[18px] flex flex-col items-center justify-center shrink-0 overflow-hidden font-sans font-bold"
+                 [ngClass]="trip.isFirst ? 'bg-secondary text-white' : 'bg-white text-subtle-text'">
               <span class="text-[10px] uppercase tracking-[0.3px]">{{ trip.month }}</span>
               <span class="text-header-3">{{ trip.day }}</span>
             </div>
@@ -227,34 +197,119 @@
             <!-- Trip Info -->
             <div class="flex-1 flex items-start justify-between min-w-0">
               <div class="flex flex-col gap-[5px]">
-                <!-- Route -->
-                <div class="flex gap-[5px] items-center">
-                  <span class="font-sans text-bold text-subtle-text">{{ trip.origin }}</span>
-                  <div class="size-6 shrink-0 bg-subtle-text"
-                       style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
-                  <span class="font-sans text-bold text-subtle-text">{{ trip.destination }}</span>
+                <!-- Route + Price Row -->
+                <div class="flex items-center gap-[10px] flex-wrap">
+                  <div class="flex gap-[5px] items-center">
+                    <span class="font-sans text-bold text-text">{{ trip.origin }}</span>
+                    <div class="size-6 shrink-0 bg-text"
+                         style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
+                    <span class="font-sans text-bold text-text">{{ trip.destination }}</span>
+                  </div>
+                  <div class="flex gap-[5px] items-center">
+                    <div class="size-6 shrink-0 bg-text"
+                         style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
+                    <span class="font-sans text-small text-text">{{ trip.price }}</span>
+                  </div>
                 </div>
-                <!-- Price -->
-                <div class="flex gap-[5px] items-center">
-                  <div class="size-6 shrink-0 bg-subtle-text"
-                       style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
-                  <span class="font-sans text-small text-subtle-text">{{ trip.price }}</span>
+                <!-- Time + Vehicle Row (hidden on mobile) -->
+                <div class="hidden md:flex gap-[25px] items-center">
+                  <div class="flex gap-1 items-center">
+                    <div class="size-6 shrink-0 bg-subtle-text"
+                         style="-webkit-mask: url(assets/icons/clock.svg) no-repeat center / contain; mask: url(assets/icons/clock.svg) no-repeat center / contain;"></div>
+                    <span class="font-sans text-small text-subtle-text">{{ trip.time }}</span>
+                  </div>
+                  <div class="flex gap-1 items-center">
+                    <div class="size-6 shrink-0 bg-subtle-text"
+                         style="-webkit-mask: url(assets/icons/bus.svg) no-repeat center / contain; mask: url(assets/icons/bus.svg) no-repeat center / contain;"></div>
+                    <span class="font-sans text-small text-subtle-text">{{ trip.vehicle }}</span>
+                  </div>
                 </div>
               </div>
 
               <!-- Status + Details -->
               <div class="flex flex-col gap-[5px] items-end shrink-0">
                 <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
-                <a class="font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
+                <a class="hidden md:block font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Placeholder boxes removed -->
+      <!-- Right: Viagens Anteriores -->
+      <div class="w-full lg:w-[500px] lg:max-w-[600px] lg:shrink-0 flex flex-col gap-[25px]">
+        <!-- Header + Trips Container -->
+        <div class="flex flex-col gap-[5px] w-full">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-sans text-header-3 text-text">Viagens anteriores</span>
+            <a *ngIf="!isLoading && pastTrips.length > 0"
+               class="font-sans text-[14px] md:text-[16px] font-normal text-primary underline cursor-pointer hover:opacity-70 transition-opacity">Ver todas</a>
+          </div>
+
+          <!-- Loading Skeletons -->
+          <div *ngIf="isLoading"
+               class="bg-light rounded-[24px] p-5 flex flex-col gap-[10px] w-full">
+            <div *ngFor="let _ of [1,2]"
+                 class="bg-white flex gap-[10px] items-center p-[10px] rounded-[24px] w-full">
+              <app-skeleton width="64px" height="64px" rounded="18px"></app-skeleton>
+              <div class="flex-1 flex flex-col gap-[5px]">
+                <app-skeleton height="18px" width="60%"></app-skeleton>
+                <app-skeleton height="14px" width="35%"></app-skeleton>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoading && pastTrips.length === 0"
+               class="flex flex-col items-center justify-center gap-4 py-16 rounded-[24px] bg-light/50 animate-fade-in">
+            <div class="size-16 bg-accent"
+                 style="-webkit-mask: url(assets/icons/history-rounded.svg) no-repeat center / contain; mask: url(assets/icons/history-rounded.svg) no-repeat center / contain;"></div>
+            <div class="flex flex-col items-center gap-1">
+              <span class="font-sans text-bold text-text">Nenhuma viagem anterior</span>
+              <span class="font-sans text-small text-subtle-text text-center">Suas viagens finalizadas aparecerão aqui.</span>
+            </div>
+          </div>
+
+          <!-- Past Trips Container -->
+          <div *ngIf="!isLoading && pastTrips.length > 0"
+               class="bg-light rounded-[24px] p-5 flex flex-col gap-[10px] w-full overflow-hidden animate-fade-in">
+            <div *ngFor="let trip of pastTrips"
+                 class="bg-white flex gap-[10px] items-center p-[10px] rounded-[24px] w-full cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[2px]">
+              <!-- Date Badge -->
+              <div class="size-[64px] rounded-[18px] flex flex-col items-center justify-center shrink-0 overflow-hidden font-sans font-bold bg-light text-subtle-text">
+                <span class="text-[10px] uppercase tracking-[0.3px]">{{ trip.month }}</span>
+                <span class="text-header-3">{{ trip.day }}</span>
+              </div>
+
+              <!-- Trip Info -->
+              <div class="flex-1 flex items-start justify-between min-w-0">
+                <div class="flex flex-col gap-[5px]">
+                  <!-- Route -->
+                  <div class="flex gap-[5px] items-center">
+                    <span class="font-sans text-bold text-subtle-text">{{ trip.origin }}</span>
+                    <div class="size-6 shrink-0 bg-subtle-text"
+                         style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
+                    <span class="font-sans text-bold text-subtle-text">{{ trip.destination }}</span>
+                  </div>
+                  <!-- Price -->
+                  <div class="flex gap-[5px] items-center">
+                    <div class="size-6 shrink-0 bg-subtle-text"
+                         style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
+                    <span class="font-sans text-small text-subtle-text">{{ trip.price }}</span>
+                  </div>
+                </div>
+
+                <!-- Status + Details -->
+                <div class="flex flex-col gap-[5px] items-end shrink-0">
+                  <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
+                  <a class="hidden md:block font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
   </div><!-- /Content Area -->
 </div>

@@ -18,8 +18,42 @@
       <h1 class="font-sans text-header-2 text-white whitespace-nowrap">Próxima Viagem</h1>
     </div>
 
+    <!-- ===== PRÓXIMA VIAGEM - Loading Skeleton ===== -->
+    <div *ngIf="isLoading"
+         class="next-trip-card w-full rounded-[24px] py-6 px-5 flex flex-row gap-5 items-stretch">
+      <app-skeleton width="110px" height="110px" rounded="20px"></app-skeleton>
+      <div class="flex-1 flex flex-col justify-center gap-3">
+        <div class="flex items-center gap-2">
+          <app-skeleton height="32px" width="35%"></app-skeleton>
+          <app-skeleton height="24px" width="24px" rounded="4px"></app-skeleton>
+          <app-skeleton height="32px" width="25%"></app-skeleton>
+        </div>
+        <div class="flex items-center gap-5">
+          <app-skeleton height="16px" width="80px"></app-skeleton>
+          <app-skeleton height="16px" width="130px"></app-skeleton>
+          <app-skeleton height="16px" width="110px"></app-skeleton>
+        </div>
+      </div>
+      <div class="flex flex-col justify-between py-4 items-end gap-2">
+        <app-skeleton width="100px" height="28px" rounded="18px"></app-skeleton>
+        <app-skeleton width="160px" height="48px" rounded="8px"></app-skeleton>
+      </div>
+    </div>
+
+    <!-- ===== PRÓXIMA VIAGEM - Empty State ===== -->
+    <div *ngIf="!isLoading && !nextTrip"
+         class="next-trip-card w-full rounded-[24px] py-12 px-5 flex flex-col items-center gap-4 animate-fade-in">
+      <div class="size-16 bg-white/60"
+           style="-webkit-mask: url(assets/icons/airplane.svg) no-repeat center / contain; mask: url(assets/icons/airplane.svg) no-repeat center / contain;"></div>
+      <div class="flex flex-col items-center gap-1">
+        <span class="font-sans text-bold text-white">Nenhuma viagem próxima</span>
+        <span class="font-sans text-small text-white/70 text-center">Busque uma viagem na página inicial!</span>
+      </div>
+    </div>
+
     <!-- ===== PRÓXIMA VIAGEM (Next Trip Card) ===== -->
-    <div class="next-trip-card w-full rounded-[24px] py-6 px-5 flex flex-row gap-5 items-stretch hover-lift">
+    <div *ngIf="!isLoading && nextTrip"
+         class="next-trip-card w-full rounded-[24px] py-6 px-5 flex flex-row gap-5 items-stretch hover-lift animate-fade-in">
 
       <!-- Left: Date Badge -->
       <div class="w-[110px] h-auto rounded-[20px] flex flex-col items-center justify-center shrink-0 bg-secondary text-white font-sans font-bold self-start my-auto min-h-[110px]">
@@ -81,9 +115,6 @@
             </div>
           </div>
 
-          <!-- Vertical Divider (optional, but good for separation if needed, otherwise gap handles it) -->
-          <!-- <div class="w-[1px] h-8 bg-accent/30"></div> -->
-
           <!-- Share Button -->
           <button (click)="shareTrip(nextTrip)"
             class="size-10 rounded-full  flex items-center justify-center cursor-pointer hover:bg-white/60 transition-all hover:scale-110"
@@ -111,7 +142,7 @@
       <!-- Section Header -->
       <div class="flex items-center justify-between w-full">
         <span class="font-sans text-header-2 text-text">Viagens Agendadas</span>
-        <div class="flex items-center gap-2">
+        <div *ngIf="!isLoading && scheduledTrips.length > 0" class="flex items-center gap-2">
           <button (click)="prevScheduled()"
                   [disabled]="scheduledScrollIndex === 0"
                   [ngClass]="scheduledScrollIndex === 0 ? 'bg-accent' : 'bg-dark'"
@@ -129,89 +160,134 @@
         </div>
       </div>
 
-      <!-- Scheduled Trip Expanded Card -->
-      <div class=" flex flex-col gap-5 w-full" *ngIf="currentScheduledTrip as trip">
-        <!-- Top Row: Date + Trip Info + Status -->
+      <!-- Loading Skeleton -->
+      <div *ngIf="isLoading" class="flex flex-col gap-5 w-full">
         <div class="flex gap-1 items-start">
-          <!-- Date Badge - large number style matching screenshot -->
-          <div class="flex flex-col items-center shrink-0 font-sans font-bold text-subtle-text leading-none bg-white py-3 px-8 rounded-s-[24px] rounded-e-[4px] w-[110px] h-auto">
-            <span class="text-small uppercase tracking-[0.3px]">{{ trip.month }}</span>
-            <span class="text-header-2 leading-none font-bold text-text">{{ trip.day }}</span>
-            <span class="text-small mt-[4px]">{{ trip.time }}</span>
-          </div>
-
-          <!-- Trip Details -->
-          <div class="flex-1 flex flex-col gap-[6px] min-w-0 bg-white p-4 rounded-s-[4px] rounded-e-[24px]">
-            <!-- Route + Status -->
-            <div class="flex items-center justify-between flex-wrap gap-2">
-              <div class="flex items-center gap-2">
-                <span class="text-header-3 text-text">{{ trip.origin }}</span>
-                <div class="size-5 shrink-0 bg-text"
-                     style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
-                <span class="text-header-3 text-text">{{ trip.destination }}</span>
-              </div>
-              <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
+          <app-skeleton width="110px" height="90px" rounded="24px 4px 4px 24px"></app-skeleton>
+          <div class="flex-1 flex flex-col gap-2 bg-white p-4 rounded-[4px_24px_24px_4px]">
+            <div class="flex items-center justify-between">
+              <app-skeleton height="22px" width="65%"></app-skeleton>
+              <app-skeleton width="90px" height="26px" rounded="18px"></app-skeleton>
             </div>
-            <!-- Price + Vehicle -->
-            <div class="flex items-center gap-4 flex-wrap">
-              <div class="flex gap-1 items-center">
-                <div class="size-4 shrink-0 bg-subtle-text"
-                     style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
-                <span class="font-sans text-small text-subtle-text">{{ trip.price }}</span>
-              </div>
-              <div class="flex gap-1 items-center">
-                <div class="size-4 shrink-0 bg-subtle-text"
-                     style="-webkit-mask: url(assets/icons/bus.svg) no-repeat center / contain; mask: url(assets/icons/bus.svg) no-repeat center / contain;"></div>
-                <span class="font-sans text-small text-subtle-text">{{ trip.vehicle }}</span>
-              </div>
-            </div>
-            <!-- Pickup Point -->
-            <div class="flex gap-1 items-center">
-              <div class="size-4 shrink-0 bg-subtle-text"
-                   style="-webkit-mask: url(assets/icons/location.svg) no-repeat center / contain; mask: url(assets/icons/location.svg) no-repeat center / contain;"></div>
-              <span class="font-sans text-small text-subtle-text">{{ trip.pickupPoint }}</span>
-            </div>
+            <app-skeleton height="14px" width="50%"></app-skeleton>
+            <app-skeleton height="14px" width="40%"></app-skeleton>
           </div>
         </div>
-
-        <!-- Divider -->
         <div class="w-full h-[1px] bg-accent/40"></div>
-
-        <!-- Driver Row -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="size-12 rounded-full bg-white flex items-center justify-center shrink-0">
-              <div class="size-6 bg-dark"
-                   style="-webkit-mask: url(assets/icons/user.svg) no-repeat center / contain; mask: url(assets/icons/user.svg) no-repeat center / contain;"></div>
-            </div>
-            <div class="flex flex-col gap-[2px]">
-              <span class="text-medium text-text">{{ trip.driverName }}</span>
-              <a class="text-link-text text-secondary underline cursor-pointer hover:text-secondary/80 transition-colors">{{ trip.driverContact }}</a>
+            <app-skeleton width="48px" height="48px" rounded="50%"></app-skeleton>
+            <div class="flex flex-col gap-1">
+              <app-skeleton height="16px" width="120px"></app-skeleton>
+              <app-skeleton height="14px" width="90px"></app-skeleton>
             </div>
           </div>
-          <div class="flex items-center gap-1">
-            <div class="size-5 shrink-0 bg-text"
-                 style="-webkit-mask: url(assets/icons/star.svg) no-repeat center / contain; mask: url(assets/icons/star.svg) no-repeat center / contain;"></div>
-            <span class="font-sans text-bold text-text">{{ trip.driverRating }}</span>
-          </div>
+          <app-skeleton width="50px" height="18px"></app-skeleton>
         </div>
-
-        <!-- Divider -->
         <div class="w-full h-[1px] bg-accent/40"></div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col gap-3 w-full">
-          <app-buttons variant="secondary" [fullWidth]="true" customClass="!bg-white !hover:bg-accent/80" (click)="openTicketPopup(currentScheduledTrip)">
-            <div class="size-5 bg-secondary shrink-0"
-                 style="-webkit-mask: url(assets/icons/scan-barcode.svg) no-repeat center / contain; mask: url(assets/icons/scan-barcode.svg) no-repeat center / contain;"></div>
-            VER BILHETE
-          </app-buttons>
-          <app-buttons variant="primary" [fullWidth]="true" (click)="openCancelPopup(currentScheduledTrip)">
-            <div class="size-5 bg-white shrink-0"
-                 style="-webkit-mask: url(assets/icons/close.svg) no-repeat center / contain; mask: url(assets/icons/close.svg) no-repeat center / contain;"></div>
-            CANCELAR VIAGEM
-          </app-buttons>
+        <div class="flex flex-col gap-3">
+          <app-skeleton height="48px" width="100%" rounded="8px"></app-skeleton>
+          <app-skeleton height="48px" width="100%" rounded="8px"></app-skeleton>
         </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && scheduledTrips.length === 0"
+           class="flex flex-col items-center justify-center gap-4 py-12 animate-fade-in">
+        <div class="size-16 bg-accent"
+             style="-webkit-mask: url(assets/icons/airplane-square.svg) no-repeat center / contain; mask: url(assets/icons/airplane-square.svg) no-repeat center / contain;"></div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="font-sans text-bold text-text">Nenhuma viagem agendada</span>
+          <span class="font-sans text-small text-subtle-text text-center">Suas próximas viagens aparecerão aqui.</span>
+        </div>
+      </div>
+
+      <!-- Scheduled Trip Expanded Card -->
+      <div *ngIf="!isLoading && scheduledTrips.length > 0"
+           class="flex flex-col gap-5 w-full animate-fade-in">
+        <ng-container *ngIf="currentScheduledTrip as trip">
+          <!-- Top Row: Date + Trip Info + Status -->
+          <div class="flex gap-1 items-start">
+            <!-- Date Badge - large number style matching screenshot -->
+            <div class="flex flex-col items-center shrink-0 font-sans font-bold text-subtle-text leading-none bg-white py-3 px-8 rounded-s-[24px] rounded-e-[4px] w-[110px] h-auto">
+              <span class="text-small uppercase tracking-[0.3px]">{{ trip.month }}</span>
+              <span class="text-header-2 leading-none font-bold text-text">{{ trip.day }}</span>
+              <span class="text-small mt-[4px]">{{ trip.time }}</span>
+            </div>
+
+            <!-- Trip Details -->
+            <div class="flex-1 flex flex-col gap-[6px] min-w-0 bg-white p-4 rounded-s-[4px] rounded-e-[24px]">
+              <!-- Route + Status -->
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-header-3 text-text">{{ trip.origin }}</span>
+                  <div class="size-5 shrink-0 bg-text"
+                       style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
+                  <span class="text-header-3 text-text">{{ trip.destination }}</span>
+                </div>
+                <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
+              </div>
+              <!-- Price + Vehicle -->
+              <div class="flex items-center gap-4 flex-wrap">
+                <div class="flex gap-1 items-center">
+                  <div class="size-4 shrink-0 bg-subtle-text"
+                       style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
+                  <span class="font-sans text-small text-subtle-text">{{ trip.price }}</span>
+                </div>
+                <div class="flex gap-1 items-center">
+                  <div class="size-4 shrink-0 bg-subtle-text"
+                       style="-webkit-mask: url(assets/icons/bus.svg) no-repeat center / contain; mask: url(assets/icons/bus.svg) no-repeat center / contain;"></div>
+                  <span class="font-sans text-small text-subtle-text">{{ trip.vehicle }}</span>
+                </div>
+              </div>
+              <!-- Pickup Point -->
+              <div class="flex gap-1 items-center">
+                <div class="size-4 shrink-0 bg-subtle-text"
+                     style="-webkit-mask: url(assets/icons/location.svg) no-repeat center / contain; mask: url(assets/icons/location.svg) no-repeat center / contain;"></div>
+                <span class="font-sans text-small text-subtle-text">{{ trip.pickupPoint }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="w-full h-[1px] bg-accent/40"></div>
+
+          <!-- Driver Row -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="size-12 rounded-full bg-white flex items-center justify-center shrink-0">
+                <div class="size-6 bg-dark"
+                     style="-webkit-mask: url(assets/icons/user.svg) no-repeat center / contain; mask: url(assets/icons/user.svg) no-repeat center / contain;"></div>
+              </div>
+              <div class="flex flex-col gap-[2px]">
+                <span class="text-medium text-text">{{ trip.driverName }}</span>
+                <a class="text-link-text text-secondary underline cursor-pointer hover:text-secondary/80 transition-colors">{{ trip.driverContact }}</a>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <div class="size-5 shrink-0 bg-text"
+                   style="-webkit-mask: url(assets/icons/star.svg) no-repeat center / contain; mask: url(assets/icons/star.svg) no-repeat center / contain;"></div>
+              <span class="font-sans text-bold text-text">{{ trip.driverRating }}</span>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="w-full h-[1px] bg-accent/40"></div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col gap-3 w-full">
+            <app-buttons variant="secondary" [fullWidth]="true" customClass="!bg-white !hover:bg-accent/80" (click)="openTicketPopup(currentScheduledTrip)">
+              <div class="size-5 bg-secondary shrink-0"
+                   style="-webkit-mask: url(assets/icons/scan-barcode.svg) no-repeat center / contain; mask: url(assets/icons/scan-barcode.svg) no-repeat center / contain;"></div>
+              VER BILHETE
+            </app-buttons>
+            <app-buttons variant="primary" [fullWidth]="true" (click)="openCancelPopup(currentScheduledTrip)">
+              <div class="size-5 bg-white shrink-0"
+                   style="-webkit-mask: url(assets/icons/close.svg) no-repeat center / contain; mask: url(assets/icons/close.svg) no-repeat center / contain;"></div>
+              CANCELAR VIAGEM
+            </app-buttons>
+          </div>
+        </ng-container>
       </div>
     </div>
 
@@ -220,8 +296,41 @@
       <!-- Section Header -->
       <span class="text-header-2 text-text">Viagens anteriores</span>
 
+      <!-- Loading Skeleton -->
+      <div *ngIf="isLoading" class="flex flex-col gap-3 w-full">
+        <div *ngFor="let _ of [1,2,3]"
+             class="bg-white rounded-[18px] overflow-hidden w-full">
+          <div class="flex items-center gap-3 p-3">
+            <app-skeleton width="48px" height="48px" rounded="14px"></app-skeleton>
+            <div class="flex-1 flex flex-col gap-[5px]">
+              <app-skeleton height="18px" width="65%"></app-skeleton>
+              <app-skeleton height="14px" width="40%"></app-skeleton>
+            </div>
+            <div class="flex flex-col gap-1 items-end">
+              <app-skeleton width="80px" height="24px" rounded="18px"></app-skeleton>
+              <app-skeleton width="50px" height="14px"></app-skeleton>
+            </div>
+          </div>
+          <div class="m-2">
+            <app-skeleton height="48px" width="100%" rounded="8px"></app-skeleton>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && pastTrips.length === 0"
+           class="flex flex-col items-center justify-center gap-4 py-12 animate-fade-in">
+        <div class="size-16 bg-accent"
+             style="-webkit-mask: url(assets/icons/history-rounded.svg) no-repeat center / contain; mask: url(assets/icons/history-rounded.svg) no-repeat center / contain;"></div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="font-sans text-bold text-text">Nenhuma viagem anterior</span>
+          <span class="font-sans text-small text-subtle-text text-center">Suas viagens finalizadas aparecerão aqui.</span>
+        </div>
+      </div>
+
       <!-- Past Trips Container -->
-      <div class="flex flex-col gap-3 w-full">
+      <div *ngIf="!isLoading && pastTrips.length > 0"
+           class="flex flex-col gap-3 w-full animate-fade-in">
         <div *ngFor="let trip of pastTrips"
              class="bg-white rounded-[18px] overflow-hidden w-full">
           <!-- Trip Info Row -->

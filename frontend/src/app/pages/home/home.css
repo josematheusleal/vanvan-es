@@ -4,6 +4,12 @@
   min-height: 100%;
 }
 
+/* Counters parent layout padding (p-[20px] pt-[96px]) for full-bleed hero */
+.hero-bleed {
+  margin: -96px -20px 0;
+  width: calc(100% + 40px);
+}
+
 input[type="text"] {
   border: none;
   background: transparent;
@@ -30,7 +36,7 @@ input[type="text"]::placeholder {
   background: rgba(238, 238, 239, 0.3);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(40px);
-  border-radius: 24px;
+  border-radius: inherit;
   z-index: -1;
 }
 
