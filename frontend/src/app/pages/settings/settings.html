@@ -1,12 +1,13 @@
 <div class="flex flex-col min-w-0 flex-1 px-5 justify-start items-start gap-6">
   <div class="flex flex-col w-full justify-start items-start gap-3">
     <div class="flex w-full justify-between items-center gap-5 flex-wrap">
-      <div class="text-[#112B3C] text-[56px] font-google-sans-flex font-bold break-words">Trechos de viagens</div>
+      <div class="text-[#112B3C] text-[56px] font-google-sans-flex font-bold break-words">Viagens</div>
       <div class="flex flex-1 h-[51px] px-5 bg-[#EEEEEF] rounded-full items-center gap-3.5">
         <img src="assets/icons/search-normal.svg" class="w-5 h-5 opacity-70" alt="Buscar">
-        <input type="text" [(ngModel)]="searchQuery" placeholder="Pesquisar por Nome da Rota" class="flex-1 border-none bg-transparent outline-none text-[#646464] text-[20px] font-google-sans-flex font-medium">
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Pesquisar por Motorista ou Cidade" class="flex-1 border-none bg-transparent outline-none text-[#646464] text-[20px] font-google-sans-flex font-medium">
       </div>
     </div>
+
     <div class="flex flex-col w-full drop-shadow-sm">
       <div class="flex flex-col w-full p-5 bg-[#EEEEEF] rounded-t-3xl rounded-b-sm gap-4">
         <div class="flex w-full justify-center items-center gap-3">
@@ -28,46 +29,101 @@
         <div class="flex w-full justify-between items-center">
           <div class="flex gap-12">
             <div class="flex gap-1.5 items-center">
-              <span class="text-[#646464] text-body">Valor estimado da viagem:</span>
+              <span class="text-[#646464] text-body">Valor estimado:</span>
               <img src="assets/icons/dollar-circle.svg" class="w-4 h-4 opacity-70" alt="Valor">
-              <span class="text-[#112B3C] text-body">R${{ estimatedValue | number:'1.2-2' }}</span>
+              <span class="text-[#112B3C] text-body font-bold">R${{ estimatedValue | number:'1.2-2' }}</span>
             </div>
             <div class="flex gap-1.5 items-center">
               <span class="text-[#646464] text-body">Distância:</span>
-              <span class="text-[#112B3C] text-body">{{ distance }}km</span>
+              <span class="text-[#112B3C] text-body font-bold">{{ distance }}km</span>
             </div>
           </div>
-          <div (click)="addJourney()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] shadow-md rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center tracking-wide">
-            adicionar
+          <div (click)="addTrip()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] hover:brightness-110 transition rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center tracking-wide shadow-md">
+            Adicionar Viagem
           </div>
         </div>
       </div>
-      <div class="flex flex-col w-full p-6 bg-[#EEEEEF] rounded-b-3xl gap-2.5">
-        <div class="flex px-10 py-3.5 bg-[#FAFAFA] rounded-xl justify-between items-center font-google-sans-flex font-bold text-[#112B3C] text-[20px]">
-          <div class="flex-1">Nome da rota</div>
-          <div class="flex-1">Origem</div>
-          <div class="flex-1">Destino</div>
-          <div class="w-20 text-right">Ações</div>
+
+      <div class="flex flex-col w-full p-6 bg-[#EEEEEF] rounded-b-3xl gap-2.5 overflow-x-auto">
+        
+        <div class="flex px-4 py-3.5 bg-[#FAFAFA] rounded-xl justify-between items-center font-google-sans-flex font-bold text-[#112B3C] text-[15px] gap-4 min-w-[950px]">
+          <div class="w-[220px]">Motorista</div>
+          <div class="flex-1 min-w-[200px]">Rota e Horário</div>
+          <div class="w-32 text-center">Passageiros</div>
+          <div class="w-28 font-bold">Total (R$)</div>
+          <div class="w-32 text-center">Status</div>
+          <div class="w-16 text-right">Ações</div>
         </div>
-        @for (journey of journeys(); track journey.id) {
-          <div class="flex px-10 py-3.5 justify-between items-center font-google-sans-flex text-[20px] text-[#646464]">
-            <div class="flex-1">{{ journey.name }}</div>
-            <div class="flex-1">{{ journey.origin }}</div>
-            <div class="flex-1">{{ journey.destination }}</div>
-            <div class="w-20 flex justify-end gap-5">
-              <button (click)="openEditModal(journey)">
-                <img src="assets/icons/edit.svg" class="w-6 h-6" />
-              </button>
-              <button (click)="openDeleteModal(journey)">
-                <img src="assets/icons/trash.svg" class="w-6 h-6" />
+
+        @for (trip of trips(); track trip.id) {
+          <div class="flex px-4 py-3 justify-between items-center font-google-sans-flex text-[14px] text-[#646464] gap-4 min-w-[950px] hover:bg-white/50 rounded-lg transition-colors border-b border-[#646464]/10 last:border-0">
+            
+            <div class="w-[220px] flex items-center gap-3">
+              <div class="w-11 h-11 bg-gray-300 rounded-full flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
+                <img src="assets/icons/user-tag.svg" class="w-5 h-5 opacity-50" alt="Sem foto">
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-bold text-[#112B3C] text-[15px] truncate">{{ trip.driverName }}</span>
+                <span class="text-[12px] text-[#646464] truncate">ID: {{ trip.id || 'N/A' }}</span>
+              </div>
+            </div>
+            
+            <div class="flex-1 flex flex-col justify-center min-w-[200px]">
+              <div class="flex items-center gap-2 text-[#112B3C] font-bold text-[15px] truncate">
+                <span class="truncate">{{ trip.departureCity }}</span>
+                <img src="assets/icons/arrow_forward.svg" class="w-4 h-4 opacity-50 shrink-0" alt="Para">
+                <span class="truncate">{{ trip.arrivalCity }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[13px] text-[#646464] mt-0.5">
+                <img src="assets/icons/clock.svg" class="w-3.5 h-3.5 opacity-70" alt="Horário">
+                {{ trip.date | date:'dd/MM/yyyy' }} às {{ trip.time }}
+              </div>
+            </div>
+            
+            <div class="w-32 flex justify-center">
+              <button (click)="openPassengersModal(trip)" class="flex items-center gap-2 px-3 py-1.5 bg-[#FAFAFA] border border-[#D1D1D1] hover:bg-gray-200 rounded-lg text-[#557D96] font-bold text-[13px] transition-colors shadow-sm">
+                <img src="assets/icons/profile-2user.svg" class="w-4 h-4 opacity-80" alt="Passageiros">
+                {{ trip.passengers?.length || 0 }}
               </button>
             </div>
+            
+            <div class="w-28 font-bold text-[#F66B0E] text-[15px]">
+              {{ trip.totalAmount | number:'1.2-2' }}
+            </div>
+            
+            <div class="w-32 flex justify-center">
+              <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm"
+                    [ngClass]="{
+                      'bg-green-100 text-green-700': trip.status === 'CONFIRMED' || trip.status === 'COMPLETED',
+                      'bg-yellow-100 text-yellow-700': trip.status === 'PENDING',
+                      'bg-red-100 text-red-700': trip.status === 'CANCELED',
+                      'bg-gray-200 text-gray-700': !['CONFIRMED', 'COMPLETED', 'PENDING', 'CANCELED'].includes(trip.status)
+                    }">
+                {{ trip.status }}
+              </span>
+            </div>
+            
+            <div class="w-16 flex justify-end gap-3">
+              <button (click)="openEditModal(trip)" class="hover:scale-110 transition-transform">
+                <img src="assets/icons/edit.svg" class="w-5 h-5 opacity-70 hover:opacity-100" alt="Editar" />
+              </button>
+              <button (click)="openDeleteModal(trip)" class="hover:scale-110 transition-transform">
+                <img src="assets/icons/trash.svg" class="w-5 h-5 opacity-70 hover:opacity-100 text-red-500" alt="Excluir" />
+              </button>
+            </div>
+
           </div>
-          <div class="h-px bg-[#646464] opacity-15 w-full mx-10"></div>
+        }
+        
+        @if (trips().length === 0) {
+          <div class="w-full py-8 text-center text-[#646464] font-medium text-[16px]">
+            Nenhuma viagem encontrada.
+          </div>
         }
       </div>
     </div>
   </div>
+
   <div class="flex flex-col w-full gap-3 mt-2.5">
     <div class="text-[#112B3C] text-[36px] font-google-sans-flex font-bold">Tarifas</div>
     <div class="flex flex-col p-6 bg-[#EEEEEF] rounded-3xl gap-4">
@@ -88,7 +144,7 @@
           <img src="assets/icons/dollar-circle.svg" class="w-4 h-4 opacity-70 inline ml-1" alt="Valor">
           <strong class="text-[#112B3C]">R${{ currentRate * 100 | number:'1.2-2' }}</strong>
         </div>
-        <div (click)="saveRate()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] shadow-md rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center">
+        <div (click)="saveRate()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] hover:brightness-110 transition shadow-md rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center">
           Salvar
         </div>
       </div>
@@ -97,42 +153,77 @@
 </div>
 
 @if (showEditModal) {
-<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-  <div class="w-[1178px] p-6 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6">
-    <div class="text-[#112B3C] text-[64px] font-google-sans-flex font-bold">Editar trechos de viagens</div>
-    <div class="flex flex-col w-full gap-5.5">
-      <div class="flex flex-col gap-0.5">
+<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000] p-4">
+  <div class="w-full max-w-[800px] p-8 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6 shadow-2xl">
+    <div class="text-[#112B3C] text-[40px] font-google-sans-flex font-bold">Editar viagem</div>
+    <div class="flex flex-col w-full gap-5">
+      <div class="flex flex-col gap-1">
         <div class="text-[#112B3C] text-sm font-medium">Origem</div>
         <div class="p-3 bg-[#EEEEEF] rounded-lg">
-          <input type="text" [(ngModel)]="selectedJourney.origin" class="w-full border-none bg-transparent outline-none text-[#646464] text-base">
+          <input type="text" [(ngModel)]="selectedTrip.departureCity" class="w-full border-none bg-transparent outline-none text-[#646464] text-base">
         </div>
       </div>
-      <div class="flex flex-col gap-0.5">
+      <div class="flex flex-col gap-1">
         <div class="text-[#112B3C] text-sm font-medium">Destino</div>
         <div class="p-3 bg-[#EEEEEF] rounded-lg">
-          <input type="text" [(ngModel)]="selectedJourney.destination" class="w-full border-none bg-transparent outline-none text-[#646464] text-base">
+          <input type="text" [(ngModel)]="selectedTrip.arrivalCity" class="w-full border-none bg-transparent outline-none text-[#646464] text-base">
         </div>
       </div>
-    </div>
-    <div class="flex justify-end gap-6">
-      <div (click)="closeModals()" class="cursor-pointer p-3.5 px-15 bg-[#EEEEEF] rounded-lg text-[#557D96] font-bold uppercase">Cancelar</div>
-      <div (click)="confirmSaveEdit()" class="cursor-pointer p-3.5 px-15 bg-[#F66B0E] rounded-lg text-[#EEEEEF] font-bold uppercase">Salvar</div>
+      </div>
+    <div class="flex justify-end gap-4 mt-4">
+      <div (click)="closeModals()" class="cursor-pointer p-3.5 px-10 bg-[#EEEEEF] hover:bg-gray-200 transition rounded-lg text-[#557D96] font-bold uppercase">Cancelar</div>
+      <div (click)="confirmSaveEdit()" class="cursor-pointer p-3.5 px-10 bg-[#F66B0E] hover:brightness-110 transition rounded-lg text-white font-bold uppercase shadow-md">Salvar</div>
     </div>
   </div>
 </div>
 }
 
 @if (showDeleteModal) {
-<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-  <div class="w-[1178px] p-6 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6">
-    <div class="text-[#112B3C] text-[64px] font-google-sans-flex font-bold">Excluir trecho de viagem</div>
-    <div class="flex flex-col gap-2.5">
-      <div class="text-[#112B3C] text-[24px] font-bold">Tem certeza que deseja excluir o trecho {{selectedJourney.name}}?</div>
-      <div class="self-start p-2.5 px-6 bg-[#EEEEEF] rounded-xl text-[#F66B0E] text-base font-bold uppercase">Esta ação não poderá ser revertida</div>
+<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000] p-4">
+  <div class="w-full max-w-[800px] p-8 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6 shadow-2xl">
+    <div class="text-[#112B3C] text-[40px] font-google-sans-flex font-bold">Excluir viagem</div>
+    <div class="flex flex-col gap-3">
+      <div class="text-[#112B3C] text-[20px] font-bold">Tem certeza que deseja excluir a viagem de {{selectedTrip.departureCity}} para {{selectedTrip.arrivalCity}}?</div>
+      <div class="self-start p-3 px-6 bg-[#EEEEEF] rounded-xl text-red-500 text-sm font-bold uppercase">Esta ação não poderá ser revertida</div>
     </div>
-    <div class="flex justify-end gap-6">
-      <div (click)="closeModals()" class="cursor-pointer p-3.5 px-15 bg-[#EEEEEF] rounded-lg text-[#557D96] font-bold uppercase">Cancelar</div>
-      <div (click)="confirmDelete()" class="cursor-pointer p-3.5 px-15 bg-[#557D96] rounded-lg text-[#EEEEEF] font-bold uppercase">Excluir</div>
+    <div class="flex justify-end gap-4 mt-4">
+      <div (click)="closeModals()" class="cursor-pointer p-3.5 px-10 bg-[#EEEEEF] hover:bg-gray-200 transition rounded-lg text-[#557D96] font-bold uppercase">Cancelar</div>
+      <div (click)="confirmDelete()" class="cursor-pointer p-3.5 px-10 bg-red-500 hover:bg-red-600 transition rounded-lg text-white font-bold uppercase shadow-md">Excluir</div>
+    </div>
+  </div>
+</div>
+}
+
+@if (showPassengersModal) {
+<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000] p-4">
+  <div class="w-full max-w-[600px] p-8 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6 shadow-2xl">
+    <div class="flex justify-between items-center">
+      <div class="text-[#112B3C] text-[32px] font-google-sans-flex font-bold">Passageiros na Viagem</div>
+      <div class="bg-[#EEEEEF] text-[#557D96] font-bold px-4 py-2 rounded-lg">Total: {{ selectedTripPassengers.length }}</div>
+    </div>
+    
+    <div class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2">
+      @for (passenger of selectedTripPassengers; track passenger.id) {
+        <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-[#EEEEEF]">
+          <div class="w-10 h-10 bg-[#FAFAFA] rounded-full flex justify-center items-center shrink-0">
+             <img src="assets/icons/user-tag.svg" class="w-5 h-5 opacity-50" alt="Avatar">
+          </div>
+          <div class="flex flex-col">
+            <span class="font-bold text-[#112B3C]">{{ passenger.name }}</span>
+            <span class="text-xs text-[#646464]">ID do Passageiro: {{ passenger.id }}</span>
+          </div>
+        </div>
+      }
+
+      @if (selectedTripPassengers.length === 0) {
+        <div class="py-8 text-center text-[#646464] font-medium bg-[#EEEEEF] rounded-xl">
+          Nenhum passageiro registrado nesta viagem.
+        </div>
+      }
+    </div>
+
+    <div class="flex justify-end mt-2">
+      <button (click)="closeModals()" class="px-10 py-3.5 bg-[#EEEEEF] hover:bg-gray-200 transition rounded-lg text-[#557D96] font-bold uppercase">Fechar</button>
     </div>
   </div>
 </div>
