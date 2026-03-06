@@ -6,6 +6,7 @@ import { Buttons } from '../../components/buttons/buttons';
 import { CityService, City } from '../../services/city.service';
 import { Subject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +28,7 @@ export class Home implements OnInit {
   showPartidaDropdown = false;
   showDestinoDropdown = false;
 
+  constructor(private router: Router) {}
   private partidaSearch$ = new Subject<string>();
   private destinoSearch$ = new Subject<string>();
 
@@ -107,5 +109,9 @@ export class Home implements OnInit {
 
   incrementPassageiros(): void {
     if (this.passageiros < 5) this.passageiros++;
+  }
+
+  navigateToSearchTrips() {
+    this.router.navigate(['/buscar-viagens']);
   }
 }

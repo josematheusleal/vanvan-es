@@ -32,6 +32,7 @@ export const routes: Routes = [
       { path: 'home', loadComponent: () => import('./pages/home/home').then(m => m.Home) },
       { path: 'viagens', loadComponent: () => import('./pages/viagens/viagens').then(m => m.Viagens), canActivate: [authGuard] },
       { path: 'motorista', loadComponent: () => import('./pages/motorista-page/motorista-page').then(m => m.MotoristaPage), canActivate: [authGuard, driverApprovedGuard] },
+      { path: 'buscar-viagens', loadComponent: () => import('./pages/search-trips/search-trips').then(m => m.SearchTripsComponent) }
     ]
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
