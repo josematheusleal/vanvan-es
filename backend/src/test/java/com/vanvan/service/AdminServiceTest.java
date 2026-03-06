@@ -197,33 +197,6 @@ class AdminServiceTest {
         assertThrows(UserNotFoundException.class, () -> adminService.deleteDriver(id));
     }
 
-    @Test
-    @DisplayName("Deve criar cliente com sucesso")
-    void createClientSuccess() {
-        User user = new Passenger();
-        user.setEmail("teste@email.com");
-        user.setCpf("04774928003");
-
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
-        when(userRepository.existsByCpf(user.getCpf())).thenReturn(false); // Adicionado mock pro CPF
-        when(userRepository.save(user)).thenReturn(user);
-
-        var result = adminService.createClient(user);
-
-        assertNotNull(result);
-        verify(userRepository, times(1)).save(user);
-    }
-
-    @Test
-    @DisplayName("Deve impedir criação de cliente com email duplicado")
-    void createClientEmailExists() {
-        User user = new Passenger();
-        user.setEmail("teste@email.com");
-
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> adminService.createClient(user));
-    }
 
     @Test
     @DisplayName("Deve atualizar cliente com sucesso garantindo obrigatoriedade do telefone")

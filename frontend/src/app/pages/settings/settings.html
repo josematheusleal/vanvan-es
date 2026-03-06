@@ -1,105 +1,94 @@
-<div style="flex: 1; padding: 0 20px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 24px; display: flex; min-width: 0;">
-  
-  <div style="align-self: stretch; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: flex">
-    <div style="align-self: stretch; justify-content: space-between; align-items: center; gap: 20px; display: flex; flex-wrap: wrap;">
-      <div style="color: #112B3C; font-size: 56px; font-family: 'Google Sans Flex'; font-weight: 700; word-wrap: break-word">Trechos de viagens</div>
-      
-      <div style="flex: 1; max-width: 500px; height: 51px; padding: 0 20px; background: #EEEEEF; border-radius: 46px; display: flex; align-items: center; gap: 14px">
-          <img src="assets/icons/search-normal.svg" style="width: 20px; height: 20px; opacity: 0.7;">
-        <input type="text" [(ngModel)]="searchQuery" placeholder="Pesquisar por Nome da Rota" 
-          style="flex: 1; border: none; background: transparent; outline: none; color: #646464; font-size: 20px; font-family: 'Google Sans Flex'; font-weight: 500;">
+<div class="flex flex-col min-w-0 flex-1 px-5 justify-start items-start gap-6">
+  <div class="flex flex-col w-full justify-start items-start gap-3">
+    <div class="flex w-full justify-between items-center gap-5 flex-wrap">
+      <div class="text-[#112B3C] text-[56px] font-google-sans-flex font-bold break-words">Trechos de viagens</div>
+      <div class="flex flex-1 h-[51px] px-5 bg-[#EEEEEF] rounded-full items-center gap-3.5">
+        <img src="assets/icons/search-normal.svg" class="w-5 h-5 opacity-70" alt="Buscar">
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Pesquisar por Nome da Rota" class="flex-1 border-none bg-transparent outline-none text-[#646464] text-[20px] font-google-sans-flex font-medium">
       </div>
     </div>
-
-    <div style="align-self: stretch; flex-direction: column; display: flex; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.05))">
-      <div style="align-self: stretch; padding: 20px; background: #EEEEEF; border-radius: 24px 24px 4px 4px; display: flex; flex-direction: column; gap: 16px">
-        <div style="align-self: stretch; justify-content: center; align-items: center; gap: 12px; display: flex">
-          
-          <div style="flex: 1; flex-direction: column; gap: 4px; display: flex">
-            <div style="color: #112B3C; font-size: 14px; font-family: 'Google Sans Flex'; font-weight: 500">Origem</div>
-            <div style="padding: 12px 16px; background: #FAFAFA; border-radius: 8px; display: flex; align-items: center; gap: 10px">
-              <img src="assets/icons/plane-take-off.svg" style="width: 24px; height: 24px; opacity: 0.7;">
-              <input type="text" [(ngModel)]="newOrigin" placeholder="Cidade de partida" 
-                style="flex: 1; border: none; background: transparent; outline: none; color: #646464; font-size: 16px; font-family: 'Work Sans'; font-weight: 500;">
+    <div class="flex flex-col w-full drop-shadow-sm">
+      <div class="flex flex-col w-full p-5 bg-[#EEEEEF] rounded-t-3xl rounded-b-sm gap-4">
+        <div class="flex w-full justify-center items-center gap-3">
+          <div class="flex flex-col flex-1 gap-1">
+            <div class="text-[#112B3C] text-sm font-google-sans-flex font-medium">Origem</div>
+            <div class="flex items-center gap-2.5 p-3 bg-[#FAFAFA] rounded-lg">
+              <img src="assets/icons/plane-take-off.svg" class="w-6 h-6 opacity-70" alt="Origem">
+              <input type="text" [(ngModel)]="newOrigin" placeholder="Cidade de partida" class="flex-1 border-none bg-transparent outline-none text-[#646464] text-base font-work-sans font-medium">
             </div>
           </div>
-
-          <div style="flex: 1; flex-direction: column; gap: 4px; display: flex">
-            <div style="color: #112B3C; font-size: 14px; font-family: 'Google Sans Flex'; font-weight: 500">Destino</div>
-            <div style="padding: 12px 16px; background: #FAFAFA; border-radius: 8px; display: flex; align-items: center; gap: 10px">
-              <img src="assets/icons/plane-land.svg" style="width: 24px; height: 24px; opacity: 0.7;">
-              <input type="text" [(ngModel)]="newDestination" placeholder="Cidade de destino" 
-                style="flex: 1; border: none; background: transparent; outline: none; color: #646464; font-size: 16px; font-family: 'Work Sans'; font-weight: 500;">
+          <div class="flex flex-col flex-1 gap-1">
+            <div class="text-[#112B3C] text-sm font-google-sans-flex font-medium">Destino</div>
+            <div class="flex items-center gap-2.5 p-3 bg-[#FAFAFA] rounded-lg">
+              <img src="assets/icons/plane-land.svg" class="w-6 h-6 opacity-70" alt="Destino">
+              <input type="text" [(ngModel)]="newDestination" placeholder="Cidade de destino" class="flex-1 border-none bg-transparent outline-none text-[#646464] text-base font-work-sans font-medium">
             </div>
           </div>
         </div>
-
-        <div style="align-self: stretch; justify-content: space-between; align-items: center; display: flex">
-          <div style="display: flex; gap: 48px">
-            <div style="display: flex; gap: 6px; align-items: center">
-              <span style="color: #646464; font-size: 15px; font-family: 'Work Sans'">Valor estimado da viagem:</span>
-              <img src="assets/icons/dollar-circle.svg" style="width: 18px; height: 18px; opacity: 0.7;">
-              <span style="color: #112B3C; font-size: 15px; font-family: 'Google Sans Flex'; font-weight: 700">R${{ estimatedValue | number:'1.2-2' }}</span>
+        <div class="flex w-full justify-between items-center">
+          <div class="flex gap-12">
+            <div class="flex gap-1.5 items-center">
+              <span class="text-[#646464] text-body">Valor estimado da viagem:</span>
+              <img src="assets/icons/dollar-circle.svg" class="w-4 h-4 opacity-70" alt="Valor">
+              <span class="text-[#112B3C] text-body">R${{ estimatedValue | number:'1.2-2' }}</span>
             </div>
-            <div style="display: flex; gap: 6px; align-items: center">
-              <span style="color: #646464; font-size: 15px; font-family: 'Work Sans'">Distância:</span>
-              <span style="color: #112B3C; font-size: 15px; font-family: 'Google Sans Flex'; font-weight: 700">{{ distance }}km</span>
+            <div class="flex gap-1.5 items-center">
+              <span class="text-[#646464] text-body">Distância:</span>
+              <span class="text-[#112B3C] text-body">{{ distance }}km</span>
             </div>
           </div>
-          <div (click)="addJourney()" style="cursor: pointer; width: 280px; padding: 14px; background: #F66B0E; box-shadow: 0px 4px 10px rgba(246, 107, 14, 0.3); border-radius: 8px; color: #EEEEEF; font-size: 16px; font-family: 'Google Sans Flex'; font-weight: 700; text-transform: uppercase; text-align: center; letter-spacing: 0.5px;">
+          <div (click)="addJourney()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] shadow-md rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center tracking-wide">
             adicionar
           </div>
         </div>
       </div>
-
-      <div style="align-self: stretch; padding: 24px; background: #EEEEEF; border-radius: 4px 4px 24px 24px; display: flex; flex-direction: column; gap: 10px">
-        <div style="padding: 14px 40px; background: #FAFAFA; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-family: 'Google Sans Flex'; font-weight: 700; color: #112B3C; font-size: 20px">
-          <div style="flex: 1">Nome da rota</div>
-          <div style="flex: 1">Origem</div>
-          <div style="flex: 1">Destino</div>
-          <div style="width: 80px; text-align: right">Ações</div>
+      <div class="flex flex-col w-full p-6 bg-[#EEEEEF] rounded-b-3xl gap-2.5">
+        <div class="flex px-10 py-3.5 bg-[#FAFAFA] rounded-xl justify-between items-center font-google-sans-flex font-bold text-[#112B3C] text-[20px]">
+          <div class="flex-1">Nome da rota</div>
+          <div class="flex-1">Origem</div>
+          <div class="flex-1">Destino</div>
+          <div class="w-20 text-right">Ações</div>
         </div>
-
         @for (journey of journeys(); track journey.id) {
-          <div style="padding: 14px 40px; display: flex; justify-content: space-between; align-items: center; font-family: 'Google Sans Flex'; font-size: 20px; color: #646464">
-            <div style="flex: 1">{{ journey.name }}</div>
-            <div style="flex: 1">{{ journey.origin }}</div>
-            <div style="flex: 1">{{ journey.destination }}</div>
-            <div style="width: 80px; display: flex; justify-content: flex-end; gap: 20px">
-              <div (click)="openEditModal(journey)" style="cursor: pointer; width: 24px; height: 24px; background: #646464; mask-image: url('assets/icons/edit.svg'); -webkit-mask-image: url('assets/icons/edit.svg'); mask-size: contain; mask-repeat: no-repeat;"></div>
-              <div (click)="openDeleteModal(journey)" style="cursor: pointer; width: 24px; height: 24px; background: #646464; mask-image: url('assets/icons/trash.svg'); -webkit-mask-image: url('assets/icons/trash.svg'); mask-size: contain; mask-repeat: no-repeat;"></div>
+          <div class="flex px-10 py-3.5 justify-between items-center font-google-sans-flex text-[20px] text-[#646464]">
+            <div class="flex-1">{{ journey.name }}</div>
+            <div class="flex-1">{{ journey.origin }}</div>
+            <div class="flex-1">{{ journey.destination }}</div>
+            <div class="w-20 flex justify-end gap-5">
+              <button (click)="openEditModal(journey)">
+                <img src="assets/icons/edit.svg" class="w-6 h-6" />
+              </button>
+              <button (click)="openDeleteModal(journey)">
+                <img src="assets/icons/trash.svg" class="w-6 h-6" />
+              </button>
             </div>
           </div>
-          <div style="height: 1px; background: #646464; opacity: 0.15; align-self: stretch; margin: 0 40px"></div>
+          <div class="h-px bg-[#646464] opacity-15 w-full mx-10"></div>
         }
       </div>
     </div>
   </div>
-
-  <div style="align-self: stretch; flex-direction: column; gap: 12px; display: flex; margin-top: 10px">
-    <div style="color: #112B3C; font-size: 36px; font-family: 'Google Sans Flex'; font-weight: 700">Tarifas</div>
-    <div style="padding: 24px; background: #EEEEEF; border-radius: 24px; display: flex; flex-direction: column; gap: 16px">
-      <div style="display: flex; justify-content: space-between; align-items: center">
-        <span style="color: #112B3C; font-size: 22px; font-family: 'Google Sans Flex'; font-weight: 700">Valor da tarifa para cada km</span>
-        <div style="display: flex; align-items: center; gap: 8px">
-          <span style="color: #112B3C; font-size: 20px; font-family: 'Google Sans Flex'; font-weight: 700">Valor atual:</span>
-          <img src="assets/icons/dollar-circle.svg" style="width: 18px; height: 18px; opacity: 0.7;">
-          <span style="color: #646464; font-size: 18px; font-weight: 700">R${{ currentRate | number:'1.2-2' }}</span>
+  <div class="flex flex-col w-full gap-3 mt-2.5">
+    <div class="text-[#112B3C] text-[36px] font-google-sans-flex font-bold">Tarifas</div>
+    <div class="flex flex-col p-6 bg-[#EEEEEF] rounded-3xl gap-4">
+      <div class="flex justify-between items-center">
+        <span class="text-[#112B3C] text-[22px] font-google-sans-flex font-bold">Valor da tarifa para cada km</span>
+        <div class="flex items-center gap-2">
+          <span class="text-[#112B3C] text-[20px] font-google-sans-flex font-bold">Valor atual:</span>
+          <img src="assets/icons/dollar-circle.svg" class="w-4 h-4 opacity-70" alt="Valor">
+          <span class="text-[#646464] text-[18px] font-bold">R${{ currentRate | number:'1.2-2' }}</span>
         </div>
       </div>
-      
-      <div style="padding: 12px 16px; background: #FAFAFA; border-radius: 8px; display: flex">
-        <input type="number" [(ngModel)]="newRateValue" placeholder="Valor em reais" 
-          style="flex: 1; border: none; background: transparent; outline: none; color: #646464; font-size: 16px; font-family: 'Work Sans';">
+      <div class="flex p-3 bg-[#FAFAFA] rounded-lg">
+        <input type="number" [(ngModel)]="newRateValue" placeholder="Valor em reais" class="flex-1 border-none bg-transparent outline-none text-[#646464] text-base font-work-sans">
       </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center">
-        <div style="color: #646464; font-size: 16px; font-family: 'Google Sans Flex'">
-          Valor para 100km: 
-          <img src="assets/icons/dollar-circle.svg" style="width: 18px; height: 18px; opacity: 0.7; vertical-align: middle; margin-left: 4px;">
-          <strong style="color: #112B3C">R${{ currentRate * 100 | number:'1.2-2' }}</strong>
+      <div class="flex justify-between items-center">
+        <div class="text-[#646464] text-[16px] font-google-sans-flex">
+          Valor para 100km:
+          <img src="assets/icons/dollar-circle.svg" class="w-4 h-4 opacity-70 inline ml-1" alt="Valor">
+          <strong class="text-[#112B3C]">R${{ currentRate * 100 | number:'1.2-2' }}</strong>
         </div>
-        <div (click)="saveRate()" style="cursor: pointer; width: 280px; padding: 14px; background: #F66B0E; box-shadow: 0px 4px 10px rgba(246, 107, 14, 0.3); border-radius: 8px; color: #EEEEEF; font-size: 16px; font-family: 'Google Sans Flex'; font-weight: 700; text-transform: uppercase; text-align: center">
+        <div (click)="saveRate()" class="cursor-pointer w-[280px] p-3.5 bg-[#F66B0E] shadow-md rounded-lg text-[#EEEEEF] text-[16px] font-google-sans-flex font-bold uppercase text-center">
           Salvar
         </div>
       </div>
@@ -108,47 +97,43 @@
 </div>
 
 @if (showEditModal) {
-<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-    <div style="width: 1178px; padding: 24px 68px; background: #FAFAFA; border-radius: 24px; flex-direction: column; gap: 24px; display: flex">
-        <div style="color: #112B3C; font-size: 64px; font-family: 'Google Sans Flex'; font-weight: 700">Editar trechos de viagens</div>
-        
-        <div style="align-self: stretch; flex-direction: column; gap: 22px; display: flex">
-            <div style="flex-direction: column; gap: 3px; display: flex">
-                <div style="color: #112B3C; font-size: 14px; font-weight: 500">Origem</div>
-                <div style="padding: 12px 16px; background: #EEEEEF; border-radius: 8px;">
-                    <input type="text" [(ngModel)]="selectedJourney.origin" style="width: 100%; border: none; background: transparent; outline: none; color: #646464; font-size: 16px;">
-                </div>
-            </div>
-            <div style="flex-direction: column; gap: 3px; display: flex">
-                <div style="color: #112B3C; font-size: 14px; font-weight: 500">Destino</div>
-                <div style="padding: 12px 16px; background: #EEEEEF; border-radius: 8px;">
-                    <input type="text" [(ngModel)]="selectedJourney.destination" style="width: 100%; border: none; background: transparent; outline: none; color: #646464; font-size: 16px;">
-                </div>
-            </div>
+<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+  <div class="w-[1178px] p-6 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6">
+    <div class="text-[#112B3C] text-[64px] font-google-sans-flex font-bold">Editar trechos de viagens</div>
+    <div class="flex flex-col w-full gap-5.5">
+      <div class="flex flex-col gap-0.5">
+        <div class="text-[#112B3C] text-sm font-medium">Origem</div>
+        <div class="p-3 bg-[#EEEEEF] rounded-lg">
+          <input type="text" [(ngModel)]="selectedJourney.origin" class="w-full border-none bg-transparent outline-none text-[#646464] text-base">
         </div>
-
-        <div style="justify-content: flex-end; gap: 24px; display: flex">
-            <div (click)="closeModals()" style="cursor: pointer; padding: 14px 60px; background: #EEEEEF; border-radius: 8px; color: #557D96; font-weight: 700; text-transform: uppercase">Cancelar</div>
-            <div (click)="confirmSaveEdit()" style="cursor: pointer; padding: 14px 60px; background: #F66B0E; border-radius: 8px; color: #EEEEEF; font-weight: 700; text-transform: uppercase">Salvar</div>
+      </div>
+      <div class="flex flex-col gap-0.5">
+        <div class="text-[#112B3C] text-sm font-medium">Destino</div>
+        <div class="p-3 bg-[#EEEEEF] rounded-lg">
+          <input type="text" [(ngModel)]="selectedJourney.destination" class="w-full border-none bg-transparent outline-none text-[#646464] text-base">
         </div>
+      </div>
     </div>
+    <div class="flex justify-end gap-6">
+      <div (click)="closeModals()" class="cursor-pointer p-3.5 px-15 bg-[#EEEEEF] rounded-lg text-[#557D96] font-bold uppercase">Cancelar</div>
+      <div (click)="confirmSaveEdit()" class="cursor-pointer p-3.5 px-15 bg-[#F66B0E] rounded-lg text-[#EEEEEF] font-bold uppercase">Salvar</div>
+    </div>
+  </div>
 </div>
 }
 
 @if (showDeleteModal) {
-<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-    <div style="width: 1178px; padding: 24px 68px; background: #FAFAFA; border-radius: 24px; flex-direction: column; gap: 24px; display: flex">
-        <div style="color: #112B3C; font-size: 64px; font-family: 'Google Sans Flex'; font-weight: 700">Excluir trecho de viagem</div>
-        
-        <div style="flex-direction: column; gap: 10px; display: flex">
-            <div style="color: #112B3C; font-size: 24px; font-weight: 700">Tem certeza que deseja excluir o trecho {{selectedJourney.name}}?</div>
-            <div style="align-self: flex-start; padding: 9px 24px; background: #EEEEEF; border-radius: 12px; color: #F66B0E; font-size: 16px; font-weight: 700; text-transform: uppercase">Esta ação não poderá ser revertida</div>
-        </div>
-
-        <div style="justify-content: flex-end; gap: 24px; display: flex">
-            <div (click)="closeModals()" style="cursor: pointer; padding: 14px 60px; background: #EEEEEF; border-radius: 8px; color: #557D96; font-weight: 700; text-transform: uppercase">Cancelar</div>
-            <div (click)="confirmDelete()" style="cursor: pointer; padding: 14px 60px; background: #557D96; border-radius: 8px; color: #EEEEEF; font-weight: 700; text-transform: uppercase">Excluir</div>
-        </div>
+<div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+  <div class="w-[1178px] p-6 bg-[#FAFAFA] rounded-3xl flex flex-col gap-6">
+    <div class="text-[#112B3C] text-[64px] font-google-sans-flex font-bold">Excluir trecho de viagem</div>
+    <div class="flex flex-col gap-2.5">
+      <div class="text-[#112B3C] text-[24px] font-bold">Tem certeza que deseja excluir o trecho {{selectedJourney.name}}?</div>
+      <div class="self-start p-2.5 px-6 bg-[#EEEEEF] rounded-xl text-[#F66B0E] text-base font-bold uppercase">Esta ação não poderá ser revertida</div>
     </div>
+    <div class="flex justify-end gap-6">
+      <div (click)="closeModals()" class="cursor-pointer p-3.5 px-15 bg-[#EEEEEF] rounded-lg text-[#557D96] font-bold uppercase">Cancelar</div>
+      <div (click)="confirmDelete()" class="cursor-pointer p-3.5 px-15 bg-[#557D96] rounded-lg text-[#EEEEEF] font-bold uppercase">Excluir</div>
+    </div>
+  </div>
 </div>
 }

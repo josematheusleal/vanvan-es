@@ -29,6 +29,20 @@ export class ClientSidebar implements AfterViewInit {
     return this.currentUrl() === '/motorista';
   });
 
+  isErrorPage = computed(() => {
+    const url = this.currentUrl();
+    return url.includes('forbidden') || url.includes('unauthorized') || !this.isKnownRoute(url);
+  });
+
+  useSecondaryColor = computed(() => {
+    return this.isMotoristaPage() || this.isErrorPage();
+  });
+
+  private isKnownRoute(url: string): boolean {
+    const knownRoutes = ['/home', '/viagens', '/motorista', '/login', '/register', '/admin'];
+    return knownRoutes.some(route => url.startsWith(route)) || url === '/';
+  }
+
   constructor() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

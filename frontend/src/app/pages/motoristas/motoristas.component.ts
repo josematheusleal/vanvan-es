@@ -1,16 +1,19 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { AdminService, DriverAdmin } from '../../services/admin.service';
+import { Component, OnInit, signal, inject } from '@angular/core';
+import { AdminService, DriverAdmin, Vehicle } from '../../services/admin.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MotoristaDeleteComponent } from './components/motorista-delete/motorista-delete.component';
 import { MotoristaAdd } from './components/motorista-add/motorista-add';
 import { MotoristaEditComponent } from './components/motorista-edit/motorista-edit.component';
+import { Tag } from '../../components/tags/tags';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
   selector: 'app-motoristas',
   standalone: true,
-  imports: [CommonModule, FormsModule, MotoristaDeleteComponent, MotoristaAdd, MotoristaEditComponent],
+  imports: [CommonModule, FormsModule, MotoristaDeleteComponent, MotoristaAdd, MotoristaEditComponent, Tag],
   templateUrl: './motoristas.component.html',
 })
 export class MotoristasComponent implements OnInit {
@@ -29,6 +32,14 @@ export class MotoristasComponent implements OnInit {
 
   // --- MOTORISTA SELECIONADO (Para Edição ou Exclusão) ---
   motoristaSelecionado: DriverAdmin | null = null;
+
+  // Details modal
+  showDetailsModal = signal(false);
+  selectedDriver = signal<DriverAdmin | null>(null);
+  selectedVehicles = signal<Vehicle[]>([]);
+  loadingDetails = signal(false);
+
+  private http = inject(HttpClient);
 
   constructor(private adminService: AdminService) { }
 
@@ -107,5 +118,77 @@ export class MotoristasComponent implements OnInit {
     if (sucesso) {
       this.carregarMotoristas();
     }
+  }
+
+  // --- 6. LÓGICA DO MODAL DE DETALHES ---
+  openDetails(motorista: DriverAdmin): void {
+    this.selectedDriver.set(motorista);
+    this.showDetailsModal.set(true);
+    this.loadingDetails.set(true);
+
+    this.adminService.getDriverVehicles(motorista.id).subscribe({
+      next: (vehicles) => {
+        this.selectedVehicles.set(vehicles);
+        this.loadingDetails.set(false);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar veículos:', err);
+        this.selectedVehicles.set([]);
+        this.loadingDetails.set(false);
+      }
+    });
+  }
+
+  closeDetails(): void {
+    this.showDetailsModal.set(false);
+    this.selectedDriver.set(null);
+    this.selectedVehicles.set([]);
+  }
+
+  getVehicleDocumentUrl(vehicleId: string): string {
+    return this.adminService.getVehicleDocument(vehicleId);
+  }
+
+  getVehiclePhotoUrl(vehicleId: string): string {
+    return this.adminService.getVehiclePhoto(vehicleId);
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  shortId(id: string): string {
+    return id.substring(0, 8).toUpperCase();
+  }
+
+  downloadVehicleDocument(vehicleId: string): void {
+    const url = `${environment.apiUrl}/api/vehicles/${vehicleId}/document`;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar documento:', err);
+        alert('Erro ao carregar documento do veículo.');
+      }
+    });
+  }
+
+  downloadVehiclePhoto(vehicleId: string): void {
+    const url = `${environment.apiUrl}/api/vehicles/${vehicleId}/photo`;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar foto:', err);
+        alert('Erro ao carregar foto do veículo.');
+      }
+    });
   }
 }

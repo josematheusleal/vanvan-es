@@ -1,0 +1,29 @@
+<div class="relative flex flex-col items-center justify-center w-full h-screen overflow-hidden" style="background: linear-gradient(-68deg, #b1b1b1 5%, #e9e9e9 98%);">
+  
+  <!-- Sidebar/Navbar -->
+  <div class="absolute top-5 left-5 right-5 z-50">
+    <app-client-sidebar class="w-full block"></app-client-sidebar>
+  </div>
+
+  <!-- Content Container - Van + Card sempre juntos -->
+  <div class="relative flex items-center justify-center z-[5]">
+    <!-- Van Image -->
+    <div class="absolute pointer-events-none w-[1458px] h-[814px] left-[-600px] top-1/2 -translate-y-1/2 z-[1]">
+      <img src="assets/VAN-ERROR.png" alt="Van com erro" class="w-full h-full object-cover" />
+    </div>
+
+    <!-- Error Card -->
+    <div class="relative flex flex-col items-center justify-center gap-6 px-[60px] py-10 rounded-3xl w-[680px] h-[288px] backdrop-blur-[25px] bg-light/60 z-[5]">
+      <div class="flex items-center justify-center gap-6 w-full">
+        <img src="assets/logo/LOGO - VANVAN - SVG.svg" alt="VanVan Logo" class="h-auto w-[120px]" />
+        <h1 class="text-header-1 text-text whitespace-nowrap">Erro 403</h1>
+      </div>
+      <p class="text-header-2 text-subtle-text text-center w-full">Acesso negado</p>
+    </div>
+  </div>
+
+  <!-- Background 403 Text -->
+  <p class="fixed font-bold text-accent whitespace-nowrap select-none pointer-events-none m-0 p-0 leading-[0.75] bottom-0 left-0 w-full text-center z-0" style="font-size: 56vw; transform: translateY(15%);">
+    403
+  </p>
+</div>

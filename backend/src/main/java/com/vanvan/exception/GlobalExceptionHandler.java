@@ -110,4 +110,89 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
+    @ExceptionHandler(VehicleNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVehicleNotFound(VehicleNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(LicensePlateAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleLicensePlateAlreadyExists(LicensePlateAlreadyExistsException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(InvalidDocumentTypeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidDocumentType(InvalidDocumentTypeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InvalidImageTypeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidImageType(InvalidImageTypeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InvalidLicensePlateException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidLicensePlate(InvalidLicensePlateException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(FileSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> handleFileSizeExceeded(FileSizeExceededException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(DocumentRequiredException.class)
+    public ResponseEntity<Map<String, String>> handleDocumentRequired(DocumentRequiredException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(EmptyFileException.class)
+    public ResponseEntity<Map<String, String>> handleEmptyFile(EmptyFileException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<Map<String, String>> handleFileStorage(FileStorageException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(VehiclePhotoNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVehiclePhotoNotFound(VehiclePhotoNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InvalidValueException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidValue(InvalidValueException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put(KEYMAP, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+    }
+
 }

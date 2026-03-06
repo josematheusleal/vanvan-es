@@ -1,10 +1,15 @@
 <div class="w-full flex items-center justify-between relative rounded-[72px] h-[56px] px-2">
     <!-- Logo -->
-    <p class="font-sans text-header-2 relative shrink-0 select-none cursor-pointer h-[56px] flex items-center transition-colors duration-300" 
-       [ngClass]="isMotoristaPage() ? 'text-primary' : 'text-white'"
-       [routerLink]="['/home']">
-        VanVan
-    </p>
+    <a [routerLink]="['/home']" class="flex items-center gap-3 h-[56px] cursor-pointer select-none no-underline">
+        <div class="size-[40px] transition-colors duration-300"
+             [ngClass]="useSecondaryColor() ? 'bg-secondary' : 'bg-white'"
+             style="-webkit-mask: url(assets/logo/LOGO%20-%20VANVAN%20-%20SVG.svg) no-repeat center / contain; mask: url(assets/logo/LOGO%20-%20VANVAN%20-%20SVG.svg) no-repeat center / contain;">
+        </div>
+        <p class="font-sans text-header-2 relative shrink-0 transition-colors duration-300 m-0" 
+           [ngClass]="useSecondaryColor() ? 'text-secondary' : 'text-white'">
+            VanVan
+        </p>
+    </a>
 
     <!-- Center Navigation -->
     <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-[12px] bg-[#FAFAFA]/40 flex gap-[2px] items-center justify-center p-[3px] rounded-[72px]">

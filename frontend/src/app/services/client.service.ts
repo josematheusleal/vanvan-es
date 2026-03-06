@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-
 export interface Cliente {
   id: string;
   name: string;
@@ -36,7 +35,6 @@ export class ClienteService {
       .set('page', page.toString())
       .set('size', size.toString());
       
-    // Assumindo que a rota do seu backend para clientes seja /clients ou /users
     return this.http
       .get<PageResponse<Cliente>>(`${this.API_URL}/clients`, { params })
       .pipe(map(response => response.content));

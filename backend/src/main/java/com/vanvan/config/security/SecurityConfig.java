@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/login",
-                                "/api/auth/register")
+                                "/api/auth/register",
+                                "/api/auth/register-driver")
                         .permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(//para swagger

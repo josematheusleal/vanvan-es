@@ -41,7 +41,7 @@ public class AdminService {
         }
     }
 
-    //metodo que serve para arpovar ou rejeitar um motorista
+    //metodo que serve para aprovar ou rejeitar um motorista
     public DriverAdminResponseDTO updateDriverStatus(UUID driverId, DriverStatusUpdateDTO dto) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new UserNotFoundException(UserRole.DRIVER, driverId));

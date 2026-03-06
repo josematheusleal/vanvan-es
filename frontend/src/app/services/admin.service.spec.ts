@@ -43,9 +43,9 @@ describe('AdminService', () => {
         expect(res).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(req => 
-        req.url === 'http://localhost:8080/api/admin/drivers' && 
-        req.params.has('page') && 
+      const req = httpMock.expectOne(req =>
+        req.url === 'http://localhost:8080/api/admin/drivers' &&
+        req.params.has('page') &&
         req.params.has('size') &&
         !req.params.has('status')
       );
@@ -66,8 +66,8 @@ describe('AdminService', () => {
         expect(res).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(req => 
-        req.url === 'http://localhost:8080/api/admin/drivers' && 
+      const req = httpMock.expectOne(req =>
+        req.url === 'http://localhost:8080/api/admin/drivers' &&
         req.params.get('status') === 'PENDING' &&
         req.params.get('page') === '1' &&
         req.params.get('size') === '20'
@@ -84,6 +84,7 @@ describe('AdminService', () => {
         name: 'Test Driver',
         email: 'driver@test.com',
         phone: '123456789',
+        cpf: '12345678901',
         cnh: '12345678900',
         birthDate: '01/01/1990',
         registrationStatus: 'APPROVED',
@@ -106,6 +107,7 @@ describe('AdminService', () => {
         name: 'Test Driver',
         email: 'driver@test.com',
         phone: '123456789',
+        cpf: '12345678901',
         cnh: '12345678900',
         birthDate: '01/01/1990',
         registrationStatus: 'REJECTED',

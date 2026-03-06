@@ -1,7 +1,7 @@
 <div class="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-center items-center p-4"
      (click)="fechar()">
 
-  <div class="bg-[#FAFAFA] rounded-[24px] w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
+  <div class="bg-[#FAFAFA] rounded-[24px] w-full max-w-[75rem] max-h-[90vh] overflow-y-auto shadow-2xl relative"
        (click)="$event.stopPropagation()">
 
     <div class="p-6 md:p-10 flex flex-col shrink-0">
@@ -124,6 +124,96 @@
                      placeholder="CPF, e-mail, telefone ou chave aleatória"
                      class="w-full bg-transparent text-[#646464] font-medium text-base outline-none placeholder-[#646464]/70">
             </div>
+          </div>
+        </div>
+
+        <!-- Separador -->
+        <div class="border-t border-gray-200 pt-6 mt-2">
+          <h3 class="text-[#112B3C] text-2xl font-bold mb-4">Dados do Veículo</h3>
+        </div>
+
+        <!-- Modelo e Placa do Veículo -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="text-[#112B3C] font-medium text-sm">Modelo do Veículo</label>
+            <div class="bg-[#EEEEEF] rounded-lg p-3">
+              <input type="text"
+                     name="vehicleModelName"
+                     [(ngModel)]="novoMotorista.vehicleModelName"
+                     placeholder="Modelo do veículo - Ano"
+                     class="w-full bg-transparent text-[#646464] font-medium text-base outline-none placeholder-[#646464]/70">
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-[#112B3C] font-medium text-sm">Placa do Veículo</label>
+            <div class="bg-[#EEEEEF] rounded-lg p-3">
+              <input type="text"
+                     name="licensePlate"
+                     [(ngModel)]="novoMotorista.vehicleLicensePlate"
+                     (input)="onLicensePlateInput($event)"
+                     placeholder="ABC1D23 (Mercosul)"
+                     maxlength="7"
+                     class="w-full bg-transparent text-[#646464] font-medium text-base outline-none placeholder-[#646464]/70 uppercase">
+            </div>
+            @if (licensePlateError) {
+              <span class="text-red-500 text-xs ml-1">{{ licensePlateError }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Upload do Documento do Veículo (PDF) -->
+        <div class="flex flex-col gap-2">
+          <label class="text-[#112B3C] font-medium text-sm">Documento do Veículo (PDF) *</label>
+          <div class="relative">
+            <input
+              id="vehicleDocument"
+              name="vehicleDocument"
+              type="file"
+              accept=".pdf,application/pdf"
+              (change)="onDocumentChange($event)"
+              class="hidden"
+            />
+            <label
+              for="vehicleDocument"
+              [class]="vehicleDocument ? 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-[#F66B0E] rounded-lg px-4 py-4 cursor-pointer transition-colors' : 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-gray-300 rounded-lg px-4 py-4 cursor-pointer hover:border-[#F66B0E] transition-colors'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="vehicleDocument ? 'h-6 w-6 text-[#F66B0E]' : 'h-6 w-6 text-gray-400'"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span [class]="vehicleDocument ? 'text-[#112B3C] text-sm font-medium' : 'text-[#646464] text-sm'">
+                {{ vehicleDocumentName || 'Clique para enviar o documento (PDF)' }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Upload da Foto do Veículo (Opcional) -->
+        <div class="flex flex-col gap-2">
+          <label class="text-[#112B3C] font-medium text-sm">Foto do Veículo (opcional)</label>
+          <div class="relative">
+            <input
+              id="vehiclePhoto"
+              name="vehiclePhoto"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png"
+              (change)="onPhotoChange($event)"
+              class="hidden"
+            />
+            <label
+              for="vehiclePhoto"
+              [class]="vehiclePhoto ? 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-[#F66B0E] rounded-lg px-4 py-4 cursor-pointer transition-colors' : 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-gray-300 rounded-lg px-4 py-4 cursor-pointer hover:border-[#F66B0E] transition-colors'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="vehiclePhoto ? 'h-6 w-6 text-[#F66B0E]' : 'h-6 w-6 text-gray-400'"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span [class]="vehiclePhoto ? 'text-[#112B3C] text-sm font-medium' : 'text-[#646464] text-sm'">
+                {{ vehiclePhotoName || 'Clique para enviar a foto (JPG/PNG)' }}
+              </span>
+            </label>
           </div>
         </div>
 

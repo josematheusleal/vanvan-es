@@ -7,7 +7,7 @@
       Aprovar Motoristas
     </h1>
     <div class="flex flex-1 items-center">
-      <div class="flex flex-1 items-center gap-[6px] h-[44px] bg-light rounded-[46px] p-6 py-1 overflow-hidden">
+      <div class="flex flex-1 items-center gap-[6px] h-[51px] bg-light rounded-[46px] p-6 py-1 overflow-hidden">
         <img src="assets/icons/search-normal.svg" alt="Buscar" class="w-6 h-6 opacity-40" />
         <input
           type="text"
@@ -69,11 +69,11 @@
     <div class="bg-light flex flex-col gap-[10px] items-start p-6 rounded-[24px] w-full flex-1 overflow-hidden">
 
       <!-- Table Header -->
-      <div class="bg-white flex items-center px-6 py-[14px] rounded-[12px] w-full shrink-0">
+      <div class="bg-white flex items-center px-6 py-5 rounded-[12px] w-full shrink-0">
         <span class="text-text text-header-3 tracking-narrow flex-[3]">Nome do motorista</span>
-        <span class="text-text text-header-3 tracking-narrow flex-[2] text-center">CNH</span>
+        <span class="text-text text-header-3 tracking-narrow flex-[2] text-center">CNH / CPF</span>
         <span class="text-text text-header-3 tracking-narrow flex-[1.5] text-center">Status</span>
-        <span class="text-text text-header-3 tracking-narrow flex-[2] text-right">{{ activeTab() === 'PENDING' ? 'Ações' : 'Motivo' }}</span>
+        <span class="text-text text-header-3 tracking-narrow flex-[2.5] text-right">{{ activeTab() === 'PENDING' ? 'Ações' : 'Motivo' }}</span>
       </div>
 
       <!-- Loading State -->
@@ -115,10 +115,10 @@
               </div>
             </div>
 
-            <!-- CNH -->
+            <!-- CNH / CPF -->
             <div class="flex flex-col gap-1 justify-center flex-[2] text-center">
               <span class="text-text text-medium leading-tight">{{ driver.cnh }}</span>
-              <span class="text-subtle-text text-[16px] font-medium leading-tight">{{ driver.phone }}</span>
+              <span class="text-subtle-text text-[16px] font-medium leading-tight">{{ driver.cpf }}</span>
             </div>
 
             <!-- Status -->
@@ -132,7 +132,15 @@
 
             <!-- Action Buttons / Rejection Reason -->
             @if (activeTab() === 'PENDING') {
-              <div class="flex gap-3 items-center justify-end flex-[2]">
+              <div class="flex gap-3 items-center justify-end flex-[2.5]">
+                <button
+                  (click)="openDetails(driver)"
+                  class="flex items-center justify-center gap-2 px-4 py-3 bg-light text-text rounded-[8px] cursor-pointer hover:bg-accent/30 transition-colors"
+                  title="Ver detalhes"
+                >
+                  <img src="assets/icons/eye.svg" alt="" class="w-4 h-4" />
+                  <span class="text-button-text uppercase">Detalhes</span>
+                </button>
                 <button
                   (click)="approve(driver)"
                   class="flex items-center justify-center gap-2 px-6 py-3 bg-success text-white rounded-[8px] cursor-pointer hover:bg-success/90 transition-colors"
@@ -142,14 +150,13 @@
                 </button>
                 <button
                   (click)="reject(driver)"
-                  class="flex items-center justify-center gap-2 px-6 py-3 bg-white text-secondary rounded-[8px] cursor-pointer hover:bg-light transition-colors"
-                >
+                  class="flex items-center justify-center gap-2 px-6 py-3 bg-white text-secondary rounded-[8px] cursor-pointer hover:bg-light transition-colors">
                   <img src="assets/icons/close.svg" alt="" class="w-4 h-4" style="filter: invert(43%) sepia(15%) saturate(1100%) hue-rotate(163deg) brightness(95%) contrast(87%);" />
                   <span class="text-button-text uppercase">Rejeitar</span>
                 </button>
               </div>
             } @else {
-              <div class="flex-[2] text-right">
+              <div class="flex-[2.5] text-right">
                 <span class="text-subtle-text text-medium leading-tight" [title]="driver.rejectionReason">
                   {{ driver.rejectionReason || 'Sem motivo informado' }}
                 </span>
@@ -249,3 +256,151 @@
     </div>
   </div>
 }
+
+<!-- Details Modal -->
+@if (showDetailsModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <!-- Backdrop -->
+    <div
+      class="absolute inset-0 bg-black/40 backdrop-blur-[12px]"
+      (click)="closeDetails()"
+    ></div>
+
+    <!-- Modal Card -->
+    <div class="relative bg-white rounded-[24px] w-full max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col z-10 shadow-xl">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-[68px] py-6 border-b border-accent/30">
+        <h2 class="text-text text-header-1 tracking-narrow">Detalhes do Motorista</h2>
+        <button
+          (click)="closeDetails()"
+          class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-light transition-colors cursor-pointer"
+        >
+          <img src="assets/icons/close.svg" alt="Fechar" class="w-6 h-6" />
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="flex flex-col gap-6 px-[68px] py-6 overflow-y-auto">
+        @if (selectedDriver()) {
+          <!-- Driver Info Section -->
+          <div class="flex flex-col gap-4">
+            <h3 class="text-text text-header-2 font-bold">Informações Pessoais</h3>
+            <div class="bg-light rounded-[16px] p-6 flex flex-col gap-4">
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Nome Completo</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.name }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Email</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.email }}</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">CPF</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.cpf }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">CNH</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.cnh }}</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Telefone</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.phone }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Data de Nascimento</span>
+                  <span class="text-text text-medium font-medium">{{ formatDate(selectedDriver()!.birthDate) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vehicle Section -->
+          <div class="flex flex-col gap-4">
+            <h3 class="text-text text-header-2 font-bold">Veículos Cadastrados</h3>
+
+            @if (loadingDetails()) {
+              <div class="flex items-center justify-center py-8">
+                <span class="text-subtle-text text-medium">Carregando veículos...</span>
+              </div>
+            } @else if (selectedVehicles().length === 0) {
+              <div class="flex items-center justify-center py-8">
+                <span class="text-subtle-text text-medium">Nenhum veículo cadastrado</span>
+              </div>
+            } @else {
+              @for (vehicle of selectedVehicles(); track vehicle.id) {
+                <div class="bg-light rounded-[16px] p-6 flex flex-col gap-4">
+                  <!-- Vehicle Info -->
+                  <div class="flex gap-4">
+                    <div class="flex-1">
+                      <span class="text-subtle-text text-small block mb-1">Modelo</span>
+                      <span class="text-text text-medium font-medium">{{ vehicle.modelName }}</span>
+                    </div>
+                    <div class="flex-1">
+                      <span class="text-subtle-text text-small block mb-1">Placa</span>
+                      <span class="text-text text-medium font-medium uppercase">{{ vehicle.licensePlate }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Documents -->
+                  <div class="flex gap-4">
+                    <!-- Document -->
+                    <div class="flex-1">
+                      <span class="text-subtle-text text-small block mb-2">Documento do Veículo</span>
+                      <button
+                        (click)="downloadVehicleDocument(vehicle.id)"
+                        type="button"
+                        class="flex items-center gap-2 px-4 py-3 bg-white rounded-[8px] hover:bg-accent/20 transition-colors cursor-pointer w-full"
+                      >
+                        <img src="assets/icons/scan-barcode.svg" alt="" class="w-5 h-5" />
+                        <span class="text-secondary text-medium font-medium">Visualizar PDF</span>
+                      </button>
+                    </div>
+
+                    <!-- Photo -->
+                    @if (vehicle.photoPath) {
+                      <div class="flex-1">
+                        <span class="text-subtle-text text-small block mb-2">Foto do Veículo</span>
+                        <button
+                          (click)="downloadVehiclePhoto(vehicle.id)"
+                          type="button"
+                          class="flex items-center gap-2 px-4 py-3 bg-white rounded-[8px] hover:bg-accent/20 transition-colors cursor-pointer w-full"
+                        >
+                          <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                          <span class="text-secondary text-medium font-medium">Visualizar Foto</span>
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="flex-1">
+                        <span class="text-subtle-text text-small block mb-2">Foto do Veículo</span>
+                        <div class="flex items-center gap-2 px-4 py-3 bg-white rounded-[8px] opacity-50">
+                          <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                          <span class="text-subtle-text text-medium">Não enviada</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-4 px-[68px] py-6 border-t border-accent/30">
+        <button
+          (click)="closeDetails()"
+          class="flex items-center justify-center px-6 py-4 bg-primary text-white rounded-[8px] cursor-pointer hover:bg-primary/90 transition-colors"
+        >
+          <span class="text-button-text uppercase">Fechar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

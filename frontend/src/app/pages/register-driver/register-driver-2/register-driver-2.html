@@ -1,14 +1,14 @@
 <div class="flex w-full h-screen bg-dark p-[1.25rem] box-border">
 
     <div class="flex flex-col w-full h-full bg-white rounded-[1.5rem] p-4 md:p-8 lg:p-14 overflow-hidden">
-  
+
         <div class="flex items-end justify-between w-full px-4 md:px-8 lg:px-16 pb-4 shrink-0">
           <h1 class="text-text text-header-1 lg:text-title whitespace-nowrap">VanVan</h1>
           <h2 class="text-subtle-text text-header-3 lg:text-header-2 whitespace-nowrap">Cadastro Motorista</h2>
         </div>
-    
+
         <div class="flex flex-col lg:flex-row w-full flex-1 bg-light rounded-3xl lg:rounded-[72px] overflow-hidden">
-    
+
           <div class="w-full lg:flex-1 h-[200px] sm:h-[300px] lg:h-full">
             <img
               class="w-full h-full object-cover"
@@ -16,7 +16,7 @@
               src="assets/login-banner-1.jpg"
             />
           </div>
-    
+
     <div class="flex flex-col flex-1 gap-6 short:gap-6 items-start w-full px-6 py-12 short:py-8 sm:px-10 lg:px-[50px] justify-start overflow-y-auto">
 
             <div class="flex flex-row justify-between items-start self-stretch">
@@ -35,29 +35,12 @@
                 class="w-12 h-12"
               />
               </button>
-            </div>  
-            
-      
-              <form class="flex flex-col gap-4 w-full" (ngSubmit)="finalizarCadastro()">
-      
-                <div class="flex flex-col gap-3 w-full">
-                    
-                  <!-- Birthdate Field -->
-                  <div class="flex flex-col gap-[3px] w-full">
-                    <label for="birthdate" class="text-text text-small">Data de nascimento</label>
-                    <input
-                      id="birthdate"
-                      type="text"
-                      placeholder="dd/mm/aaaa"
-                      [ngModel]="birthdate"
-                      (input)="onBirthdateInput($event)"
-                      name="birthdate"
-                      inputmode="numeric"
-                      maxlength="10"
-                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
+            </div>
 
+
+              <form class="flex flex-col gap-4 w-full" (ngSubmit)="finalizarCadastro()">
+
+                <div class="flex flex-col gap-3 w-full">
                   <!-- CNH Field -->
                   <div class="flex flex-col gap-[3px] w-full">
                     <label for="cnh" class="text-text text-small">CNH</label>
@@ -86,30 +69,93 @@
                     />
                   </div>
 
-                  <div class="flex flex-col gap-[3px] w-full">
-                    <label for="vehicle" class="text-text text-small">Modelo do Veículo</label>
-                    <input
-                      id="vehicle"
-                      name="vehicle"
-                      type="text"
-                      placeholder="Modelo do veículo - Ano"
-                      [(ngModel)]="vehicle"
-                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
+                  <div class="flex flex-col md:flex-row gap-4 w-full">
+                    <div class="flex flex-col gap-[3px] w-full">
+                      <label for="vehicle" class="text-text text-small">Modelo do Veículo</label>
+                      <input
+                        id="vehicle"
+                        name="vehicle"
+                        type="text"
+                        placeholder="Modelo do veículo - Ano"
+                        [(ngModel)]="vehicle"
+                        class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+
+                    <div class="flex flex-col gap-[3px] w-full">
+                      <label for="licensePlate" class="text-text text-small">Placa do Veículo</label>
+                      <input
+                        id="licensePlate"
+                        name="licensePlate"
+                        type="text"
+                        placeholder="ABC1D23 (Mercosul)"
+                        [(ngModel)]="licensePlate"
+                        (input)="onLicensePlateInput($event)"
+                        maxlength="7"
+                        class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary uppercase"
+                      />
+                      @if (licensePlateError) {
+                        <span class="text-red-500 text-xs mt-1">{{ licensePlateError }}</span>
+                      }
+                    </div>
                   </div>
 
+                  <!-- Upload do Documento do Veículo (PDF) -->
                   <div class="flex flex-col gap-[3px] w-full">
-                    <label for="licensePlate" class="text-text text-small">Placa do Veículo</label>
-                    <input
-                      id="licensePlate"
-                      name="licensePlate"
-                      type="text"
-                      placeholder="ABC-1234"
-                      [(ngModel)]="licensePlate"
-                      class="w-full bg-white rounded-lg px-4 py-3 short:py-2 text-body font-['Work_Sans'] text-subtle-text placeholder:text-subtle-text focus:outline-none focus:ring-2 focus:ring-primary uppercase"
-                    />
+                    <label for="vehicleDocument" class="text-text text-small">Documento do Veículo (PDF) *</label>
+                    <div class="relative">
+                      <input
+                        id="vehicleDocument"
+                        name="vehicleDocument"
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        (change)="onDocumentChange($event)"
+                        class="hidden"
+                      />
+                      <label
+                        for="vehicleDocument"
+                        [class]="vehicleDocument ? 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-primary rounded-lg px-4 py-4 cursor-pointer transition-colors' : 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-gray-300 rounded-lg px-4 py-4 cursor-pointer hover:border-primary transition-colors'"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                        [class]="vehicleDocument ? 'h-6 w-6 text-primary' : 'h-6 w-6 text-gray-400'"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <span [class]="vehicleDocument ? 'text-text text-sm' : 'text-subtle-text text-sm'">
+                          {{ vehicleDocumentName || 'Clique para enviar o documento (PDF)' }}
+                        </span>
+                      </label>
+                    </div>
                   </div>
-                  
+
+                  <!-- Upload da Foto do Veículo (Opcional) -->
+                  <div class="flex flex-col gap-[3px] w-full">
+                    <label for="vehiclePhoto" class="text-text text-small">Foto do Veículo (opcional)</label>
+                    <div class="relative">
+                      <input
+                        id="vehiclePhoto"
+                        name="vehiclePhoto"
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png"
+                        (change)="onPhotoChange($event)"
+                        class="hidden"
+                      />
+                      <label
+                        for="vehiclePhoto"
+                        [class]="vehiclePhoto ? 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-primary rounded-lg px-4 py-4 cursor-pointer transition-colors' : 'flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-gray-300 rounded-lg px-4 py-4 cursor-pointer hover:border-primary transition-colors'"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                        [class]="vehiclePhoto ? 'h-6 w-6 text-primary' : 'h-6 w-6 text-gray-400'"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span [class]="vehiclePhoto ? 'text-text text-sm' : 'text-subtle-text text-sm'">
+                          {{ vehiclePhotoName || 'Clique para enviar a foto (JPG/PNG)' }}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
                   <div class="flex flex-col w-full gap-[20px] mt-4">
 
                     <button
@@ -121,10 +167,10 @@
                       <div routerLink="/login" class="text-link-text text-subtle-text text-center underline decoration-solid cursor-pointer">
                         Já tem uma conta? Faça login
                       </div>
-                  </div> 
+                  </div>
 
                 </div> </form>
-            </div> 
-        </div> 
-    </div> 
+            </div>
+        </div>
+    </div>
 </div>

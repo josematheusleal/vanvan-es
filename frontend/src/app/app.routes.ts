@@ -12,18 +12,18 @@ export const routes: Routes = [
   { path: 'register-driver-1', loadComponent: () => import('./pages/register-driver/register-driver-1/register-driver-1').then(m => m.RegisterDriverOne) },
   { path: 'register-driver-2', loadComponent: () => import('./pages/register-driver/register-driver-2/register-driver-2').then(m => m.RegisterDriverTwo) },
   { path: 'buttons', loadComponent: () => import('./pages/button-showcase/button-showcase').then(m => m.ButtonShowcase) },
-  { 
-    path: 'admin', 
+  {
+    path: 'admin',
     component: AdminLayout,
-    canActivate: [authGuard], 
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'relatorios', pathMatch: 'full' },
       { path: 'relatorios', loadComponent: () => import('./pages/relatorios/relatorios').then(m => m.Relatorios) },
       { path: 'motoristas', loadComponent: () => import('./pages/motoristas/motoristas.component').then(m => m.MotoristasComponent)},
       { path: 'clientes', loadComponent: () => import('./pages/clients/clients').then(m => m.ClientsComponent)},
       { path: 'aprovar-motoristas', loadComponent: () => import('./pages/approve-drivers/approve-drivers').then(m => m.ApproveDrivers)},
-      { path: 'configuracoes', loadComponent: () => import('./pages/settings/settings').then(m => m.SettingsComponent)}
-    ] 
+      { path: 'settings', loadComponent: () => import('./pages/settings/settings').then(m => m.SettingsComponent)}
+    ]
   },
   {
     path: '',
@@ -34,5 +34,8 @@ export const routes: Routes = [
       { path: 'motorista', loadComponent: () => import('./pages/motorista-page/motorista-page').then(m => m.MotoristaPage), canActivate: [authGuard, driverApprovedGuard] },
     ]
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' }
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'forbidden', loadComponent: () => import('./pages/forbidden/forbidden').then(m => m.Forbidden) },
+  { path: 'unauthorized', loadComponent: () => import('./pages/unauthorized/unauthorized').then(m => m.Unauthorized) },
+  { path: '**', loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) }
 ];

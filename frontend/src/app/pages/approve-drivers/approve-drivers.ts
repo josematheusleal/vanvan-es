@@ -1,7 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminService, DriverAdmin } from '../../services/admin.service';
+import { AdminService, DriverAdmin, Vehicle } from '../../services/admin.service';
 import { Tag } from '../../components/tags/tags';
+import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 type TabType = 'PENDING' | 'REJECTED';
 
@@ -33,7 +35,16 @@ export class ApproveDrivers implements OnInit {
   rejectReason = '';
   private driverToReject: DriverAdmin | null = null;
 
-  constructor(private adminService: AdminService) {}
+  // Details modal
+  showDetailsModal = signal(false);
+  selectedDriver = signal<DriverAdmin | null>(null);
+  selectedVehicles = signal<Vehicle[]>([]);
+  loadingDetails = signal(false);
+
+  constructor(
+    private adminService: AdminService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.loadDrivers();
@@ -122,5 +133,73 @@ export class ApproveDrivers implements OnInit {
 
   shortId(id: string): string {
     return id.substring(0, 8).toUpperCase();
+  }
+
+  openDetails(driver: DriverAdmin): void {
+    this.selectedDriver.set(driver);
+    this.showDetailsModal.set(true);
+    this.loadingDetails.set(true);
+
+    this.adminService.getDriverVehicles(driver.id).subscribe({
+      next: (vehicles) => {
+        this.selectedVehicles.set(vehicles);
+        this.loadingDetails.set(false);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar veículos:', err);
+        this.selectedVehicles.set([]);
+        this.loadingDetails.set(false);
+      }
+    });
+  }
+
+  closeDetails(): void {
+    this.showDetailsModal.set(false);
+    this.selectedDriver.set(null);
+    this.selectedVehicles.set([]);
+  }
+
+  getVehicleDocumentUrl(vehicleId: string): string {
+    return this.adminService.getVehicleDocument(vehicleId);
+  }
+
+  getVehiclePhotoUrl(vehicleId: string): string {
+    return this.adminService.getVehiclePhoto(vehicleId);
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  downloadVehicleDocument(vehicleId: string): void {
+    const url = `${environment.apiUrl}/api/vehicles/${vehicleId}/document`;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar documento:', err);
+        alert('Erro ao carregar documento do veículo.');
+      }
+    });
+  }
+
+  downloadVehiclePhoto(vehicleId: string): void {
+    const url = `${environment.apiUrl}/api/vehicles/${vehicleId}/photo`;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        // Limpar após um tempo
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar foto:', err);
+        alert('Erro ao carregar foto do veículo.');
+      }
+    });
   }
 }

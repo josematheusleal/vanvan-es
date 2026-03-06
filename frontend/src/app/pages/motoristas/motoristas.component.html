@@ -1,114 +1,103 @@
-<div class="w-full h-full bg-[#FAFAFA] p-5">
+<div class="flex flex-col gap-6 h-full p-5 w-full">
 
-  <div class="flex items-center gap-5 mb-6">
-
+  <div class="flex gap-5 items-center w-full shrink-0">
     <h1 class="text-text text-header-1 tracking-narrow shrink-0">
       Motoristas
     </h1>
-
-    <div class="flex-1 flex items-center gap-6 h-14">
-
-      <div class="flex-1 h-[51px] bg-[#EEEEEF] rounded-full px-6 flex items-center gap-4">
-        <img
-          src="assets/icons/search-normal.svg"
-          class="w-5 h-5 opacity-70"
-        />
-
+    <div class="flex flex-1 items-center gap-4">
+      <div class="flex flex-1 items-center gap-[6px] h-[51px] bg-light rounded-[46px] p-6 py-1 overflow-hidden">
+        <img src="assets/icons/search-normal.svg" alt="Buscar" class="w-6 h-6 opacity-40" />
         <input
           type="text"
           placeholder="Pesquisar por ID ou Nome"
           [(ngModel)]="termoBusca"
           (input)="filtrarMotoristas()"
-          class="bg-transparent outline-none w-full text-[#646464] text-xl"
+          class="flex-1 w-full bg-transparent text-body text-subtle-text font-['Work_Sans'] focus:outline-none placeholder:text-subtle-text placeholder:opacity-70"
         />
       </div>
-
       <button
         (click)="abrirModalAdicionar()"
-        class="w-[45px] h-[45px] bg-[#EEEEEF] rounded-full flex items-center justify-center"
+        class="w-[51px] h-[51px] bg-[#EEEEEF] rounded-full flex items-center justify-center"
       >
         <span class="text-[32px] text-[#646464] leading-none">+</span>
       </button>
-
     </div>
   </div>
 
-  <div class="bg-[#EEEEEF] rounded-3xl p-6 flex flex-col gap-4">
+  <div class="flex flex-1 flex-col gap-[10px] items-end min-h-0 w-full">
+    <div class="bg-light flex flex-col gap-[10px] items-start p-6 rounded-[24px] w-full flex-1 overflow-hidden">
 
-
-    <div
-      class="bg-white rounded-xl px-12 py-4 grid grid-cols-[1fr_2fr_1fr_1fr] items-center"
-    >
-      <span class="text-[#112B3C] text-2xl font-bold">
-        ID
-      </span>
-
-      <span class="text-[#112B3C] text-2xl font-bold">
-        Nome
-      </span>
-
-      <span class="text-[#112B3C] text-2xl font-bold">
-        Status
-      </span>
-
-      <span class="text-[#112B3C] text-2xl font-bold text-center">
-        Ações
-      </span>
-    </div>
-
-    <!-- Estado de carregamento -->
-    <div *ngIf="carregando()" class="flex justify-center items-center py-10">
-      <span class="text-[#646464] text-lg">Carregando motoristas...</span>
-    </div>
-
-    <!-- Estado de erro -->
-    <div *ngIf="erro() && !carregando()" class="flex justify-center items-center py-10">
-      <span class="text-red-500 font-medium text-base">{{ erro() }}</span>
-    </div>
-
-    <!-- Lista vazia -->
-    <div *ngIf="!carregando() && !erro() && motoristasFiltrados().length === 0" class="flex justify-center items-center py-10">
-      <span class="text-[#646464] text-lg">Nenhum motorista encontrado.</span>
-    </div>
-
-    <div
-      *ngFor="let motorista of motoristasFiltrados()"
-      class="px-12 py-4 grid grid-cols-[1fr_2fr_1fr_1fr] items-center border-b border-[#646464]/20"
-    >
-
-      <span class="text-[#646464] text-2xl font-medium truncate w-40 ">
-        {{ motorista.id }}
-      </span>
-
-      <span class="text-[#646464] text-2xl font-medium">
-        {{ motorista.name }}
-      </span>
-
-      <div>
-        <span
-          class="px-4 py-1 rounded-full text-sm font-bold"
-          [ngClass]="{
-            'bg-[#DEF8EE] text-[#4AA785]': motorista.registrationStatus === 'APPROVED',
-            'bg-[#f8f4de] text-[#d4b759]': motorista.registrationStatus === 'PENDING',
-            'bg-[#f8dede] text-[#d45959]': motorista.registrationStatus === 'REJECTED'
-          }"
-        >
-          {{ motorista.registrationStatus === 'APPROVED' ? 'Ativo' : motorista.registrationStatus === 'PENDING' ? 'Aguardando' : 'Recusado' }}
-        </span>
+      <div class="bg-white flex items-center px-6 py-5 rounded-[12px] w-full shrink-0">
+        <span class="text-text text-header-3 tracking-narrow flex-1">Nome do motorista</span>
+        <span class="text-text text-header-3 tracking-narrow flex-1 text-center">CNH / CPF</span>
+        <span class="text-text text-header-3 tracking-narrow flex-1 text-center">Status</span>
+        <span class="text-text text-header-3 tracking-narrow flex-1 text-center">Ações</span>
       </div>
 
-      <div class="flex justify-center gap-8">
-        <button (click)="abrirModalEditar(motorista)">
-          <img src="assets/icons/edit.svg" class="w-6 h-6" />
-        </button>
+      @if (carregando()) {
+        <div class="flex items-center justify-center w-full py-10">
+          <span class="text-subtle-text text-medium">Carregando motoristas...</span>
+        </div>
+      }
 
-        <button (click)="abrirModalExcluir(motorista)">
-          <img src="assets/icons/trash.svg" class="w-6 h-6" />
-        </button>
+      @if (erro() && !carregando()) {
+        <div class="flex items-center justify-center w-full py-10">
+          <span class="text-[#d45959] text-medium">{{ erro() }}</span>
+        </div>
+      }
+
+      @if (!carregando() && !erro() && motoristasFiltrados().length === 0) {
+        <div class="flex items-center justify-center w-full py-10">
+          <span class="text-subtle-text text-medium">Nenhum motorista encontrado.</span>
+        </div>
+      }
+
+      <div class="flex flex-col w-full overflow-y-auto flex-1">
+        @for (motorista of motoristasFiltrados(); track motorista.id) {
+          <div class="flex items-center px-6 py-[14px] w-full">
+            <div class="flex gap-3 items-center flex-1">
+              <div class="bg-white flex items-center p-3 rounded-full shrink-0">
+                <img src="assets/icons/user.svg" alt="Motorista" class="w-7 h-7" />
+              </div>
+              <div class="flex flex-col gap-1 justify-center">
+                <span class="text-text text-medium leading-tight">{{ motorista.name }}</span>
+                <span class="text-subtle-text text-[16px] font-medium leading-tight">ID: {{ shortId(motorista.id) }}</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1 justify-center flex-1 text-center">
+              <span class="text-text text-medium leading-tight">{{ motorista.cnh }}</span>
+              <span class="text-subtle-text text-[16px] font-medium leading-tight">{{ motorista.cpf }}</span>
+            </div>
+
+            <div class="flex-1 flex justify-center">
+              @if (motorista.registrationStatus === 'APPROVED') {
+                <app-tag label="Ativo" variant="success"></app-tag>
+              } @else if (motorista.registrationStatus === 'PENDING') {
+                <app-tag label="Aguardando" variant="warning"></app-tag>
+              } @else {
+                <app-tag label="Recusado" variant="error"></app-tag>
+              }
+            </div>
+
+            <div class="flex-1 flex justify-center gap-8">
+              <button
+                (click)="abrirModalEditar(motorista)"
+              >
+                <img src="assets/icons/edit.svg" alt="" class="w-6 h-6" />
+              </button>
+              <button
+                (click)="abrirModalExcluir(motorista)"
+              >
+                <img src="assets/icons/trash.svg" alt="" class="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full h-[1px] bg-accent/30"></div>
+        }
       </div>
-
     </div>
-
   </div>
 </div>
 
@@ -128,3 +117,138 @@
   [motorista]="motoristaSelecionado"
   (aoFechar)="fecharModalExcluir(true)">
 </app-motorista-delete>
+
+@if (showDetailsModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      class="absolute inset-0 bg-black/40 backdrop-blur-[12px]"
+      (click)="closeDetails()"
+    ></div>
+
+    <div class="relative bg-white rounded-[24px] w-full max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col z-10 shadow-xl">
+      <div class="flex items-center justify-between px-[68px] py-6 border-b border-accent/30">
+        <h2 class="text-text text-header-1 tracking-narrow">Detalhes do Motorista</h2>
+        <button
+          (click)="closeDetails()"
+          class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-light transition-colors cursor-pointer"
+        >
+          <img src="assets/icons/close.svg" alt="Fechar" class="w-6 h-6" />
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-6 px-[68px] py-6 overflow-y-auto">
+        @if (selectedDriver()) {
+          <div class="flex flex-col gap-4">
+            <h3 class="text-text text-header-2 font-bold">Informações Pessoais</h3>
+            <div class="bg-light rounded-[16px] p-6 flex flex-col gap-4">
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Nome Completo</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.name }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Email</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.email }}</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">CPF</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.cpf }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">CNH</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.cnh }}</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Telefone</span>
+                  <span class="text-text text-medium font-medium">{{ selectedDriver()!.phone }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="text-subtle-text text-small block mb-1">Data de Nascimento</span>
+                  <span class="text-text text-medium font-medium">{{ formatDate(selectedDriver()!.birthDate) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <h3 class="text-text text-header-2 font-bold">Veículos Cadastrados</h3>
+
+            @if (loadingDetails()) {
+              <div class="flex items-center justify-center py-8">
+                <span class="text-subtle-text text-medium">Carregando veículos...</span>
+              </div>
+            } @else if (selectedVehicles().length === 0) {
+              <div class="flex items-center justify-center py-8">
+                <span class="text-subtle-text text-medium">Nenhum veículo cadastrado</span>
+              </div>
+            } @else {
+              @for (vehicle of selectedVehicles(); track vehicle.id) {
+                <div class="bg-light rounded-[16px] p-6 flex flex-col gap-4">
+                  <div class="flex gap-4">
+                    <div class="flex-1">
+                      <span class="text-subtle-text text-small block mb-1">Modelo</span>
+                      <span class="text-text text-medium font-medium">{{ vehicle.modelName }}</span>
+                    </div>
+                    <div class="flex-1">
+                      <span class="text-subtle-text text-small block mb-1">Placa</span>
+                      <span class="text-text text-medium font-medium uppercase">{{ vehicle.licensePlate }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex-1">
+                      <span class="text-subtle-text text-small block mb-2">Documento do Veículo</span>
+                      <button
+                        (click)="downloadVehicleDocument(vehicle.id)"
+                        type="button"
+                        class="flex items-center gap-2 px-4 py-3 bg-white rounded-[8px] hover:bg-accent/20 transition-colors cursor-pointer w-full"
+                      >
+                        <img src="assets/icons/scan-barcode.svg" alt="" class="w-5 h-5" />
+                        <span class="text-secondary text-medium font-medium">Visualizar PDF</span>
+                      </button>
+                    </div>
+
+                    @if (vehicle.photoPath) {
+                      <div class="flex-1">
+                        <span class="text-subtle-text text-small block mb-2">Foto do Veículo</span>
+                        <button
+                          (click)="downloadVehiclePhoto(vehicle.id)"
+                          type="button"
+                          class="flex items-center gap-2 px-4 py-3 bg-white rounded-[8px] hover:bg-accent/20 transition-colors cursor-pointer w-full"
+                        >
+                          <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                          <span class="text-secondary text-medium font-medium">Visualizar Foto</span>
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="flex-1">
+                        <span class="text-subtle-text text-small block mb-2">Foto do Veículo</span>
+                        <div class="flex items-center gap-2 px-4 py-3 bg-white rounded-[8px] opacity-50">
+                          <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                          <span class="text-subtle-text text-medium">Não enviada</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <div class="flex justify-end gap-4 px-[68px] py-6 border-t border-accent/30">
+        <button
+          (click)="closeDetails()"
+          class="flex items-center justify-center px-6 py-4 bg-primary text-white rounded-[8px] cursor-pointer hover:bg-primary/90 transition-colors"
+        >
+          <span class="text-button-text uppercase">Fechar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}

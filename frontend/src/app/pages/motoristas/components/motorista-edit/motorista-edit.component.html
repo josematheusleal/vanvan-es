@@ -108,6 +108,80 @@
           </div>
         </div>
 
+        <!-- Veículos Section -->
+        <div class="flex flex-col gap-4 border-t border-gray-200 pt-6 mt-4">
+          <h3 class="text-[#112B3C] text-2xl font-bold">Veículos Cadastrados</h3>
+
+          @if (loadingVehicles()) {
+            <div class="flex items-center justify-center py-8 bg-[#EEEEEF] rounded-lg">
+              <span class="text-[#646464] text-sm">Carregando veículos...</span>
+            </div>
+          } @else if (vehicles().length === 0) {
+            <div class="flex items-center justify-center py-8 bg-[#EEEEEF] rounded-lg">
+              <span class="text-[#646464] text-sm">Nenhum veículo cadastrado</span>
+            </div>
+          } @else {
+            @for (vehicle of vehicles(); track vehicle.id) {
+              <div class="bg-[#EEEEEF] rounded-lg p-5 flex flex-col gap-4">
+                <!-- Vehicle Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[#112B3C] text-xs font-medium ml-1">Modelo</span>
+                    <div class="bg-white rounded-lg px-4 py-3">
+                      <span class="text-[#646464] text-sm font-medium">{{ vehicle.modelName }}</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[#112B3C] text-xs font-medium ml-1">Placa</span>
+                    <div class="bg-white rounded-lg px-4 py-3">
+                      <span class="text-[#646464] text-sm font-medium uppercase">{{ vehicle.licensePlate }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Documents -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Document -->
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[#112B3C] text-xs font-medium ml-1">Documento do Veículo</span>
+                    <button
+                      (click)="downloadVehicleDocument(vehicle.id)"
+                      type="button"
+                      class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg hover:bg-white/80 transition-colors"
+                    >
+                      <img src="assets/icons/scan-barcode.svg" alt="" class="w-5 h-5" />
+                      <span class="text-[#F66B0E] text-sm font-medium">Visualizar PDF</span>
+                    </button>
+                  </div>
+
+                  <!-- Photo -->
+                  @if (vehicle.photoPath) {
+                    <div class="flex flex-col gap-1">
+                      <span class="text-[#112B3C] text-xs font-medium ml-1">Foto do Veículo</span>
+                      <button
+                        (click)="downloadVehiclePhoto(vehicle.id)"
+                        type="button"
+                        class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg hover:bg-white/80 transition-colors"
+                      >
+                        <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                        <span class="text-[#F66B0E] text-sm font-medium">Visualizar Foto</span>
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="flex flex-col gap-1">
+                      <span class="text-[#112B3C] text-xs font-medium ml-1">Foto do Veículo</span>
+                      <div class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg opacity-50">
+                        <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                        <span class="text-[#646464] text-sm">Não enviada</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          }
+        </div>
+
       </div>
 
       <div class="flex gap-4 mt-6 pt-4 border-t border-gray-100 justify-end shrink-0">

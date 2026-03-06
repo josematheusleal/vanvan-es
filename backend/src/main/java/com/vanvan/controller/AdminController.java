@@ -1,5 +1,8 @@
 package com.vanvan.controller;
 
+import com.vanvan.dto.*;
+import com.vanvan.enums.TripStatus;
+import com.vanvan.service.TripService;
 import org.springframework.web.bind.annotation.*;
 import com.vanvan.dto.DriverAdminResponseDTO;
 import com.vanvan.dto.DriverStatusUpdateDTO;
@@ -12,6 +15,10 @@ import com.vanvan.enums.RegistrationStatus;
 import com.vanvan.service.AdminService;
 import com.vanvan.service.PricingService;
 
+import com.vanvan.model.User;
+import com.vanvan.enums.RegistrationStatus;
+import com.vanvan.service.AdminService;
+import com.vanvan.service.VehicleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +39,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private  final PricingService pricingService;
+    private final VehicleService vehicleService;
 
     @SuppressWarnings("DefaultAnnotationParam")
     @GetMapping("/drivers")
@@ -52,6 +62,9 @@ public class AdminController {
             @Valid @RequestBody DriverUpdateDTO dto) {
         return ResponseEntity.ok(adminService.updateDriver(id, dto));
     }
+
+    /*@GetMapping("/viagens/historico")
+    public */
 
     @DeleteMapping("/drivers/{id}")
     public ResponseEntity<String> deleteDriver(@PathVariable UUID id) {
@@ -115,5 +128,22 @@ public class AdminController {
         Pricing updatedPricing = pricingService.updatePricing(dto, admin.getUsername());
         return ResponseEntity.ok(updatedPricing);
     }
+
+    // Endpoints para gerenciar veículos
+    @GetMapping("/vehicles")
+    public ResponseEntity<List<VehicleResponseDTO>> listAllVehicles() {
+        return ResponseEntity.ok(vehicleService.getAllVehicles());
+    }
+
+    @GetMapping("/vehicles/driver/{driverId}")
+    public ResponseEntity<List<VehicleResponseDTO>> listVehiclesByDriver(@PathVariable UUID driverId) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByDriver(driverId));
+    }
+
+    @GetMapping("/vehicles/{vehicleId}")
+    public ResponseEntity<VehicleResponseDTO> getVehicleById(@PathVariable UUID vehicleId) {
+        return ResponseEntity.ok(vehicleService.getVehicleById(vehicleId));
+    }
+
 
 }

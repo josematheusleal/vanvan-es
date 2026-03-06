@@ -1,91 +1,97 @@
-<div class="w-full h-full bg-[#FAFAFA] p-5">
+<div class="flex flex-col gap-6 h-full p-5 w-full">
 
-  <div class="flex items-center gap-8 mb-6">
-
+  <div class="flex gap-5 items-center w-full shrink-0">
     <h1 class="text-text text-header-1 tracking-narrow shrink-0">
-        Clientes
+      Clientes
     </h1>
-
-    <div class="flex-1 flex items-center gap-6">
-
-      <div class="flex-1 h-[51px] bg-[#EEEEEF] rounded-full px-6 flex items-center gap-4">
-        <img
-          src="assets/icons/search-normal.svg"
-          class="w-5 h-5 opacity-70"
-        />
-
+    <div class="flex flex-1 items-center gap-4">
+      <div class="flex flex-1 items-center gap-[6px] h-[51px] bg-light rounded-[46px] p-6 py-1 overflow-hidden">
+        <img src="assets/icons/search-normal.svg" alt="Buscar" class="w-6 h-6 opacity-40" />
         <input
           type="text"
           placeholder="Pesquisar por ID ou Nome"
           [(ngModel)]="termoBusca"
-          (ngModelChange)="filtrarClientes()"
-          class="bg-transparent outline-none w-full text-[#646464] text-xl"
+          (input)="filtrarClientes()"
+          class="flex-1 w-full bg-transparent text-body text-subtle-text font-['Work_Sans'] focus:outline-none placeholder:text-subtle-text placeholder:opacity-70"
         />
       </div>
-
       <button
         (click)="abrirModalAdicionar()"
-        class="w-[45px] h-[45px] bg-[#EEEEEF] rounded-full flex items-center justify-center"
+        class="w-[51px] h-[51px] bg-[#EEEEEF] rounded-full flex items-center justify-center"
       >
         <span class="text-[32px] text-[#646464] leading-none">+</span>
       </button>
-
     </div>
   </div>
 
-  <div class="bg-[#EEEEEF] rounded-3xl p-6 flex flex-col gap-4">
+  <div class="flex flex-1 flex-col gap-[10px] items-end min-h-0 w-full">
+    <div class="bg-light flex flex-col gap-[10px] items-start p-6 rounded-[24px] w-full flex-1 overflow-hidden">
 
-    <div
-      class="bg-white rounded-xl px-12 py-4 grid grid-cols-[1fr_2fr_1fr_1fr] items-center"
-    >
-      <span class="text-[#112B3C] text-2xl font-bold">
-        ID
-      </span>
-
-      <span class="text-[#112B3C] text-2xl font-bold">
-        Nome
-      </span>
-
-      <span class="text-[#112B3C] text-2xl font-bold">
-        Email
-      </span>
-
-      <span class="text-[#112B3C] text-2xl font-bold text-center">
-        Ações
-      </span>
-    </div>
-
-    <div
-      *ngFor="let client of clientesFiltrados()"
-      class="px-12 py-4 grid grid-cols-[1fr_2fr_1fr_1fr] items-center border-b border-[#646464]/20"
-    >
-
-      <span class="text-[#646464] text-2xl font-medium">
-        {{ client.id }}
-      </span>
-
-      <span class="text-[#646464] text-2xl font-medium">
-        {{ client.name }}
-      </span>
-
-      <span class="text-[#646464] text-2xl font-medium">
-        {{ client.email }}
-      </span>
-
-      <div class="flex justify-center gap-8">
-        <button (click)="abrirModalEditar(client)">
-          <img src="assets/icons/edit.svg" class="w-6 h-6" />
-        </button>
-
-        <button (click)="abrirModalExcluir(client)">
-          <img src="assets/icons/trash.svg" class="w-6 h-6" />
-        </button>
+      <div class="bg-white flex items-center px-6 py-5 rounded-[12px] w-full shrink-0">
+        <span class="text-text text-header-3 tracking-narrow flex-1">Nome do cliente</span>
+        <span class="text-text text-header-3 tracking-narrow flex-1 text-center">Identidade/CPF</span>
+        <span class="text-text text-header-3 tracking-narrow flex-1 text-center">Email</span>
+        <span class="text-text text-header-3 tracking-narrow flex-1 text-center">Ações</span>
       </div>
 
+      @if (carregando()) {
+        <div class="flex items-center justify-center w-full py-10">
+          <span class="text-subtle-text text-medium">Carregando clientes...</span>
+        </div>
+      }
+
+      @if (erro() && !carregando()) {
+        <div class="flex items-center justify-center w-full py-10">
+          <span class="text-[#d45959] text-medium">{{ erro() }}</span>
+        </div>
+      }
+
+      @if (!carregando() && !erro() && clientesFiltrados().length === 0) {
+        <div class="flex items-center justify-center w-full py-10">
+          <span class="text-subtle-text text-medium">Nenhum cliente encontrado.</span>
+        </div>
+      }
+
+      <div class="flex flex-col w-full overflow-y-auto flex-1">
+        @for (client of clientesFiltrados(); track client.id) {
+          <div class="flex items-center px-6 py-[14px] w-full">
+            
+            <div class="flex gap-3 items-center flex-1">
+              <div class="bg-white flex items-center p-3 rounded-full shrink-0">
+                <img src="assets/icons/user.svg" alt="Cliente" class="w-7 h-7" />
+              </div>
+              <div class="flex flex-col gap-1 justify-center">
+                <span class="text-text text-medium leading-tight">{{ client.name }}</span>
+                <span class="text-subtle-text text-[16px] font-medium leading-tight">ID: {{ client.id }}</span>
+              </div>
+            </div>
+
+            <div class="flex-1 flex justify-center">
+              <span class="text-text text-medium leading-tight">{{ client.cpf }}</span>
+            </div>
+
+            <div class="flex-1 flex justify-center px-2">
+              <span class="text-text text-medium leading-tight truncate max-w-full" title="{{ client.email }}">
+                {{ client.email }}
+              </span>
+            </div>
+
+            <div class="flex-1 flex justify-center gap-8">
+              <button (click)="abrirModalEditar(client)">
+                <img src="assets/icons/edit.svg" alt="Editar" class="w-6 h-6" />
+              </button>
+              <button (click)="abrirModalExcluir(client)">
+                <img src="assets/icons/trash.svg" alt="Excluir" class="w-6 h-6" />
+              </button>
+            </div>
+            
+          </div>
+
+          <div class="w-full h-[1px] bg-accent/30"></div>
+        }
+      </div>
     </div>
-
   </div>
-
 </div>
 
 @if (modalAdicionarAberto) {
@@ -95,15 +101,15 @@
 }
 
 @if (modalEditarAberto) {
-  <app-cliente-edit 
-    [cliente]="clienteSelecionado" 
+  <app-cliente-edit
+    [cliente]="clienteSelecionado"
     (aoFechar)="fecharModalEditar($event)">
   </app-cliente-edit>
 }
 
 @if (modalExcluirAberto) {
-  <app-cliente-delete 
-    [cliente]="clienteSelecionado" 
+  <app-cliente-delete
+    [cliente]="clienteSelecionado"
     (aoFechar)="fecharModalExcluir($event)">
   </app-cliente-delete>
 }

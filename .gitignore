@@ -46,6 +46,7 @@ libpeerconnection.log
 testem.log
 typings/
 __screenshots__/
+uploads/
 
 # Compiled output
 dist/

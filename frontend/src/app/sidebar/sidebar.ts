@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 export class Sidebar {
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
   isExpanded = signal(false);
   activePage = signal('reports');
 
@@ -43,8 +43,8 @@ export class Sidebar {
       this.router.navigate(['/admin/clientes']);
     } else if (page === 'verification') {
       this.router.navigate(['/admin/aprovar-motoristas']);
-    } else if (page === 'journey-section') {
-      this.router.navigate(['/admin/configuracoes']);
+    } else if (page === 'admin') {
+      this.router.navigate(['/admin/settings']);
     }
   }
 }

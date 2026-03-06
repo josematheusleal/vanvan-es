@@ -23,6 +23,10 @@ public class DriverRegisterRequestDTO extends RegisterDTO {
     @NotBlank // sem mais verificações por ora
     private String pixKey;
 
+    // Campos do veículo
+    private String vehicleModelName;
+    private String vehicleLicensePlate;
+
     public DriverRegisterRequestDTO(String name, String email, String password, String cpf, String phone, String role, LocalDate birthDate, String cnh) {
         super(name, email, password, cpf, phone, role, birthDate);
         this.cnh = cnh;

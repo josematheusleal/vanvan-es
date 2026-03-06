@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { ClienteService } from '../../services/cliente.service';
+import { ClienteService, Cliente } from '../../../services/client.service'; 
 
 @Component({
   selector: 'app-cliente-delete',
@@ -9,41 +9,33 @@ import { CommonModule } from '@angular/common';
   templateUrl: './clients-delete.html',
 })
 export class ClienteDeleteComponent {
-
-  @Input() cliente: any;
+  
+  @Input() cliente: Partial<Cliente> | null = null;
   @Output() aoFechar = new EventEmitter<boolean>();
 
   carregando = false;
 
-  constructor() {}
+  constructor(private clienteService: ClienteService) {}
 
   fechar() {
     this.aoFechar.emit(false);
   }
 
-  excluir() {
-    if (!this.cliente || !this.cliente.id) return;
+  confirmarExclusao() {
+    if (!this.cliente?.id) return;
 
     this.carregando = true;
-    console.log('Excluindo ID:', this.cliente.id);
 
-    // SIMULAÇÃO
-    setTimeout(() => {
-      this.carregando = false;
-      this.aoFechar.emit(true);
-    }, 1000);
-
-    /* CÓDIGO REAL:
-    this.service.excluir(this.cliente.id).subscribe({
+    this.clienteService.excluir(this.cliente.id).subscribe({
       next: () => {
         this.carregando = false;
-        this.aoFechar.emit(true);
+        this.aoFechar.emit(true); // Retorna true para a tabela atualizar
       },
       error: (err) => {
+        console.error('Erro ao excluir cliente:', err);
         this.carregando = false;
-        alert('Erro ao excluir');
+        // Opcional: Mostrar um alerta de erro aqui
       }
     });
-    */
   }
 }

@@ -1,15 +1,13 @@
 package com.vanvan.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.vanvan.enums.RegistrationStatus;
 import com.vanvan.enums.UserRole;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +31,9 @@ public class Driver extends User {
     
     @Column(name = "rejection_reason")
     private String rejectionReason;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vehicle> vehicles = new ArrayList<>();
 
     public Driver(String name, String cpf, String phone, String email, String password, String cnh, String pixKey, LocalDate birthDate) {
         super(name, cpf, phone, email, password, UserRole.DRIVER, birthDate);

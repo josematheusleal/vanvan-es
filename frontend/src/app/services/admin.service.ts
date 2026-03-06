@@ -8,10 +8,20 @@ export interface DriverAdmin {
   name: string;
   email: string;
   phone: string;
+  cpf: string;
   cnh: string;
   birthDate: string;
   registrationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
   rejectionReason: string | null;
+}
+
+export interface Vehicle {
+  id: string;
+  modelName: string;
+  licensePlate: string;
+  documentPath: string;
+  photoPath: string | null;
+  driverId: string;
 }
 
 export interface PageResponse<T> {
@@ -83,7 +93,19 @@ export class AdminService {
   deleteDriver(driverId: string): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/drivers/${driverId}`);
   }
-  
+
+  getDriverVehicles(driverId: string): Observable<Vehicle[]> {
+    return this.http.get<Vehicle[]>(`${this.API_URL}/vehicles/driver/${driverId}`);
+  }
+
+  getVehicleDocument(vehicleId: string): string {
+    return `${environment.apiUrl}/api/vehicles/${vehicleId}/document`;
+  }
+
+  getVehiclePhoto(vehicleId: string): string {
+    return `${environment.apiUrl}/api/vehicles/${vehicleId}/photo`;
+  }
+
 }
 
 

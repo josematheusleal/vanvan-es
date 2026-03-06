@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Input, Output, OnInit, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, DriverAdmin } from '../../../../services/admin.service';
+import { AdminService, DriverAdmin, Vehicle } from '../../../../services/admin.service';
 import { ToastService } from '../../../../components/toast/toast.service';
 import { Toast } from '../../../../components/toast/toast';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-motorista-edit',
@@ -19,6 +21,12 @@ export class MotoristaEditComponent implements OnInit {
   motoristaEditado: any = {};
   carregando = signal(false);
   rejectionReason = '';
+
+  // Vehicle data
+  vehicles = signal<Vehicle[]>([]);
+  loadingVehicles = signal(false);
+
+  private http = inject(HttpClient);
 
   statusOptions: { label: string; value: 'PENDING' | 'APPROVED' | 'REJECTED' }[] = [
     { label: 'Ativo', value: 'APPROVED' },
@@ -38,6 +46,20 @@ export class MotoristaEditComponent implements OnInit {
       if (this.motorista.registrationStatus === 'REJECTED' && this.motorista.rejectionReason) {
         this.rejectionReason = this.motorista.rejectionReason;
       }
+
+      // Carregar veículos do motorista
+      this.loadingVehicles.set(true);
+      this.adminService.getDriverVehicles(this.motorista.id).subscribe({
+        next: (vehicles) => {
+          this.vehicles.set(vehicles);
+          this.loadingVehicles.set(false);
+        },
+        error: (err) => {
+          console.error('Erro ao carregar veículos:', err);
+          this.vehicles.set([]);
+          this.loadingVehicles.set(false);
+        }
+      });
     }
   }
 
@@ -152,6 +174,44 @@ export class MotoristaEditComponent implements OnInit {
         } else {
           this.toastService.error('Erro ao salvar. Verifique os dados e tente novamente.');
         }
+      }
+    });
+  }
+
+  getVehicleDocumentUrl(vehicleId: string): string {
+    return this.adminService.getVehicleDocument(vehicleId);
+  }
+
+  getVehiclePhotoUrl(vehicleId: string): string {
+    return this.adminService.getVehiclePhoto(vehicleId);
+  }
+
+  downloadVehicleDocument(vehicleId: string): void {
+    const url = `${environment.apiUrl}/api/vehicles/${vehicleId}/document`;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar documento:', err);
+        this.toastService.error('Erro ao carregar documento do veículo.');
+      }
+    });
+  }
+
+  downloadVehiclePhoto(vehicleId: string): void {
+    const url = `${environment.apiUrl}/api/vehicles/${vehicleId}/photo`;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar foto:', err);
+        this.toastService.error('Erro ao carregar foto do veículo.');
       }
     });
   }
