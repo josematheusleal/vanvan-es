@@ -222,7 +222,7 @@
               <!-- Status + Details -->
               <div class="flex flex-col gap-[5px] items-end shrink-0">
                 <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
-                <a class="hidden md:block font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
+                <a [routerLink]="['/viagem', trip.id]" class="hidden md:block font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
               </div>
             </div>
           </div>
@@ -295,7 +295,7 @@
                 <!-- Status + Details -->
                 <div class="flex flex-col gap-[5px] items-end shrink-0">
                   <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
-                  <a class="hidden md:block font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
+                  <a [routerLink]="['/viagem', trip.id]" class="hidden md:block font-sans text-[16px] font-normal text-subtle-text underline cursor-pointer hover:text-secondary transition-colors">Detalhes</a>
                 </div>
               </div>
             </div>

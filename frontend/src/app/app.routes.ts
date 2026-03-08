@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { driverApprovedGuard } from './guards/driver-approved.guard';
+import { driverGuard } from './guards/driver.guard';
+import { roleGuard } from './guards/role.guard';
 import { MainLayout } from './layout/main-layout';
 import { AdminLayout } from './layout/admin-layout';
 import { ClientLayout } from './layout/client-layout';
@@ -15,7 +16,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] },
     children: [
       { path: '', redirectTo: 'relatorios', pathMatch: 'full' },
       { path: 'relatorios', loadComponent: () => import('./pages/relatorios/relatorios').then(m => m.Relatorios) },
@@ -31,16 +33,18 @@ export const routes: Routes = [
     children: [
       { path: 'home', loadComponent: () => import('./pages/home/home').then(m => m.Home) },
       { path: 'viagens', loadComponent: () => import('./pages/viagens/viagens').then(m => m.Viagens), canActivate: [authGuard] },
-      { path: 'motorista', loadComponent: () => import('./pages/motorista-page/motorista-page').then(m => m.MotoristaPage), canActivate: [authGuard, driverApprovedGuard] },
-      { path: 'ofertar-viagem', loadComponent: () => import('./pages/ofertar-viagem/ofertar-viagem').then(m => m.OfertarViagem), canActivate: [authGuard, driverApprovedGuard] },
-      { path: 'seu-veiculo', loadComponent: () => import('./pages/seu-veiculo/seu-veiculo').then(m => m.SeuVeiculo), canActivate: [authGuard, driverApprovedGuard] },
-      { path: 'viagens-motorista', loadComponent: () => import('./pages/viagens-motorista/viagens-motorista').then(m => m.ViagensMotorista), canActivate: [authGuard, driverApprovedGuard] },
-      { path: 'ajustar-valores', loadComponent: () => import('./pages/ajustar-valores/ajustar-valores').then(m => m.AjustarValores), canActivate: [authGuard, driverApprovedGuard] },
-      { path: 'faturamento', loadComponent: () => import('./pages/faturamento/faturamento').then(m => m.Faturamento), canActivate: [authGuard, driverApprovedGuard] },
-      { path: 'buscar-viagens', loadComponent: () => import('./pages/search-trips/search-trips').then(m => m.SearchTripsComponent) }
+      { path: 'motorista', loadComponent: () => import('./pages/motorista-page/motorista-page').then(m => m.MotoristaPage), canActivate: [driverGuard] },
+      { path: 'ofertar-viagem', loadComponent: () => import('./pages/ofertar-viagem/ofertar-viagem').then(m => m.OfertarViagem), canActivate: [driverGuard] },
+      { path: 'seu-veiculo', loadComponent: () => import('./pages/seu-veiculo/seu-veiculo').then(m => m.SeuVeiculo), canActivate: [driverGuard] },
+      { path: 'viagens-motorista', loadComponent: () => import('./pages/viagens-motorista/viagens-motorista').then(m => m.ViagensMotorista), canActivate: [driverGuard] },
+      { path: 'ajustar-valores', loadComponent: () => import('./pages/ajustar-valores/ajustar-valores').then(m => m.AjustarValores), canActivate: [driverGuard] },
+      { path: 'faturamento', loadComponent: () => import('./pages/faturamento/faturamento').then(m => m.Faturamento), canActivate: [driverGuard] },
+      { path: 'buscar-viagens', loadComponent: () => import('./pages/search-trips/search-trips').then(m => m.SearchTripsComponent) },
+      { path: 'viagem/:id', loadComponent: () => import('./pages/trip-details/trip-details').then(m => m.TripDetails), canActivate: [authGuard] }
     ]
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'driver-status', loadComponent: () => import('./pages/driver-status/driver-status').then(m => m.DriverStatus), canActivate: [authGuard] },
   { path: 'forbidden', loadComponent: () => import('./pages/forbidden/forbidden').then(m => m.Forbidden) },
   { path: 'unauthorized', loadComponent: () => import('./pages/unauthorized/unauthorized').then(m => m.Unauthorized) },
   { path: '**', loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) }

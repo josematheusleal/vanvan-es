@@ -2,16 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Vehicle } from '../models/vehicle.model';
 
-export interface VehicleResponse {
-  id: string;
-  modelName: string;
-  licensePlate: string;
-  documentPath: string;
-  photoPath: string | null;
-  driverId: string;
-  driverName: string;
-}
+/** @deprecated Use Vehicle from models/vehicle.model.ts directly */
+export type VehicleResponse = Vehicle;
 
 @Injectable({
   providedIn: 'root'

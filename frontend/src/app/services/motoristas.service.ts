@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { PageResponse } from '../models/pagination.model';
 
 // Interface alinhada com DriverAdminResponseDTO do backend
 export interface Motorista {
@@ -14,14 +15,6 @@ export interface Motorista {
   birthDate: string;
   registrationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
   rejectionReason?: string;
-}
-
-interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
 }
 
 @Injectable({

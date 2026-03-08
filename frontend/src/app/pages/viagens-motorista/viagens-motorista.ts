@@ -2,24 +2,7 @@ import { Component, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-
-export interface PastTrip {
-  id: string;
-  origin: string;
-  originLocation: string;
-  originReference: string;
-  destination: string;
-  destinationLocation: string;
-  destinationReference: string;
-  price: string;
-  distance: string;
-  date: string;
-  time: string;
-  passengers: number;
-  status: 'completed' | 'cancelled';
-  vehicleName: string;
-  vehiclePlate: string;
-}
+import { PastTrip } from '../../models/trip.model';
 
 @Component({
   selector: 'app-viagens-motorista',
@@ -164,7 +147,7 @@ export class ViagensMotorista {
       .filter(trip => trip.status === 'completed')
       .reduce((sum, trip) => {
         const value = parseFloat(trip.price.replace('R$', '').replace(',', '.'));
-        return sum + (value * trip.passengers);
+        return sum + (value * (trip.passengers ?? 0));
       }, 0);
     return `R$${total.toFixed(2).replace('.', ',')}`;
   }

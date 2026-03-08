@@ -1,8 +1,9 @@
 <div class="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-center items-center p-4"
-     (click)="fechar()">
+  (click)="fechar()">
 
-  <div class="bg-[#FAFAFA] rounded-[24px] w-full max-w-[75rem] max-h-[90vh] overflow-y-auto shadow-2xl relative scroll-smooth m-4"
-       (click)="$event.stopPropagation()">
+  <div
+    class="bg-[#FAFAFA] rounded-[24px] w-full max-w-[75rem] max-h-[90vh] overflow-y-auto shadow-2xl relative scroll-smooth m-4"
+    (click)="$event.stopPropagation()">
 
     <div class="p-6 md:p-10 flex flex-col transition-all duration-300 gap-6">
 
@@ -24,8 +25,8 @@
           <label class="text-[#112B3C] text-sm font-medium ml-1">Nome completo</label>
           <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
             <input type="text" [(ngModel)]="motoristaEditado.name" name="name" maxlength="120"
-                   placeholder="Digite o nome completo"
-                   class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
+              placeholder="Digite o nome completo"
+              class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
           </div>
         </div>
 
@@ -33,9 +34,8 @@
         <div class="flex flex-col gap-1">
           <label class="text-[#112B3C] text-sm font-medium ml-1">E-mail</label>
           <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-            <input type="email" [(ngModel)]="motoristaEditado.email" name="email"
-                   placeholder="exemplo@email.com"
-                   class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
+            <input type="email" [(ngModel)]="motoristaEditado.email" name="email" placeholder="exemplo@email.com"
+              class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
           </div>
         </div>
 
@@ -44,27 +44,17 @@
           <div class="flex flex-col gap-1">
             <label class="text-[#112B3C] text-sm font-medium ml-1">CPF (11 dígitos)</label>
             <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-              <input type="text"
-                     name="cpf"
-                     [ngModel]="motoristaEditado.cpf"
-                     (input)="onCpfInput($event)"
-                     placeholder="00000000000"
-                     inputmode="numeric"
-                     maxlength="11"
-                     class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
+              <input type="text" name="cpf" [ngModel]="motoristaEditado.cpf" (input)="onCpfInput($event)"
+                placeholder="00000000000" inputmode="numeric" maxlength="11"
+                class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
             </div>
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-[#112B3C] text-sm font-medium ml-1">Telefone</label>
             <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-              <input type="tel"
-                     name="phone"
-                     [ngModel]="motoristaEditado.phone"
-                     (input)="onPhoneInput($event)"
-                     placeholder="(00)00000-0000"
-                     inputmode="numeric"
-                     maxlength="14"
-                     class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
+              <input type="tel" name="phone" [ngModel]="motoristaEditado.phone" (input)="onPhoneInput($event)"
+                placeholder="(00)00000-0000" inputmode="numeric" maxlength="14"
+                class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
             </div>
           </div>
         </div>
@@ -74,22 +64,16 @@
           <div class="flex flex-col gap-1">
             <label class="text-[#112B3C] text-sm font-medium ml-1">CNH (11 dígitos)</label>
             <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-              <input type="text"
-                     name="cnh"
-                     [ngModel]="motoristaEditado.cnh"
-                     (input)="onCnhInput($event)"
-                     placeholder="00000000000"
-                     inputmode="numeric"
-                     maxlength="11"
-                     class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
+              <input type="text" name="cnh" [ngModel]="motoristaEditado.cnh" (input)="onCnhInput($event)"
+                placeholder="00000000000" inputmode="numeric" maxlength="11"
+                class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm">
             </div>
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-[#112B3C] text-sm font-medium ml-1">Status</label>
             <div class="bg-[#EEEEEF] rounded-lg px-4 h-12 flex items-center">
-              <select [(ngModel)]="motoristaEditado.registrationStatus"
-                      name="registrationStatus"
-                      class="w-full bg-transparent outline-none text-[#646464] font-medium">
+              <select [(ngModel)]="motoristaEditado.registrationStatus" name="registrationStatus"
+                class="w-full bg-transparent outline-none text-[#646464] font-medium">
                 <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
               </select>
             </div>
@@ -98,13 +82,12 @@
 
         <!-- Motivo da recusa -->
         <div class="flex flex-col gap-1" *ngIf="motoristaEditado?.registrationStatus === 'REJECTED'">
-          <label class="text-[#112B3C] text-sm font-medium ml-1">Motivo da recusa <span class="text-red-500">*</span></label>
+          <label class="text-[#112B3C] text-sm font-medium ml-1">Motivo da recusa <span
+              class="text-red-500">*</span></label>
           <div class="bg-[#EEEEEF] rounded-lg px-4 py-3">
-            <textarea [(ngModel)]="rejectionReason"
-                      name="rejectionReason"
-                      placeholder="Descreva o motivo da recusa..."
-                      rows="3"
-                      class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm resize-none"></textarea>
+            <textarea [(ngModel)]="rejectionReason" name="rejectionReason" placeholder="Descreva o motivo da recusa..."
+              rows="3"
+              class="w-full bg-transparent outline-none text-[#646464] font-medium placeholder:text-gray-400 placeholder:text-sm resize-none"></textarea>
           </div>
         </div>
 
@@ -113,86 +96,78 @@
           <h3 class="text-[#112B3C] text-2xl font-bold">Veículos Cadastrados</h3>
 
           @if (loadingVehicles()) {
-            <div class="flex items-center justify-center py-8 bg-[#EEEEEF] rounded-lg">
-              <span class="text-[#646464] text-sm">Carregando veículos...</span>
-            </div>
+          <div class="flex items-center justify-center py-8 bg-[#EEEEEF] rounded-lg">
+            <span class="text-[#646464] text-sm">Carregando veículos...</span>
+          </div>
           } @else if (vehicles().length === 0) {
-            <div class="flex items-center justify-center py-8 bg-[#EEEEEF] rounded-lg">
-              <span class="text-[#646464] text-sm">Nenhum veículo cadastrado</span>
-            </div>
+          <div class="flex items-center justify-center py-8 bg-[#EEEEEF] rounded-lg">
+            <span class="text-[#646464] text-sm">Nenhum veículo cadastrado</span>
+          </div>
           } @else {
-            @for (vehicle of vehicles(); track vehicle.id) {
-              <div class="bg-[#EEEEEF] rounded-lg p-5 flex flex-col gap-4">
-                <!-- Vehicle Info -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="flex flex-col gap-1">
-                    <span class="text-[#112B3C] text-xs font-medium ml-1">Modelo</span>
-                    <div class="bg-white rounded-lg px-4 py-3">
-                      <span class="text-[#646464] text-sm font-medium">{{ vehicle.modelName }}</span>
-                    </div>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <span class="text-[#112B3C] text-xs font-medium ml-1">Placa</span>
-                    <div class="bg-white rounded-lg px-4 py-3">
-                      <span class="text-[#646464] text-sm font-medium uppercase">{{ vehicle.licensePlate }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Documents -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <!-- Document -->
-                  <div class="flex flex-col gap-1">
-                    <span class="text-[#112B3C] text-xs font-medium ml-1">Documento do Veículo</span>
-                    <button
-                      (click)="downloadVehicleDocument(vehicle.id)"
-                      type="button"
-                      class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg hover:bg-white/80 transition-colors"
-                    >
-                      <img src="assets/icons/scan-barcode.svg" alt="" class="w-5 h-5" />
-                      <span class="text-[#F66B0E] text-sm font-medium">Visualizar PDF</span>
-                    </button>
-                  </div>
-
-                  <!-- Photo -->
-                  @if (vehicle.photoPath) {
-                    <div class="flex flex-col gap-1">
-                      <span class="text-[#112B3C] text-xs font-medium ml-1">Foto do Veículo</span>
-                      <button
-                        (click)="downloadVehiclePhoto(vehicle.id)"
-                        type="button"
-                        class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg hover:bg-white/80 transition-colors"
-                      >
-                        <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
-                        <span class="text-[#F66B0E] text-sm font-medium">Visualizar Foto</span>
-                      </button>
-                    </div>
-                  } @else {
-                    <div class="flex flex-col gap-1">
-                      <span class="text-[#112B3C] text-xs font-medium ml-1">Foto do Veículo</span>
-                      <div class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg opacity-50">
-                        <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
-                        <span class="text-[#646464] text-sm">Não enviada</span>
-                      </div>
-                    </div>
-                  }
+          @for (vehicle of vehicles(); track vehicle.id) {
+          <div class="bg-[#EEEEEF] rounded-lg p-5 flex flex-col gap-4">
+            <!-- Vehicle Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <span class="text-[#112B3C] text-xs font-medium ml-1">Modelo</span>
+                <div class="bg-white rounded-lg px-4 py-3">
+                  <span class="text-[#646464] text-sm font-medium">{{ vehicle.modelName }}</span>
                 </div>
               </div>
-            }
+              <div class="flex flex-col gap-1">
+                <span class="text-[#112B3C] text-xs font-medium ml-1">Placa</span>
+                <div class="bg-white rounded-lg px-4 py-3">
+                  <span class="text-[#646464] text-sm font-medium uppercase">{{ vehicle.licensePlate }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Document -->
+              <div class="flex flex-col gap-1">
+                <span class="text-[#112B3C] text-xs font-medium ml-1">Documento do Veículo</span>
+                <button (click)="downloadVehicleDocument(vehicle.id)" type="button"
+                  class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg hover:bg-white/80 transition-colors">
+                  <img src="assets/icons/scan-barcode.svg" alt="" class="w-5 h-5" />
+                  <span class="text-[#F66B0E] text-sm font-medium">Visualizar PDF</span>
+                </button>
+              </div>
+
+              <!-- Photo -->
+              @if (vehicle.photoPath) {
+              <div class="flex flex-col gap-1">
+                <span class="text-[#112B3C] text-xs font-medium ml-1">Foto do Veículo</span>
+                <button (click)="downloadVehiclePhoto(vehicle.id)" type="button"
+                  class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg hover:bg-white/80 transition-colors">
+                  <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                  <span class="text-[#F66B0E] text-sm font-medium">Visualizar Foto</span>
+                </button>
+              </div>
+              } @else {
+              <div class="flex flex-col gap-1">
+                <span class="text-[#112B3C] text-xs font-medium ml-1">Foto do Veículo</span>
+                <div class="flex items-center gap-3 px-4 py-3 bg-white rounded-lg opacity-50">
+                  <img src="assets/icons/edit-2.svg" alt="" class="w-5 h-5" />
+                  <span class="text-[#646464] text-sm">Não enviada</span>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+          }
           }
         </div>
 
       </div>
 
       <div class="flex gap-4 mt-6 pt-4 border-t border-gray-100 justify-end shrink-0">
-        <button (click)="fechar()"
-                [disabled]="carregando()"
-                class="bg-[#EEEEEF] w-[184px] h-10 rounded-lg px-6 text-[#557D96] font-bold text-sm lg:text-base uppercase hover:brightness-95 transition">
+        <button (click)="fechar()" [disabled]="carregando()"
+          class="bg-[#EEEEEF] w-[184px] h-10 rounded-lg px-6 text-[#557D96] font-bold text-sm lg:text-base uppercase hover:brightness-95 transition">
           Cancelar
         </button>
-        <button (click)="salvar()"
-                [disabled]="carregando()"
-                class="bg-[#F66B0E] w-[184px] h-10 rounded-lg px-6 text-white font-bold text-sm lg:text-base uppercase hover:brightness-110 transition shadow-lg disabled:opacity-50">
+        <button (click)="salvar()" [disabled]="carregando()"
+          class="bg-[#F66B0E] w-[184px] h-10 rounded-lg px-6 text-white font-bold text-sm lg:text-base uppercase hover:brightness-110 transition shadow-lg disabled:opacity-50">
           {{ carregando() ? 'Salvando...' : 'Salvar' }}
         </button>
       </div>

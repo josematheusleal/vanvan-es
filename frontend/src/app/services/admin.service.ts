@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { PageResponse } from '../models/pagination.model';
+import { Vehicle } from '../models/vehicle.model';
+export type { PageResponse } from '../models/pagination.model';
+export type { Vehicle } from '../models/vehicle.model';
 
 export interface DriverAdmin {
   id: string;
@@ -13,23 +17,6 @@ export interface DriverAdmin {
   birthDate: string;
   registrationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
   rejectionReason: string | null;
-}
-
-export interface Vehicle {
-  id: string;
-  modelName: string;
-  licensePlate: string;
-  documentPath: string;
-  photoPath: string | null;
-  driverId: string;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
 }
 
 @Injectable({

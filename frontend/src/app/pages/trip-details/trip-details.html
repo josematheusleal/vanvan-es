@@ -1,0 +1,304 @@
+<!-- Main Container -->
+<div class="trip-details-page flex flex-col gap-6 w-full min-h-full">
+
+  <!-- ===== HEADER: Back + Title ===== -->
+  <div class="flex items-center gap-3">
+    <button (click)="goBack()"
+            class="size-10 rounded-full bg-light hover:bg-accent/30 flex items-center justify-center transition-colors cursor-pointer">
+      <div class="size-5 bg-text"
+           style="-webkit-mask: url(assets/icons/arrow_back.svg) no-repeat center / contain; mask: url(assets/icons/arrow_back.svg) no-repeat center / contain;"></div>
+    </button>
+    <h1 class="font-sans text-header-2 text-text">Detalhes da Viagem</h1>
+  </div>
+
+  <!-- ===== LOADING SKELETON ===== -->
+  <div *ngIf="isLoading" class="grid grid-cols-[1fr_380px] gap-6 w-full">
+    <!-- Left skeleton -->
+    <div class="flex flex-col gap-6">
+      <app-skeleton height="320px" width="100%" rounded="24px"></app-skeleton>
+      <app-skeleton height="200px" width="100%" rounded="24px"></app-skeleton>
+    </div>
+    <!-- Right skeleton -->
+    <div class="flex flex-col gap-6">
+      <app-skeleton height="160px" width="100%" rounded="24px"></app-skeleton>
+      <app-skeleton height="360px" width="100%" rounded="24px"></app-skeleton>
+    </div>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div *ngIf="!isLoading && trip" class="grid grid-cols-[1fr_380px] gap-6 w-full animate-fade-in">
+
+    <!-- ==================== LEFT COLUMN ==================== -->
+    <div class="flex flex-col gap-6 min-w-0">
+
+      <!-- ===== MAP CARD ===== -->
+      <div class="bg-light rounded-[24px] overflow-hidden">
+        <app-route-map
+          [origin]="trip.originCoords"
+          [destination]="trip.destinationCoords"
+          [originLabel]="trip.origin"
+          [destinationLabel]="trip.destination"
+          height="320px"
+          [showRoute]="true">
+        </app-route-map>
+
+        <!-- Route summary below map -->
+        <div class="flex items-center justify-between px-5 py-4">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <div class="size-3 rounded-full bg-[#1E88E5]"></div>
+              <span class="text-small text-text font-medium">{{ trip.origin }}</span>
+            </div>
+            <div class="size-5 bg-subtle-text/60"
+                 style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
+            <div class="flex items-center gap-2">
+              <div class="size-3 rounded-full bg-[#F66B0E]"></div>
+              <span class="text-small text-text font-medium">{{ trip.destination }}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <div class="size-4 bg-subtle-text"
+                   style="-webkit-mask: url(assets/icons/routing.svg) no-repeat center / contain; mask: url(assets/icons/routing.svg) no-repeat center / contain;"></div>
+              <span class="text-small text-subtle-text">{{ trip.distance }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="size-4 bg-subtle-text"
+                   style="-webkit-mask: url(assets/icons/clock.svg) no-repeat center / contain; mask: url(assets/icons/clock.svg) no-repeat center / contain;"></div>
+              <span class="text-small text-subtle-text">{{ trip.duration }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TRIP INFO CARD ===== -->
+      <div class="bg-light rounded-[24px] p-5 flex flex-col gap-4">
+
+        <!-- Route Row -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-header-2 text-text">{{ trip.origin }}</span>
+            <div class="size-6 bg-text"
+                 style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;"></div>
+            <span class="text-header-2 text-text">{{ trip.destination }}</span>
+          </div>
+          <app-tag [label]="statusLabel" [variant]="statusVariant"></app-tag>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Departure Location -->
+          <div class="bg-white rounded-[12px] p-3 flex items-start gap-3">
+            <div class="size-5 bg-secondary shrink-0 mt-0.5"
+                 style="-webkit-mask: url(assets/icons/plane-take-off.svg) no-repeat center / contain; mask: url(assets/icons/plane-take-off.svg) no-repeat center / contain;"></div>
+            <div class="flex flex-col gap-0.5 min-w-0">
+              <span class="text-small text-subtle-text">Partida</span>
+              <span class="text-bold text-text truncate">{{ trip.originLocation }}</span>
+              <span class="text-small text-subtle-text truncate">{{ trip.originReference }}</span>
+            </div>
+          </div>
+
+          <!-- Arrival Location -->
+          <div class="bg-white rounded-[12px] p-3 flex items-start gap-3">
+            <div class="size-5 bg-[#F66B0E] shrink-0 mt-0.5"
+                 style="-webkit-mask: url(assets/icons/plane-land.svg) no-repeat center / contain; mask: url(assets/icons/plane-land.svg) no-repeat center / contain;"></div>
+            <div class="flex flex-col gap-0.5 min-w-0">
+              <span class="text-small text-subtle-text">Destino</span>
+              <span class="text-bold text-text truncate">{{ trip.destinationLocation }}</span>
+              <span class="text-small text-subtle-text truncate">{{ trip.destinationReference }}</span>
+            </div>
+          </div>
+
+          <!-- Date & Time -->
+          <div class="bg-white rounded-[12px] p-3 flex items-center gap-3">
+            <div class="size-5 bg-secondary shrink-0"
+                 style="-webkit-mask: url(assets/icons/calendar.svg) no-repeat center / contain; mask: url(assets/icons/calendar.svg) no-repeat center / contain;"></div>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-small text-subtle-text">Data e horário</span>
+              <span class="text-bold text-text">{{ trip.date }} às {{ trip.time }}</span>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="bg-white rounded-[12px] p-3 flex items-center gap-3">
+            <div class="size-5 bg-secondary shrink-0"
+                 style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;"></div>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-small text-subtle-text">Preço por passageiro</span>
+              <span class="text-bold text-text">{{ trip.price }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="w-full h-[1px] bg-accent/40"></div>
+
+        <!-- Vehicle & Driver Row -->
+        <div class="flex items-center gap-4">
+          <!-- Vehicle Image -->
+          <img [src]="trip.vehicleImage" alt="Veículo" class="w-[140px] h-auto object-contain rounded-[12px] bg-white p-2">
+
+          <!-- Vehicle + Driver Info -->
+          <div class="flex-1 flex flex-col gap-2 min-w-0">
+            <div class="flex items-center gap-2 text-text">
+              <div class="size-4 bg-subtle-text shrink-0"
+                   style="-webkit-mask: url(assets/icons/bus.svg) no-repeat center / contain; mask: url(assets/icons/bus.svg) no-repeat center / contain;"></div>
+              <span class="text-medium truncate">{{ trip.vehicleModel }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-subtle-text">
+              <div class="size-4 bg-subtle-text shrink-0"
+                   style="-webkit-mask: url(assets/icons/car.svg) no-repeat center / contain; mask: url(assets/icons/car.svg) no-repeat center / contain;"></div>
+              <span class="text-small">{{ trip.vehiclePlate }}</span>
+            </div>
+            <div class="w-full h-[1px] bg-accent/30 my-1"></div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="size-8 rounded-full bg-white flex items-center justify-center shrink-0">
+                  <div class="size-4 bg-dark"
+                       style="-webkit-mask: url(assets/icons/user-tag.svg) no-repeat center / contain; mask: url(assets/icons/user-tag.svg) no-repeat center / contain;"></div>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-bold text-text">{{ trip.driverName }}</span>
+                  <span class="text-small text-secondary">{{ trip.driverPhone }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <div class="size-5 bg-text"
+                     style="-webkit-mask: url(assets/icons/star.svg) no-repeat center / contain; mask: url(assets/icons/star.svg) no-repeat center / contain;"></div>
+                <span class="text-bold text-text">{{ trip.driverRating }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferences Row -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <div *ngIf="trip.hasAirConditioning"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full text-small">
+            <span>❄️</span>
+            <span class="text-text font-medium">Ar condicionado</span>
+          </div>
+          <div *ngIf="trip.acceptsPets"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full text-small">
+            <div class="size-4 bg-text"
+                 style="-webkit-mask: url(assets/icons/pet.svg) no-repeat center / contain; mask: url(assets/icons/pet.svg) no-repeat center / contain;"></div>
+            <span class="text-text font-medium">Aceita pets</span>
+          </div>
+          <div *ngIf="trip.hasLargeLuggage"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full text-small">
+            <div class="size-4 bg-text"
+                 style="-webkit-mask: url(assets/icons/bag-2.svg) no-repeat center / contain; mask: url(assets/icons/bag-2.svg) no-repeat center / contain;"></div>
+            <span class="text-text font-medium">Bagagem grande</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== RIGHT COLUMN ==================== -->
+    <div class="flex flex-col gap-6">
+
+      <!-- ===== OCCUPANCY CARD ===== -->
+      <div class="bg-light rounded-[24px] p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <span class="text-header-3 text-text">Ocupação</span>
+          <span class="text-bold text-secondary">{{ occupancyPercent }}%</span>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all duration-500 ease-out"
+               [ngClass]="{
+                 'bg-green-500': occupancyPercent < 70,
+                 'bg-yellow-500': occupancyPercent >= 70 && occupancyPercent < 90,
+                 'bg-red-500': occupancyPercent >= 90
+               }"
+               [style.width.%]="occupancyPercent"></div>
+        </div>
+
+        <!-- Seats info -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="flex flex-col items-center gap-1 bg-white rounded-[12px] py-3">
+            <span class="text-header-3 text-text">{{ trip.totalSeats - trip.availableSeats }}</span>
+            <span class="text-small text-subtle-text">Ocupados</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 bg-white rounded-[12px] py-3">
+            <span class="text-header-3 text-secondary">{{ trip.availableSeats }}</span>
+            <span class="text-small text-subtle-text">Disponíveis</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 bg-white rounded-[12px] py-3">
+            <span class="text-header-3 text-text">{{ trip.totalSeats }}</span>
+            <span class="text-small text-subtle-text">Total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DATE CARD ===== -->
+      <div class="bg-secondary rounded-[24px] p-5 flex items-center gap-4">
+        <div class="flex flex-col items-center justify-center bg-white/15 rounded-[16px] px-5 py-3 min-w-[80px]">
+          <span class="text-small text-white/70 uppercase tracking-widest">{{ formattedDate.month }}</span>
+          <span class="text-header-1 text-white leading-none">{{ formattedDate.day }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-bold text-white">{{ trip.time }}</span>
+          <span class="text-small text-white/70">{{ trip.origin }} → {{ trip.destination }}</span>
+        </div>
+      </div>
+
+      <!-- ===== PASSENGERS CARD ===== -->
+      <div class="bg-light rounded-[24px] p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="size-5 bg-text"
+                 style="-webkit-mask: url(assets/icons/profile-2user.svg) no-repeat center / contain; mask: url(assets/icons/profile-2user.svg) no-repeat center / contain;"></div>
+            <span class="text-header-3 text-text">Passageiros</span>
+          </div>
+          <span class="text-small text-subtle-text">{{ trip.passengers.length }} total</span>
+        </div>
+
+        <!-- Passenger status summary -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5">
+            <div class="size-2 rounded-full bg-green-500"></div>
+            <span class="text-small text-subtle-text">{{ confirmedCount }} confirmados</span>
+          </div>
+          <div *ngIf="pendingCount > 0" class="flex items-center gap-1.5">
+            <div class="size-2 rounded-full bg-yellow-500"></div>
+            <span class="text-small text-subtle-text">{{ pendingCount }} pendentes</span>
+          </div>
+          <div *ngIf="cancelledCount > 0" class="flex items-center gap-1.5">
+            <div class="size-2 rounded-full bg-red-500"></div>
+            <span class="text-small text-subtle-text">{{ cancelledCount }} cancelados</span>
+          </div>
+        </div>
+
+        <!-- Passengers list -->
+        <div class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin">
+          <div *ngFor="let passenger of trip.passengers; let i = index"
+               class="bg-white rounded-[12px] p-3 flex items-center gap-3 hover:shadow-sm transition-shadow">
+            <!-- Avatar -->
+            <div class="size-9 rounded-full flex items-center justify-center shrink-0 text-small font-bold text-white"
+                 [ngClass]="{
+                   'bg-secondary': passenger.status === 'confirmed',
+                   'bg-yellow-500': passenger.status === 'pending',
+                   'bg-gray-400': passenger.status === 'cancelled'
+                 }">
+              {{ passenger.name.charAt(0) }}
+            </div>
+            <!-- Info -->
+            <div class="flex flex-col gap-0.5 flex-1 min-w-0">
+              <span class="text-bold text-text truncate">{{ passenger.name }}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-small text-subtle-text">{{ passenger.boardingPoint }}</span>
+              </div>
+            </div>
+            <!-- Status -->
+            <app-tag [label]="passengerStatusLabel(passenger.status)"
+                     [variant]="passengerStatusVariant(passenger.status)">
+            </app-tag>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

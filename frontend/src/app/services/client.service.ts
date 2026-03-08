@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { PageResponse } from '../models/pagination.model';
 
 export interface Cliente {
   id: string;
@@ -11,14 +12,6 @@ export interface Cliente {
   phone: string;
   email: string;
   role: string;
-}
-
-interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
 }
 
 @Injectable({

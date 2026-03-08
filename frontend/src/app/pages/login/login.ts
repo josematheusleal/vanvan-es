@@ -36,8 +36,11 @@ export class Login {
 
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
+        const user = this.authService.currentUser();
         if (res.role === 'admin') {
           this.router.navigate(['/admin']);
+        } else if (res.role === 'driver' && user?.registrationStatus && user.registrationStatus !== 'APPROVED') {
+          this.router.navigate(['/driver-status']);
         } else {
           this.router.navigate(['/home']);
         }

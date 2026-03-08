@@ -1,5 +1,6 @@
 import { Component, OnDestroy, ChangeDetectorRef, afterNextRender, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Tag, TagVariant } from '../../components/tags/tags';
 import { Buttons } from '../../components/buttons/buttons';
 import { Skeleton } from '../../components/skeleton/skeleton';
@@ -8,7 +9,7 @@ import QRCode from 'qrcode';
 @Component({
   selector: 'app-viagens',
   standalone: true,
-  imports: [CommonModule, Tag, Buttons, Skeleton],
+  imports: [CommonModule, RouterModule, Tag, Buttons, Skeleton],
   templateUrl: './viagens.html',
   styleUrls: ['./viagens.css']
 })
@@ -136,6 +137,7 @@ export class Viagens implements OnDestroy {
   }
 
   nextTrip = {
+    id: '1',
     month: 'FEV',
     day: '10',
     time: '08:00',
@@ -152,16 +154,16 @@ export class Viagens implements OnDestroy {
   };
 
   scheduledTrips = [
-    {
-      month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife',
+      {
+        id: '2', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife',
       price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX',
       pickupPoint: 'Rodoviária - Garanhuns',
       driverName: 'Nome do motorista', driverContact: 'Contato do motorista',
       driverRating: 4.8,
       variant: 'warning' as TagVariant, statusLabel: 'Aguardando',
     },
-    {
-      month: 'FEV', day: '15', origin: 'Recife', destination: 'Garanhuns',
+      {
+        id: '3', month: 'FEV', day: '15', origin: 'Recife', destination: 'Garanhuns',
       price: 'R$40,00', time: '14:00', vehicle: 'Sprinter 2025 XXXX-XXX',
       pickupPoint: 'Rodoviária - Recife',
       driverName: 'Nome do motorista', driverContact: 'Contato do motorista',

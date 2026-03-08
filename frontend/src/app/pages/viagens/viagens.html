@@ -97,8 +97,11 @@
 
       <!-- Right Container: Column layout (Status top, Info bottom) -->
       <div class="flex flex-col justify-between py-4 items-end gap-2 shrink-0 min-w-fit">
-        <!-- Top: Status Tag -->
-        <app-tag [label]="nextTrip.statusLabel" [variant]="nextTrip.variant"></app-tag>
+        <!-- Top: Status Tag + Details Link -->
+        <div class="flex items-center gap-3">
+          <a [routerLink]="['/viagem', nextTrip.id]" class="font-sans text-small text-secondary underline cursor-pointer hover:text-text transition-colors">Detalhes</a>
+          <app-tag [label]="nextTrip.statusLabel" [variant]="nextTrip.variant"></app-tag>
+        </div>
 
         <!-- Bottom: Driver Info + Button Row -->
         <div class="flex items-center gap-4">
@@ -361,7 +364,7 @@
             <!-- Status + Details -->
             <div class="flex flex-col gap-1 items-end shrink-0">
               <app-tag [label]="trip.statusLabel" [variant]="trip.variant"></app-tag>
-              <a class="font-sans text-small text-subtle-text underline cursor-pointer">Detalhes</a>
+              <a [routerLink]="['/viagem', '1']" class="font-sans text-small text-subtle-text underline cursor-pointer">Detalhes</a>
             </div>
           </div>
           <div class="m-2">

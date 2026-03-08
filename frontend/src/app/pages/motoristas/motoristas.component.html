@@ -5,7 +5,7 @@
       Motoristas
     </h1>
     <div class="flex flex-1 items-center gap-4">
-      <div class="flex flex-1 items-center gap-[6px] h-[51px] bg-light rounded-[46px] p-6 py-1 overflow-hidden">
+      <div class="flex flex-1 items-center gap-[6px] h-[51px] bg-light rounded-[46px] p-6 py-1 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/30">
         <img src="assets/icons/search-normal.svg" alt="Buscar" class="w-6 h-6 opacity-40" />
         <input
           type="text"
@@ -17,9 +17,9 @@
       </div>
       <button
         (click)="abrirModalAdicionar()"
-        class="w-[51px] h-[51px] bg-[#EEEEEF] rounded-full flex items-center justify-center"
+        class="w-[51px] h-[51px] bg-primary rounded-2xl flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-sm shadow-primary/20"
       >
-        <span class="text-[32px] text-[#646464] leading-none">+</span>
+        <span class="text-[32px] text-white leading-none mb-1">+</span>
       </button>
     </div>
   </div>
@@ -54,7 +54,7 @@
 
       <div class="flex flex-col w-full overflow-y-auto flex-1">
         @for (motorista of motoristasFiltrados(); track motorista.id) {
-          <div class="flex items-center px-6 py-[14px] w-full">
+          <div class="flex items-center px-6 py-[14px] w-full transition-colors hover:bg-black/[0.02]">
             <div class="flex gap-3 items-center flex-1">
               <div class="bg-white flex items-center p-3 rounded-full shrink-0">
                 <img src="assets/icons/user.svg" alt="Motorista" class="w-7 h-7" />

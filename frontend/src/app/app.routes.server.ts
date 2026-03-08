@@ -12,7 +12,9 @@ export const serverRoutes: ServerRoute[] = [
   // Authenticated pages must render on the client only
   { path: 'admin/**', renderMode: RenderMode.Client },
   { path: 'viagens', renderMode: RenderMode.Client },
+  { path: 'viagem/**', renderMode: RenderMode.Client },
   { path: 'motorista', renderMode: RenderMode.Client },
+  { path: 'driver-status', renderMode: RenderMode.Client },
 
   // Fallback
   { path: '**', renderMode: RenderMode.Prerender }

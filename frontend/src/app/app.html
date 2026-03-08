@@ -1,2 +1,4 @@
-<router-outlet></router-outlet>
+<main class="w-screen h-screen relative" [@routeAnimations]="getRouteAnimationData(outlet)">
+  <router-outlet #outlet="outlet"></router-outlet>
+</main>
 <app-toast></app-toast>

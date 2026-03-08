@@ -1,0 +1,159 @@
+<!-- Driver Status Feedback Page -->
+<div class="flex w-full h-screen bg-dark p-[1.25rem] box-border">
+  <div
+    class="flex flex-col w-full h-full bg-white rounded-[1.5rem] overflow-hidden p-4 md:p-8 lg:p-14 animate-fade-in">
+
+    <!-- Header -->
+    <div class="flex items-end justify-between w-full px-4 md:px-8 lg:px-16 pb-2 shrink-0">
+      <h1
+        class="text-text text-header-1 lg:text-title short:text-header-1 whitespace-nowrap leading-[0.8] animate-slide-in-left">
+        VanVan</h1>
+      <h2
+        class="text-subtle-text text-header-3 lg:text-header-2 short:text-header-3 whitespace-nowrap leading-[0.8] animate-slide-in-right">
+        Status</h2>
+    </div>
+
+    <!-- Content Card -->
+    <div class="flex flex-col lg:flex-row w-full flex-1 bg-light rounded-3xl lg:rounded-[72px] overflow-hidden">
+
+      <!-- Banner -->
+      <div class="w-full lg:flex-1 h-[200px] sm:h-[300px] lg:h-full overflow-hidden relative">
+        <img class="w-full h-full object-cover" alt="Van" src="assets/login-banner-1.jpg" />
+        <!-- Overlay with status icon -->
+        <div class="absolute inset-0 bg-dark/60 flex items-center justify-center">
+          <!-- PENDING icon -->
+          <div *ngIf="isPending()" class="status-icon-wrapper pending-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 md:w-32 md:h-32 text-amber-400" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <!-- REJECTED icon -->
+          <div *ngIf="isRejected()" class="status-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 md:w-32 md:h-32 text-red-400" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Content -->
+      <div
+        class="flex flex-col flex-1 gap-6 items-start w-full px-6 py-10 sm:px-10 lg:px-[50px] justify-center overflow-y-auto animate-fade-in-up">
+
+        <!-- PENDING State -->
+        <ng-container *ngIf="isPending()">
+          <div class="flex flex-col gap-2">
+            <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-wider w-fit">
+              <span class="size-2 rounded-full bg-amber-500 animate-pulse"></span>
+              Pendente
+            </div>
+            <h2 class="text-text text-header-2 font-bold">Aguardando Aprovação</h2>
+            <p class="text-subtle-text text-body leading-relaxed max-w-md">
+              Seu cadastro como motorista foi recebido com sucesso e está sendo analisado pela nossa equipe.
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-4 w-full max-w-md">
+            <!-- Timeline Steps -->
+            <div class="flex items-start gap-4">
+              <div class="flex flex-col items-center gap-1">
+                <div class="size-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-white" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div class="w-0.5 h-6 bg-secondary/30"></div>
+              </div>
+              <div class="flex flex-col pt-1">
+                <span class="text-bold text-text">Cadastro enviado</span>
+                <span class="text-small text-subtle-text">Seus dados foram recebidos</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="flex flex-col items-center gap-1">
+                <div
+                  class="size-8 rounded-full bg-amber-400 flex items-center justify-center shrink-0 animate-pulse">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-white" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 6v6h4.5" />
+                  </svg>
+                </div>
+                <div class="w-0.5 h-6 bg-accent/20"></div>
+              </div>
+              <div class="flex flex-col pt-1">
+                <span class="text-bold text-text">Em análise</span>
+                <span class="text-small text-subtle-text">Equipe avaliando documentos</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="flex flex-col items-center">
+                <div class="size-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-accent" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="flex flex-col pt-1">
+                <span class="text-bold text-accent">Aprovação</span>
+                <span class="text-small text-subtle-text">Aguardando conclusão</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-small text-subtle-text italic max-w-md">
+            O prazo médio de aprovação é de até 48 horas úteis. Você receberá uma notificação quando seu cadastro for aprovado.
+          </p>
+        </ng-container>
+
+        <!-- REJECTED State -->
+        <ng-container *ngIf="isRejected()">
+          <div class="flex flex-col gap-2">
+            <div class="inline-flex items-center gap-2 bg-red-100 text-red-700 rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-wider w-fit">
+              <span class="size-2 rounded-full bg-red-500"></span>
+              Recusado
+            </div>
+            <h2 class="text-text text-header-2 font-bold">Cadastro Recusado</h2>
+            <p class="text-subtle-text text-body leading-relaxed max-w-md">
+              Infelizmente, seu cadastro como motorista não foi aprovado pela nossa equipe.
+            </p>
+          </div>
+
+          <div *ngIf="rejectionReason()"
+            class="w-full max-w-md bg-red-50 border border-red-200 rounded-2xl p-5 flex flex-col gap-2">
+            <span class="text-bold text-red-700 text-sm uppercase tracking-wider">Motivo da recusa</span>
+            <p class="text-body text-red-900/80 leading-relaxed">
+              {{ rejectionReason() }}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-2 max-w-md">
+            <p class="text-small text-subtle-text leading-relaxed">
+              Se você acredita que houve um erro ou deseja enviar novos documentos,
+              entre em contato com nossa equipe de suporte.
+            </p>
+            <a href="mailto:suporte@vanvan.com"
+              class="text-primary text-bold text-sm hover:underline w-fit">
+              suporte&#64;vanvan.com
+            </a>
+          </div>
+        </ng-container>
+
+        <!-- Logout Button -->
+        <button (click)="logout()"
+          class="mt-4 bg-dark text-light font-bold uppercase tracking-wider px-10 py-3.5 rounded-lg hover:opacity-90 transition-all active:scale-95 cursor-pointer">
+          Sair
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

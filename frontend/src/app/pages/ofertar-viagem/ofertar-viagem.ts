@@ -6,6 +6,7 @@ import { Toggle } from '../../components/toggle/toggle';
 import { VehicleService } from '../../services/vehicle.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../components/toast/toast.service';
+import { PastTrip } from '../../models/trip.model';
 
 export interface TripOffer {
   // Partida (Departure)
@@ -30,21 +31,12 @@ export interface TripOffer {
   customPrice: string;
 }
 
-export interface Vehicle {
+/** Modelo de veículo para exibição no card de seleção */
+export interface VehicleCard {
   id: string;
   name: string;
   plate: string;
   image: string;
-}
-
-export interface PastTrip {
-  id: number;
-  origin: string;
-  destination: string;
-  price: string;
-  distance: string;
-  date: string;
-  time: string;
 }
 
 export interface RepeatDays {
@@ -123,7 +115,7 @@ export class OfertarViagem {
   };
 
   // ===== Vehicles =====
-  vehicles: Vehicle[] = [];
+  vehicles: VehicleCard[] = [];
   isLoadingVehicles = true; // Começa como true
   private vehiclesLoaded = false;
 
@@ -157,7 +149,7 @@ export class OfertarViagem {
   // ===== Past Trips (for history) =====
   pastTrips: PastTrip[] = [
     {
-      id: 1,
+      id: '1',
       origin: 'Garanhuns',
       destination: 'Recife',
       price: 'R$400,00',
@@ -166,7 +158,7 @@ export class OfertarViagem {
       time: '08:00'
     },
     {
-      id: 2,
+      id: '2',
       origin: 'Garanhuns',
       destination: 'Recife',
       price: 'R$400,00',
