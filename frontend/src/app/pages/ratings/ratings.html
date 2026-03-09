@@ -1,0 +1,149 @@
+<div class="flex flex-col gap-6 h-full p-5 w-full bg-[#FAFAFA]">
+
+  <!-- Header Section -->
+  <div class="flex gap-5 items-center w-full shrink-0">
+    <h1 class="text-text text-header-1 tracking-narrow shrink-0">
+      Avaliações e Feedback
+    </h1>
+
+    <div class="flex flex-1 items-center gap-4">
+      <!-- Search Input -->
+      <div
+        class="flex flex-1 items-center gap-[6px] h-[51px] bg-white border border-subtle-text/10 rounded-[46px] p-6 py-1 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/30 shadow-sm shadow-black/5">
+        <img src="assets/icons/search-normal.svg" alt="Buscar" class="w-6 h-6 opacity-40" />
+        <input type="text" placeholder="Pesquisar motorista, cliente ou ID da viagem log" [value]="termoBusca()"
+          (input)="onSearch($event)"
+          class="flex-1 w-full bg-transparent text-body text-subtle-text font-['Work_Sans'] focus:outline-none placeholder:text-subtle-text placeholder:opacity-70" />
+      </div>
+
+      <!-- Filter Dropdown -->
+      <div
+        class="h-[51px] bg-white border border-subtle-text/10 rounded-[16px] px-4 shadow-sm shadow-black/5 flex items-center shrink-0">
+        <select [ngModel]="statusFiltro()" (ngModelChange)="statusFiltro.set($event); onFilterChange()"
+          class="bg-transparent text-subtle-text font-medium text-[16px] focus:outline-none cursor-pointer">
+          <option value="all">Todas as Avaliações</option>
+          <option value="negative">Negativas (Até 3 estrelas)</option>
+          <option value="unreviewed">Pendentes de Moderação</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="flex flex-1 flex-col gap-[10px] w-full min-h-0">
+    <div
+      class="bg-white flex flex-col items-start p-6 rounded-[24px] w-full flex-1 overflow-hidden shadow-sm shadow-black/5">
+
+      @if (carregando()) {
+      <div class="flex items-center justify-center w-full h-full">
+        <span class="text-subtle-text text-medium animate-pulse">Carregando avaliações...</span>
+      </div>
+      }
+
+      @if (!carregando() && listaAvaliacoes().length === 0) {
+      <div class="flex flex-col items-center justify-center w-full h-full opacity-60">
+        <img src="assets/icons/star.svg" alt="No Ratings" class="w-16 h-16 opacity-30 mb-4 grayscale"
+          style="filter: brightness(0.5);" />
+        <span class="text-subtle-text text-header-3">Nenhuma avaliação encontrada.</span>
+      </div>
+      }
+
+      <div class="w-full flex-1 overflow-y-auto pr-2 custom-scrollbar">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+
+          @for (rating of listaAvaliacoes(); track rating.id) {
+          <!-- Card de Avaliação Exprressivo -->
+          <div
+            class="flex flex-col bg-light border transition-all duration-300 rounded-[20px] p-5 gap-4 relative overflow-hidden group hover:shadow-md hover:-translate-y-1"
+            [ngClass]="{
+                'border-red-200/60 bg-red-50/30': rating.score <= 3 && !rating.reviewed,
+                'border-subtle-text/10': rating.score > 3 || rating.reviewed
+              }">
+
+            <!-- Alerta de Moderação (Score Negativo) -->
+            @if (rating.score <= 3 && !rating.reviewed) { <div
+              class="absolute top-0 right-0 bg-red-500 text-white text-[12px] font-bold px-3 py-1 rounded-bl-[12px] opacity-90 shadow-sm">
+              Requer Atenção
+          </div>
+          }
+
+          <!-- User Info Row -->
+          <div class="flex justify-between items-start mt-1">
+            <div class="flex flex-col gap-1">
+              <span class="text-text text-medium font-semibold leading-tight flex items-center gap-2">
+                <img src="assets/icons/personalcard.svg" class="w-4 h-4 opacity-50" />
+                {{ rating.driverName }}
+              </span>
+              <span class="text-subtle-text text-[14px] leading-tight flex items-center gap-2">
+                <img src="assets/icons/user.svg" class="w-4 h-4 opacity-50" />
+                Cliente: {{ rating.clientName }}
+              </span>
+            </div>
+
+            <div class="flex gap-1" [title]="rating.score + ' Estrelas'">
+              @for (star of getStarsArray(); track star) {
+              <svg class="w-5 h-5 transition-colors"
+                [ngClass]="star <= rating.score ? (rating.score <= 3 ? 'text-red-400' : 'text-primary') : 'text-subtle-text/20'"
+                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                <path
+                  d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+              </svg>
+              }
+            </div>
+          </div>
+
+          <!-- Comment Area -->
+          <div class="flex-1 bg-white rounded-[12px] p-4 border border-subtle-text/5 min-h-[90px]">
+            @if (rating.hidden) {
+            <p class="text-subtle-text/70 italic text-[15px] leading-relaxed m-0 flex items-center gap-2">
+              <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M13.875 18.825A10.05 10.05 0 0 1 12 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 0 1 1.563-3.029m5.858.908a3 3 0 1 1 4.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0 1 12 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 0 1-4.132 5.411m0 0L21 21" />
+              </svg>
+              Comentário ocultado pela moderação.
+            </p>
+            } @else if (rating.comment) {
+            <p class="text-text font-medium text-[15px] leading-relaxed m-0">"{{ rating.comment }}"</p>
+            } @else {
+            <p class="text-subtle-text/50 italic text-[15px] leading-relaxed m-0">Sem comentários.</p>
+            }
+          </div>
+
+          <!-- Action Footer -->
+          <div class="flex justify-between items-center mt-auto pt-2 border-t border-subtle-text/10">
+            <span class="text-[13px] text-subtle-text/80 font-medium">Viagem: {{ rating.tripId }}</span>
+
+            <div class="flex gap-2 relative z-10">
+              @if (!rating.hidden) {
+              <button (click)="ocultarComentario(rating)"
+                class="text-[14px] font-bold text-subtle-text hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50/50"
+                title="Ocultar para usuários">
+                Ocultar
+              </button>
+              }
+
+              @if (!rating.reviewed) {
+              <button (click)="marcarComoAnalisado(rating)"
+                class="text-[14px] font-bold bg-subtle-text/10 text-dark hover:bg-dark hover:text-white transition-all px-4 py-1.5 rounded-lg active:scale-95">
+                ✓ Analisar
+              </button>
+              } @else {
+              <div class="flex items-center gap-1.5 text-[14px] font-bold text-green-600 px-2 py-1.5">
+                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Analisado
+              </div>
+              }
+            </div>
+          </div>
+
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+</div>
