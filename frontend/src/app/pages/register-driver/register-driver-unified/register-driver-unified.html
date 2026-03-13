@@ -19,7 +19,7 @@
             </div>
 
             <!-- Form Wrapper via Stepper -->
-            <div class="flex flex-col flex-1 w-full relative">
+            <div class="flex flex-col content-between flex-1 w-full relative sm:overflow-y-auto sm:max-h-screen ">
                 <app-stepper
                     #stepper
                     [initialStep]="1"
@@ -154,7 +154,7 @@
 
                     <!-- Injected Footer Buttons -->
                     <div stepper-footer class="flex w-full mt-4" [ngClass]="stepper.currentStep !== 1 ? 'justify-between' : 'justify-end'">
-                        <button 
+                        <button
                             *ngIf="stepper.currentStep !== 1"
                             (click)="stepper.handleBack()"
                             type="button"
@@ -163,7 +163,7 @@
                             Voltar
                         </button>
 
-                        <button 
+                        <button
                             *ngIf="stepper.currentStep === 1"
                             (click)="stepper.handleNext()"
                             type="button"
@@ -172,7 +172,7 @@
                             Continuar
                         </button>
 
-                        <button 
+                        <button
                             *ngIf="stepper.currentStep === 2"
                             (click)="onFinalStepCompleted()"
                             type="button"
@@ -183,8 +183,8 @@
                     </div>
 
                 </app-stepper>
-                
-                <div class="absolute bottom-6 right-0 left-0 flex justify-center w-full">
+
+                <div class="relative flex justify-center w-full">
                   <div routerLink="/login" class="text-link-text text-subtle-text text-center underline decoration-solid cursor-pointer">
                     Já tem uma conta? Faça login
                   </div>
