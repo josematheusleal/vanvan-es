@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class RatingServiceTest {
@@ -47,6 +48,7 @@ class RatingServiceTest {
 
         passenger = new Passenger("Alice", "12345678900", "11999999999",
                 "alice@email.com", "senha123", LocalDate.of(2000, 1, 1));
+        passenger.setId(UUID.randomUUID()); 
 
         trip = new Trip();
         trip.setId(1L);
@@ -107,6 +109,8 @@ class RatingServiceTest {
     void createRating_passengerNotInTrip_throws() {
         Passenger outro = new Passenger("Bob", "99999999999", "11988888888",
                 "bob@email.com", "senha", LocalDate.of(1995, 1, 1));
+                
+        outro.setId(UUID.randomUUID()); 
 
         RatingCreateDTO dto = new RatingCreateDTO(trip.getId(), 3, "ok");
         when(tripRepository.findById(trip.getId())).thenReturn(Optional.of(trip));
