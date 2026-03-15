@@ -4,7 +4,10 @@ import { RouterModule } from '@angular/router';
 import { Tag, TagVariant } from '../../components/tags/tags';
 import { Buttons } from '../../components/buttons/buttons';
 import { Skeleton } from '../../components/skeleton/skeleton';
+import { ToastService } from '../../components/toast/toast.service';
 import QRCode from 'qrcode';
+import { TripService, TripHistoryDTO } from '../../services/trip.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-viagens',
@@ -15,6 +18,9 @@ import QRCode from 'qrcode';
 })
 export class Viagens implements OnDestroy {
   private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
+  private tripService = inject(TripService);
+  private router = inject(Router);
 
   isLoading = true;
 
@@ -34,12 +40,98 @@ export class Viagens implements OnDestroy {
     afterNextRender(() => {
       this.startCountdown();
 
-      // TODO: replace with real API call
-      setTimeout(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 1200);
+      this.startCountdown();
+      this.fetchTrips();
     });
+  }
+
+  private fetchTrips(): void {
+    // 1. Upcoming Trips (status = SCHEDULED)
+    this.tripService.getTripHistory(undefined, undefined, undefined, undefined, undefined, 'SCHEDULED', 0, 10)
+      .subscribe({
+        next: (page) => {
+          const mapped = page.content.map(trip => this.mapToUiTrip(trip));
+          if (mapped.length > 0) {
+            this.nextTrip = mapped[0]; // Set first as main
+            this.scheduledTrips = mapped.slice(1); // Set rest as scheduled list
+            // Update countdown to first trip
+            this.startCustomCountdown(new Date(this.nextTrip.originalDate + 'T' + this.nextTrip.time));
+          } else {
+             this.nextTrip = null;
+             this.scheduledTrips = [];
+          }
+          this.checkLoadingState();
+        },
+        error: (err) => {
+          console.error('Failed to load upcoming trips', err);
+          this.checkLoadingState();
+        }
+      });
+
+    // 2. Past Trips (status = COMPLETED)
+    this.tripService.getTripHistory(undefined, undefined, undefined, undefined, undefined, 'COMPLETED', 0, 10)
+      .subscribe({
+        next: (page) => {
+          this.pastTrips = page.content.map(trip => this.mapToUiTrip(trip));
+          this.checkLoadingState();
+        },
+        error: (err) => {
+          console.error('Failed to load past trips', err);
+          this.checkLoadingState();
+        }
+      });
+  }
+
+  private checkLoadingState() {
+     this.isLoading = false;
+     this.cdr.detectChanges();
+  }
+
+  private mapToUiTrip(dto: TripHistoryDTO): any {
+    const dateObj = new Date(dto.date);
+    const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const monthStr = months[dateObj.getMonth()];
+    const dayStr = String(dateObj.getDate() + 1).padStart(2, '0');
+
+    let variant: TagVariant = 'warning';
+    let statusLabel = 'Aguardando';
+
+    switch (dto.status) {
+      case 'SCHEDULED':
+        variant = 'success';
+        statusLabel = 'Confirmado';
+        break;
+      case 'COMPLETED':
+        variant = 'success';
+        statusLabel = 'Finalizado';
+        break;
+      case 'CANCELLED':
+        variant = 'error';
+        statusLabel = 'Cancelado';
+        break;
+      case 'IN_PROGRESS':
+        variant = 'warning';
+        statusLabel = 'Em Viagem';
+        break;
+    }
+
+    return {
+      id: dto.id,
+      month: monthStr,
+      day: dayStr,
+      time: dto.time,
+      origin: dto.departureCity,
+      destination: dto.arrivalCity,
+      price: `R$${dto.totalAmount.toFixed(2).replace('.', ',')}`,
+      vehicle: dto.route,
+      pickupPoint: 'Centro',
+      driverName: dto.driverName,
+      driverContact: 'Contato via chat',
+      driverRating: 4.8,
+      variant: variant,
+      statusLabel: statusLabel,
+      originalDate: dto.date
+    };
   }
 
   ngOnDestroy(): void {
@@ -49,16 +141,14 @@ export class Viagens implements OnDestroy {
   }
 
   private startCountdown(): void {
-    // Data da próxima viagem (exemplo: 2 dias no futuro para demo)
-    const nextTripDate = new Date();
-    nextTripDate.setDate(nextTripDate.getDate() + 2);
-    nextTripDate.setHours(8, 0, 0, 0);
+      // Avoid arbitrary countdown if handled directly 
+  }
 
-    this.updateCountdown(nextTripDate);
-
-    this.countdownInterval = setInterval(() => {
-      this.updateCountdown(nextTripDate);
-    }, 1000);
+  private startCustomCountdown(targetDate: Date): void {
+     this.updateCountdown(targetDate);
+     this.countdownInterval = setInterval(() => {
+        this.updateCountdown(targetDate);
+     }, 1000);
   }
 
   private updateCountdown(targetDate: Date): void {
@@ -131,52 +221,71 @@ export class Viagens implements OnDestroy {
   }
 
   confirmCancelTrip(): void {
-    // TODO: integrate with backend to actually cancel the trip
-    console.log('Trip cancelled:', this.cancelTripRef);
-    this.closeCancelPopup();
+    if(!this.cancelTripRef || !this.cancelTripRef.id) return;
+    this.tripService.cancelBooking(this.cancelTripRef.id).subscribe({
+      next: () => {
+        this.toastService.success('Viagem cancelada com sucesso!');
+        this.fetchTrips();
+        this.closeCancelPopup();
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastService.error('Erro ao cancelar a viagem.');
+        this.closeCancelPopup();
+      }
+    });
   }
 
-  nextTrip = {
-    id: '1',
-    month: 'FEV',
-    day: '10',
-    time: '08:00',
-    origin: 'Garanhuns',
-    destination: 'Recife',
-    price: 'R$40,00',
-    vehicle: 'Sprinter 2025 XXXX-XXX',
-    pickupPoint: 'Rodoviária - Garanhuns',
-    driverName: 'Nome do motorista',
-    driverContact: 'Contato do motorista',
-    driverRating: 4.8,
-    variant: 'success' as TagVariant,
-    statusLabel: 'Confirmado',
-  };
+  rebookTrip(trip: any): void {
+     const queryParams: any = {
+        departureCity: trip.origin,
+        arrivalCity: trip.destination,
+        passengerCount: 1
+     };
 
-  scheduledTrips = [
-      {
-        id: '2', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife',
-      price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX',
-      pickupPoint: 'Rodoviária - Garanhuns',
-      driverName: 'Nome do motorista', driverContact: 'Contato do motorista',
-      driverRating: 4.8,
-      variant: 'warning' as TagVariant, statusLabel: 'Aguardando',
-    },
-      {
-        id: '3', month: 'FEV', day: '15', origin: 'Recife', destination: 'Garanhuns',
-      price: 'R$40,00', time: '14:00', vehicle: 'Sprinter 2025 XXXX-XXX',
-      pickupPoint: 'Rodoviária - Recife',
-      driverName: 'Nome do motorista', driverContact: 'Contato do motorista',
-      driverRating: 4.5,
-      variant: 'success' as TagVariant, statusLabel: 'Confirmado',
-    },
-  ];
+     // The user can re-choose the date on the search page manually
+     this.router.navigate(['/buscar-viagens'], { queryParams });
+  }
 
-  pastTrips = [
-    { month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', variant: 'success' as TagVariant, statusLabel: 'Finalizado' },
-    { month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', variant: 'success' as TagVariant, statusLabel: 'Finalizado' },
-    { month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', variant: 'success' as TagVariant, statusLabel: 'Finalizado' },
-  ];
+  // Avaliação popup state
+  showEvaluatePopup = false;
+  evaluateTripRef: any = null;
+  currentRating = 0;
+  currentComment = '';
+
+  openEvaluatePopup(trip: any): void {
+    this.evaluateTripRef = trip;
+    this.showEvaluatePopup = true;
+    this.currentRating = 0; // reset
+    this.currentComment = ''; // reset
+  }
+
+  closeEvaluatePopup(): void {
+    this.showEvaluatePopup = false;
+    this.evaluateTripRef = null;
+  }
+
+  setRating(stars: number): void {
+    this.currentRating = stars;
+  }
+
+  updateComment(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    if (target) {
+      this.currentComment = target.value;
+    }
+  }
+
+  submitEvaluation(): void {
+    // TODO: integrate with backend
+    console.log('Avaliação enviada para a viagem:', this.evaluateTripRef, 'Nota:', this.currentRating, 'Comentário:', this.currentComment);
+    this.toastService.success('Avaliação enviada com sucesso!');
+    this.closeEvaluatePopup();
+  }
+
+  nextTrip: any = null;
+  scheduledTrips: any[] = [];
+  pastTrips: any[] = [];
 
   get currentScheduledTrip() {
     return this.scheduledTrips[this.scheduledScrollIndex] ?? this.scheduledTrips[0];

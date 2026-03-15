@@ -6,6 +6,7 @@ import com.vanvan.exception.DriverNotFoundException;
 import com.vanvan.exception.InvalidStatusTransitionException;
 import com.vanvan.exception.TripNotFoundException;
 import com.vanvan.model.Location;
+import com.vanvan.model.Passenger;
 import com.vanvan.model.Pricing;
 import com.vanvan.model.Trip;
 import com.vanvan.repository.DriverRepository;
@@ -60,8 +61,19 @@ public class TripService {
         // 2. Calcula rota via OSRM
         RoutingService.RouteResult route = routingService.calculateRoute(originCoords, destinationCoords);
 
-        // 3. Calcula totalAmount
-        double totalAmount = getTotalAmount(dto, route);
+        // 3. Verifica tarifa do motorista
+        Pricing pricing = pricingService.getPricing();
+        double baseRate = pricing.getPerKmRate();
+        double minRate = baseRate * 0.8;
+        double maxRate = baseRate * 1.3;
+        double perKmRate = dto.getPerKmRate() != null ? dto.getPerKmRate() : baseRate;
+
+        if (perKmRate < minRate || perKmRate > maxRate) {
+            throw new IllegalArgumentException(String.format("A tarifa deve estar entre %.2f e %.2f", minRate, maxRate));
+        }
+
+        // 4. Calcula totalAmount (estimativa inicial se vier sem passageiros)
+        double totalAmount = getTotalAmount(dto, route, pricing);
 
         // 4. Monta e salva a Trip
         Trip trip = new Trip();
@@ -70,10 +82,23 @@ public class TripService {
         trip.setArrival(new Location(arrivalDTO.getCity(), arrivalDTO.getStreet(), arrivalDTO.getReference()));
         trip.setDate(dto.getDate());
         trip.setTime(dto.getTime());
-        trip.setPassengers(passengerRepository.findAllById(dto.getPassengerIds()));
+        trip.setTotalSeats(dto.getTotalSeats());
+
+        if (dto.getPassengerIds() != null && !dto.getPassengerIds().isEmpty()) {
+            List<Passenger> passengers = passengerRepository.findAllById(dto.getPassengerIds());
+            if (passengers.size() > dto.getTotalSeats()) {
+                throw new IllegalArgumentException("A quantidade inicial de passageiros excede a capacidade da viagem");
+            }
+            trip.setPassengers(passengers);
+            trip.setAvailableSeats(dto.getTotalSeats() - passengers.size());
+        } else {
+            trip.setPassengers(new ArrayList<>());
+            trip.setAvailableSeats(dto.getTotalSeats());
+        }
+
         trip.setStatus(TripStatus.SCHEDULED);
         trip.setDistanceKm(route.distanceKm());
-        trip.setTaxByKM(dto.getPerKmRate());
+        trip.setTaxByKM(perKmRate);
         trip.setDurationMinutes(route.durationMinutes());
         trip.setTotalAmount(totalAmount);
 
@@ -90,9 +115,7 @@ public class TripService {
      * Se não definir, usa o perKmRate padrão do Pricing.
      * O minimumFare do Pricing sempre é respeitado como piso mínimo por passageiro.
      */
-    private double getTotalAmount(CreateTripDTO dto, RoutingService.RouteResult route) {
-        Pricing pricing = pricingService.getPricing(); // chamada única
-
+    private double getTotalAmount(CreateTripDTO dto, RoutingService.RouteResult route, Pricing pricing) {
         double perKmRate = dto.getPerKmRate() != null
                 ? dto.getPerKmRate()
                 : pricing.getPerKmRate();
@@ -103,7 +126,77 @@ public class TripService {
                 perKmRate * route.distanceKm()
         );
 
-        return pricePerPassenger * dto.getPassengerIds().size();
+        int passengerCount = (dto.getPassengerIds() != null) ? dto.getPassengerIds().size() : 0;
+        return pricePerPassenger * passengerCount;
+    }
+
+    public void recalculateTripTotalAmount(Trip trip) {
+        Pricing pricing = pricingService.getPricing();
+        double pricePerPassenger = Math.max(
+                pricing.getMinimumFare(),
+                trip.getTaxByKM() * trip.getDistanceKm()
+        );
+        trip.setTotalAmount(pricePerPassenger * trip.getPassengers().size());
+    }
+
+    @Transactional
+    public TripDetailsDTO bookTrip(Long tripId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId.toString()));
+
+        if (trip.getStatus() != TripStatus.SCHEDULED) {
+            throw new IllegalArgumentException("Apenas viagens agendadas podem ser reservadas.");
+        }
+
+        if (trip.getAvailableSeats() <= 0) {
+            throw new IllegalArgumentException("Não há assentos disponíveis para esta viagem.");
+        }
+
+        UUID passengerId = (UUID) Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getPrincipal();
+
+        Passenger passenger = passengerRepository.findById(passengerId)
+                .orElseThrow(() -> new IllegalArgumentException("Passageiro não encontrado"));
+
+        if (trip.getPassengers().stream().anyMatch(p -> p.getId().equals(passengerId))) {
+            throw new IllegalArgumentException("Você já está registrado nesta viagem.");
+        }
+
+        trip.addPassenger(passenger);
+        trip.setAvailableSeats(trip.getAvailableSeats() - 1);
+        recalculateTripTotalAmount(trip);
+        
+        tripRepository.save(trip);
+        return TripDetailsDTO.fromEntity(trip);
+    }
+
+    @Transactional
+    public TripDetailsDTO cancelBooking(Long tripId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId.toString()));
+
+        UUID passengerId = (UUID) Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getPrincipal();
+
+        Passenger passenger = passengerRepository.findById(passengerId)
+                .orElseThrow(() -> new IllegalArgumentException("Passageiro não encontrado"));
+
+        if (trip.getPassengers().stream().noneMatch(p -> p.getId().equals(passengerId))) {
+            throw new IllegalArgumentException("Você não possui reserva nesta viagem.");
+        }
+        
+        if (trip.getStatus() != TripStatus.SCHEDULED) {
+            throw new IllegalArgumentException("Apenas reservas em viagens agendadas podem ser canceladas.");
+        }
+
+        trip.removePassenger(passenger);
+        trip.setAvailableSeats(trip.getAvailableSeats() + 1);
+        recalculateTripTotalAmount(trip);
+
+        tripRepository.save(trip);
+        return TripDetailsDTO.fromEntity(trip);
     }
 
     @Transactional
@@ -148,6 +241,20 @@ public class TripService {
         ).map(this::toHistoryDTO);
     }
 
+    public Page<TripHistoryDTO> getPassengerTripHistory(
+            LocalDate startDate, LocalDate endDate,
+            String departureCity,
+            String arrivalCity,
+            TripStatus status,
+            UUID passengerId,
+            Pageable pageable
+    ) {
+        return tripRepository.findAll(
+                TripSpecification.passengerHistory(startDate, endDate, departureCity, arrivalCity, passengerId, status),
+                pageable
+        ).map(this::toHistoryDTO);
+    }
+
     // busca detalhes de uma viagem pelo id
     public TripDetailsDTO getTripDetails(Long id) {
         Trip trip = tripRepository.findById(id)
@@ -161,6 +268,20 @@ public class TripService {
                 TripSpecification.filter(null, null, null, null, null, status),
                 pageable
         ).map(TripMonitorDTO::fromEntity);
+    }
+
+    // busca de viagens para passageiros
+    public Page<TripHistoryDTO> searchTrips(
+            LocalDate date,
+            String departureCity,
+            String arrivalCity,
+            Integer passengerCount,
+            Pageable pageable
+    ) {
+        return tripRepository.findAll(
+                TripSpecification.search(date, departureCity, arrivalCity, passengerCount, TripStatus.SCHEDULED),
+                pageable
+        ).map(this::toHistoryDTO);
     }
 
     // a cada 15 segundos empurra as viagens IN_PROGRESS para os admins conectados

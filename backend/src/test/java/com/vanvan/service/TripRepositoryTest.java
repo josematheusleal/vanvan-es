@@ -78,6 +78,8 @@ class TripRepositoryTest {
         trip1.setTime(LocalTime.of(10, 0));
         trip1.setTotalAmount(150.00); // double primitivo
         trip1.setStatus(TripStatus.COMPLETED);
+        trip1.setTotalSeats(5);
+        trip1.setAvailableSeats(0);
         trip1.setPassengers(passengers.subList(0, 5));
         passengers.subList(0, 5).forEach(p -> p.getTrips().add(trip1));
 
@@ -89,6 +91,8 @@ class TripRepositoryTest {
         trip2.setTime(LocalTime.of(15, 30));
         trip2.setTotalAmount(200.00); // double primitivo
         trip2.setStatus(TripStatus.IN_PROGRESS);
+        trip2.setTotalSeats(5);
+        trip2.setAvailableSeats(0);
         trip2.setPassengers(passengers.subList(5, 10));
         passengers.subList(5, 10).forEach(p -> p.getTrips().add(trip2));
 
@@ -172,6 +176,8 @@ class TripRepositoryTest {
             trip.setArrival(new Location("CityB", "ruab", ""));
             trip.setTotalAmount(50.0); // double primitivo
             trip.setStatus(TripStatus.COMPLETED);
+            trip.setTotalSeats(4);
+            trip.setAvailableSeats(3);
             tripRepository.save(trip);
         }
 
@@ -240,6 +246,8 @@ class TripRepositoryTest {
         trip4.setArrival(new Location("Olinda", "", ""));
         trip4.setStatus(TripStatus.COMPLETED);
         trip4.setTotalAmount(200.0);
+        trip4.setTotalSeats(4);
+        trip4.setAvailableSeats(3);
         tripRepository.save(trip4);
 
         Trip trip3 = new Trip();
@@ -251,6 +259,8 @@ class TripRepositoryTest {
         trip3.setArrival(new Location("Garanhuns", "", ""));
         trip3.setStatus(TripStatus.COMPLETED);
         trip3.setTotalAmount(200.0);
+        trip3.setTotalSeats(4);
+        trip3.setAvailableSeats(3);
         tripRepository.save(trip3);
 
         Specification<Trip> spec = TripSpecification.filter(null, null, null, "Recife", null, null);

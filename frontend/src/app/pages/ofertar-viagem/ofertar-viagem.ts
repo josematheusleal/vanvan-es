@@ -1,12 +1,16 @@
-import { Component, HostListener, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, HostListener, effect, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, switchMap } from 'rxjs/operators';
 import { Toggle } from '../../components/toggle/toggle';
 import { VehicleService } from '../../services/vehicle.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../components/toast/toast.service';
 import { PastTrip } from '../../models/trip.model';
+import { TripService } from '../../services/trip.service';
+import { CityService, City } from '../../services/city.service';
 
 export interface TripOffer {
   // Partida (Departure)
@@ -28,7 +32,6 @@ export interface TripOffer {
 
   // Pricing (Step 3)
   availableSeats: string;
-  customPrice: string;
 }
 
 /** Modelo de veículo para exibição no card de seleção */
@@ -55,7 +58,7 @@ export interface RepeatDays {
   templateUrl: './ofertar-viagem.html',
   styleUrls: ['./ofertar-viagem.css']
 })
-export class OfertarViagem {
+export class OfertarViagem implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
@@ -63,7 +66,9 @@ export class OfertarViagem {
     private vehicleService: VehicleService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private tripService: TripService,
+    private cityService: CityService
   ) {
     // Usar effect para reagir quando o usuário for carregado
     effect(() => {
@@ -78,11 +83,9 @@ export class OfertarViagem {
     this.route.queryParams.subscribe(params => {
       if (params['departureCity']) {
         this.tripOffer.departureCity = params['departureCity'] || '';
-        this.tripOffer.departureLocation = params['departureLocation'] || '';
-        this.tripOffer.departureReference = params['departureReference'] || '';
         this.tripOffer.destinationCity = params['destinationCity'] || '';
-        this.tripOffer.destinationLocation = params['destinationLocation'] || '';
-        this.tripOffer.destinationReference = params['destinationReference'] || '';
+        this.partidaQuery = this.tripOffer.departureCity;
+        this.destinoQuery = this.tripOffer.destinationCity;
         this.cdr.detectChanges();
       }
     });
@@ -110,9 +113,113 @@ export class OfertarViagem {
     date: '',
     time: '',
     selectedVehicleId: null,
-    availableSeats: '',
-    customPrice: ''
+    availableSeats: ''
   };
+
+  // ===== City Search (IBGE) =====
+  partidaQuery = '';
+  destinoQuery = '';
+  partidaSuggestions: City[] = [];
+  destinoSuggestions: City[] = [];
+  showPartidaDropdown = false;
+  showDestinoDropdown = false;
+
+  private partidaSearch$ = new Subject<string>();
+  private destinoSearch$ = new Subject<string>();
+  private subscriptions: Subscription[] = [];
+
+  ngOnInit(): void {
+    this.cityService.getAllCities().subscribe();
+
+    this.subscriptions.push(
+      this.partidaSearch$.pipe(
+        debounceTime(250),
+        switchMap(query => this.cityService.searchCities(query))
+      ).subscribe(cities => {
+        this.partidaSuggestions = cities;
+        this.showPartidaDropdown = cities.length > 0;
+      }),
+      this.destinoSearch$.pipe(
+        debounceTime(250),
+        switchMap(query => this.cityService.searchCities(query))
+      ).subscribe(cities => {
+        this.destinoSuggestions = cities;
+        this.showDestinoDropdown = cities.length > 0;
+      })
+    );
+
+    // Fetch real history
+    this.fetchHistory();
+  }
+
+  fetchHistory(): void {
+    const userId = this.authService.currentUser()?.id;
+    if (!userId) return;
+
+    this.tripService.getTripHistory(undefined, undefined, userId, undefined, undefined, undefined, 0, 10).subscribe({
+      next: (page: any) => {
+        if (page.content && page.content.length > 0) {
+          this.pastTrips = page.content.map((trip: any) => {
+            const dt = new Date(trip.date);
+            const day = String(dt.getDate() + 1).padStart(2, '0');
+            const monthStr = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'][dt.getMonth()];
+            
+            return {
+              id: trip.id.toString(),
+              origin: trip.departureCity,
+              destination: trip.arrivalCity,
+              price: `R$${(trip.totalAmount || 0).toFixed(2).replace('.', ',')}`,
+              distance: trip.route || '---',
+              date: `${day} ${monthStr}`,
+              time: trip.time
+            };
+          });
+          this.showHistoryCard = true;
+          this.cdr.detectChanges();
+        } else {
+          this.showHistoryCard = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching history:', err);
+        this.showHistoryCard = false;
+      }
+    });
+  }
+
+  private formatNominatimCity(city: string): string {
+    // Extracts just the city name (e.g. "Garanhuns" from "Garanhuns - PE")
+    // Nominatim works best with city name alone; backend already filters by countrycodes=br
+    return city.split(' - ')[0].trim();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.partidaSearch$.complete();
+    this.destinoSearch$.complete();
+  }
+
+  onPartidaInput(): void {
+    this.tripOffer.departureCity = this.partidaQuery;
+    this.partidaSearch$.next(this.partidaQuery);
+  }
+
+  onDestinoInput(): void {
+    this.tripOffer.destinationCity = this.destinoQuery;
+    this.destinoSearch$.next(this.destinoQuery);
+  }
+
+  selectPartida(city: City): void {
+    this.partidaQuery = city.label;
+    this.tripOffer.departureCity = city.label;
+    this.showPartidaDropdown = false;
+  }
+
+  selectDestino(city: City): void {
+    this.destinoQuery = city.label;
+    this.tripOffer.destinationCity = city.label;
+    this.showDestinoDropdown = false;
+  }
 
   // ===== Vehicles =====
   vehicles: VehicleCard[] = [];
@@ -147,26 +254,7 @@ export class OfertarViagem {
   }
 
   // ===== Past Trips (for history) =====
-  pastTrips: PastTrip[] = [
-    {
-      id: '1',
-      origin: 'Garanhuns',
-      destination: 'Recife',
-      price: 'R$400,00',
-      distance: '60km',
-      date: '10 Fev',
-      time: '08:00'
-    },
-    {
-      id: '2',
-      origin: 'Garanhuns',
-      destination: 'Recife',
-      price: 'R$400,00',
-      distance: '60km',
-      date: '10 Fev',
-      time: '08:00'
-    }
-  ];
+  pastTrips: PastTrip[] = [];
 
   // ===== Repeat Days =====
   repeatDays: RepeatDays = {
@@ -201,6 +289,12 @@ export class OfertarViagem {
     if (this.showHistoryCard || this.showRepeatCard) {
       this.closeAllSideCards();
     }
+
+    // Close Dropdowns if clicking outside
+    const isDropdownPartida = target.closest('.partida-dropdown-container');
+    const isDropdownDestino = target.closest('.destino-dropdown-container');
+    if (!isDropdownPartida) this.showPartidaDropdown = false;
+    if (!isDropdownDestino) this.showDestinoDropdown = false;
   }
 
   // ===== Navigation =====
@@ -254,18 +348,48 @@ export class OfertarViagem {
   }
 
   submitTrip(): void {
+    if (!this.tripOffer.selectedVehicleId) return;
+
     this.isLoading = true;
     this.errorMessage = '';
 
-    // TODO: Implement API call to create trip offer
-    console.log('Trip offer data:', this.tripOffer);
+    // Convert date "DD/MM/YYYY" to "YYYY-MM-DD"
+    const [day, month, year] = this.tripOffer.date.split('/');
+    const departureDate = `${year}-${month}-${day}`;
+    // Assuming departureTime is directly "HH:mm" from input
+    const departureTime = this.tripOffer.time; 
 
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      this.toastService.success('Viagem ofertada com sucesso!');
-      this.router.navigate(['/motorista']);
-    }, 1000);
+    this.tripService.createTrip({
+      date: departureDate,
+      time: departureTime,
+      departure: {
+        city: this.formatNominatimCity(this.partidaQuery),
+        street: this.tripOffer.departureLocation,
+        reference: this.tripOffer.departureReference
+      },
+      arrival: {
+        city: this.formatNominatimCity(this.destinoQuery),
+        street: this.tripOffer.destinationLocation,
+        reference: this.tripOffer.destinationReference
+      },
+      passengerIds: [],
+      driverId: this.authService.currentUser()?.id || '',
+      totalSeats: parseInt(this.tripOffer.availableSeats),
+      vehicleId: Number(this.tripOffer.selectedVehicleId),
+      status: 'SCHEDULED'
+    }).subscribe({
+      next: (trip) => {
+        this.isLoading = false;
+        this.toastService.success('Viagem ofertada com sucesso!');
+        this.router.navigate(['/motorista']);
+      },
+      error: (err) => {
+        console.error('Failed creating trip', err);
+        this.errorMessage = 'Falha ao criar a viagem.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   // ===== Vehicle Selection =====

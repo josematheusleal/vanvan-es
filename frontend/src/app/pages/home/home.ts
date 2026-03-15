@@ -8,6 +8,7 @@ import { CityService, City } from '../../services/city.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { Router, RouterModule } from '@angular/router';
+import { TripService, TripHistoryDTO } from '../../services/trip.service';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +22,7 @@ export class Home implements OnDestroy {
   private elementRef = inject(ElementRef);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private tripService = inject(TripService);
 
   typedDestinations = ['Recife', 'Garanhuns', 'Caruaru', 'Petrolina', 'João Pessoa'];
   currentDestination = '';
@@ -66,12 +68,87 @@ export class Home implements OnDestroy {
         })
       );
 
-      // TODO: replace with real API call
-      setTimeout(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 1200);
+      this.fetchTripData();
     });
+  }
+
+  private fetchTripData(): void {
+    // 1. Upcoming Trips (status = SCHEDULED)
+    const upcomingSub = this.tripService.getTripHistory(undefined, undefined, undefined, undefined, undefined, 'SCHEDULED', 0, 5)
+      .subscribe({
+        next: (page) => {
+          this.scheduledTrips = page.content.map((trip, index) => this.mapToUiTrip(trip, index === 0));
+          this.checkLoadingState();
+        },
+        error: (err) => {
+          console.error('Failed to load upcoming trips', err);
+          this.checkLoadingState();
+        }
+      });
+
+    // 2. Past Trips (status = COMPLETED)
+    const pastSub = this.tripService.getTripHistory(undefined, undefined, undefined, undefined, undefined, 'COMPLETED', 0, 5)
+      .subscribe({
+        next: (page) => {
+          this.pastTrips = page.content.map(trip => this.mapToUiTrip(trip, false));
+          this.checkLoadingState();
+        },
+        error: (err) => {
+          console.error('Failed to load past trips', err);
+          this.checkLoadingState();
+        }
+      });
+
+    this.subscriptions.push(upcomingSub, pastSub);
+  }
+
+  private checkLoadingState(): void {
+    // Simple state update, could refine with separate loaders
+    this.isLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  private mapToUiTrip(dto: TripHistoryDTO, isFirst: boolean): any {
+    const dateObj = new Date(dto.date);
+    const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const monthStr = months[dateObj.getMonth()];
+    const dayStr = String(dateObj.getDate() + 1).padStart(2, '0'); // Basic timezone adjustment
+
+    let variant: TagVariant = 'warning';
+    let statusLabel = 'Aguardando';
+
+    switch (dto.status) {
+      case 'SCHEDULED':
+        variant = 'success';
+        statusLabel = 'Confirmado';
+        break;
+      case 'COMPLETED':
+        variant = 'success';
+        statusLabel = 'Finalizado';
+        break;
+      case 'CANCELLED':
+        variant = 'error';
+        statusLabel = 'Cancelado';
+        break;
+      case 'IN_PROGRESS':
+        variant = 'warning';
+        statusLabel = 'Em Viagem';
+        break;
+    }
+
+    return {
+      id: dto.id,
+      month: monthStr,
+      day: dayStr,
+      origin: dto.departureCity,
+      destination: dto.arrivalCity,
+      price: `R$${dto.totalAmount.toFixed(2).replace('.', ',')}`,
+      time: dto.time,
+      vehicle: dto.route, // Assuming route string for now or fallback
+      variant: variant,
+      statusLabel: statusLabel,
+      isFirst: isFirst
+    };
   }
 
   ngOnDestroy(): void {
@@ -147,18 +224,8 @@ export class Home implements OnDestroy {
     }
   }
 
-  scheduledTrips = [
-    { id: '1', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX', variant: 'success' as TagVariant, statusLabel: 'Confirmado', isFirst: true },
-    { id: '2', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX', variant: 'warning' as TagVariant, statusLabel: 'Aguardando', isFirst: false },
-    { id: '3', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX', variant: 'error' as TagVariant, statusLabel: 'Recusado', isFirst: false },
-    { id: '4', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX', variant: 'error' as TagVariant, statusLabel: 'Recusado', isFirst: false },
-    { id: '5', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', time: '08:00', vehicle: 'Sprinter 2025 XXXX-XXX', variant: 'error' as TagVariant, statusLabel: 'Recusado', isFirst: false },
-  ];
-
-  pastTrips = [
-    { id: '10', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', variant: 'success' as TagVariant, statusLabel: 'Finalizado' },
-    { id: '11', month: 'FEV', day: '10', origin: 'Garanhuns', destination: 'Recife', price: 'R$40,00', variant: 'success' as TagVariant, statusLabel: 'Finalizado' },
-  ];
+  scheduledTrips: any[] = [];
+  pastTrips: any[] = [];
 
   dataViagem = '';
   passageiros = 1;
@@ -176,6 +243,12 @@ export class Home implements OnDestroy {
   }
 
   navigateToSearchTrips(): void {
-    this.router.navigate(['/buscar-viagens']);
+    const queryParams: any = {};
+    if (this.partidaQuery) queryParams.departureCity = this.partidaQuery;
+    if (this.destinoQuery) queryParams.arrivalCity = this.destinoQuery;
+    if (this.dataViagem) queryParams.date = this.dataViagem;
+    if (this.passageiros) queryParams.passengerCount = this.passageiros;
+
+    this.router.navigate(['/buscar-viagens'], { queryParams });
   }
 }

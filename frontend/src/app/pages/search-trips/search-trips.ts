@@ -1,24 +1,7 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, HostListener, OnInit, inject, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Viagem {
-  id: number;
-  origem: string;
-  destino: string;
-  mes: string;
-  dia: string;
-  horario: string;
-  vagas: number;
-  preco: number;
-  distancia: number;
-  localPartida: string;
-  pontoReferencia: string;
-  veiculoModelo: string;
-  veiculoPlaca: string;
-  motoristaNome: string;
-  motoristaNota: string;
-  imagemVeiculo: string;
-}
+import { ActivatedRoute, Router } from '@angular/router';
+import { TripService, TripHistoryDTO } from '../../services/trip.service';
 
 @Component({
   selector: 'app-buscar-viagem',
@@ -27,10 +10,17 @@ interface Viagem {
   templateUrl: './search-trips.html',
   styleUrls: ['./search-trips.css']
 })
-export class SearchTripsComponent {
+export class SearchTripsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('cardsContainer') cardsContainer!: ElementRef<HTMLElement>;
 
+  private tripService = inject(TripService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  isLoading = true;
+  viagens: any[] = [];
+  
   canScrollLeft = false;
   canScrollRight = true;
 
@@ -51,104 +41,70 @@ export class SearchTripsComponent {
     }
   }
 
+  constructor() {
+    afterNextRender(() => {
+      this.initSearch();
+    });
+  }
+
+  ngOnInit() {
+  }
+
+  private initSearch() {
+    this.route.queryParams.subscribe(params => {
+      this.isLoading = true;
+      
+      const date = params['date'];
+      const departureCity = params['departureCity'];
+      const arrivalCity = params['arrivalCity'];
+      const passengerCount = params['passengerCount'] ? parseInt(params['passengerCount'], 10) : undefined;
+
+      this.tripService.searchTrips(date, departureCity, arrivalCity, passengerCount).subscribe({
+        next: (page) => {
+          this.viagens = page.content.map(trip => this.mapToViagemUi(trip));
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Failed to search trips', err);
+          this.isLoading = false;
+        }
+      });
+    });
+  }
+
+  private mapToViagemUi(dto: TripHistoryDTO): any {
+    const dateObj = new Date(dto.date);
+    const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const monthStr = months[dateObj.getMonth()];
+    const dayStr = String(dateObj.getDate() + 1).padStart(2, '0');
+
+    return {
+      id: dto.id,
+      origem: dto.departureCity,
+      destino: dto.arrivalCity,
+      mes: monthStr,
+      dia: dayStr,
+      horario: dto.time,
+      vagas: dto.availableSeats,
+      preco: dto.totalAmount,
+      distancia: 0, // Ignored by UI mostly or mocked
+      localPartida: 'Centro', // Fallbacks since summary doesn't have it
+      pontoReferencia: 'Igreja principal',
+      veiculoModelo: dto.route, // Displaying route or vehicle model
+      veiculoPlaca: 'XXXX',
+      motoristaNome: dto.driverName,
+      motoristaNota: '4,9',
+      imagemVeiculo: 'https://placehold.co/225x118'
+    };
+  }
+
   updateScrollState() {
     const el = this.cardsContainer.nativeElement;
     this.canScrollLeft = el.scrollLeft > 8;
     this.canScrollRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 8;
   }
 
-  viagens: Viagem[] = [
-    {
-      id: 1,
-      origem: 'Garanhuns',
-      destino: 'Recife',
-      mes: 'FEV',
-      dia: '10',
-      horario: '08:00',
-      vagas: 15,
-      preco: 40.00,
-      distancia: 60,
-      localPartida: 'Rodoviária de Garanhuns',
-      pontoReferencia: 'Próximo ao guichê principal',
-      veiculoModelo: 'Mercedes-Benz Sprinter 2020',
-      veiculoPlaca: 'ABC-123',
-      motoristaNome: 'Carlos Silva',
-      motoristaNota: '4,8',
-      imagemVeiculo: 'https://placehold.co/225x118'
-    },
-    {
-      id: 2,
-      origem: 'Garanhuns',
-      destino: 'Recife',
-      mes: 'FEV',
-      dia: '10',
-      horario: '14:30',
-      vagas: 4,
-      preco: 40.00,
-      distancia: 60,
-      localPartida: 'Praça Mestre Dominguinhos',
-      pontoReferencia: 'Em frente ao relógio',
-      veiculoModelo: 'Renault Master 2022',
-      veiculoPlaca: 'XYZ-987',
-      motoristaNome: 'Ana Souza',
-      motoristaNota: '5,0',
-      imagemVeiculo: 'https://placehold.co/225x118'
-    },
-    {
-      id: 3,
-      origem: 'Garanhuns',
-      destino: 'Recife',
-      mes: 'FEV',
-      dia: '10',
-      horario: '14:30',
-      vagas: 4,
-      preco: 40.00,
-      distancia: 60,
-      localPartida: 'Praça Mestre Dominguinhos',
-      pontoReferencia: 'Em frente ao relógio',
-      veiculoModelo: 'Renault Master 2022',
-      veiculoPlaca: 'XYZ-987',
-      motoristaNome: 'Ana Souza',
-      motoristaNota: '5,0',
-      imagemVeiculo: 'https://placehold.co/225x118'
-    },
-    {
-      id: 4,
-      origem: 'Garanhuns',
-      destino: 'Recife',
-      mes: 'FEV',
-      dia: '10',
-      horario: '14:30',
-      vagas: 4,
-      preco: 40.00,
-      distancia: 60,
-      localPartida: 'Praça Mestre Dominguinhos',
-      pontoReferencia: 'Em frente ao relógio',
-      veiculoModelo: 'Renault Master 2022',
-      veiculoPlaca: 'XYZ-987',
-      motoristaNome: 'Ana Souza',
-      motoristaNota: '5,0',
-      imagemVeiculo: 'https://placehold.co/225x118'
-    },
-    {
-      id: 5,
-      origem: 'Garanhuns',
-      destino: 'Recife',
-      mes: 'FEV',
-      dia: '10',
-      horario: '14:30',
-      vagas: 4,
-      preco: 40.00,
-      distancia: 60,
-      localPartida: 'Praça Mestre Dominguinhos',
-      pontoReferencia: 'Em frente ao relógio',
-      veiculoModelo: 'Renault Master 2022',
-      veiculoPlaca: 'XYZ-987',
-      motoristaNome: 'Ana Souza',
-      motoristaNota: '5,0',
-      imagemVeiculo: 'https://placehold.co/225x118'
-    }
-  ];
+  // removed mock data
 
   // ==========================================
   // CONTROLE DOS MODAIS E PAGAMENTO
@@ -177,14 +133,24 @@ export class SearchTripsComponent {
   }
 
   fazerPagamento() {
-    this.showConfirmModal = false;
-    this.showPaymentModal = true;
+    this.tripService.bookTrip(this.viagemSelecionada.id).subscribe({
+      next: () => {
+        this.showConfirmModal = false;
+        this.showPaymentModal = true;
+      },
+      error: (err) => {
+        console.error('Failed to book trip', err);
+        alert('Erro ao reservar viagem. Verifique as vagas.');
+      }
+    });
   }
 
 
   fecharModalPagamento() {
     this.showPaymentModal = false;
     this.viagemSelecionada = {};
+    // Pós pagamento ele viaja pro histórico dele
+    this.router.navigate(['/viagens']);
   }
 
   scrollCardsLeft() {

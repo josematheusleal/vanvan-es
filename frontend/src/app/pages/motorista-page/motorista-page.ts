@@ -1,8 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ToastService } from '../../components/toast/toast.service';
 import { RatingService } from '../../services/rating.service';
+import { TripService } from '../../services/trip.service';
+import { AuthService } from '../../services/auth.service';
 
 type TripStatus = 'none' | 'scheduled' | 'in_progress' | 'arriving' | 'completed';
 
@@ -16,27 +19,112 @@ type TripStatus = 'none' | 'scheduled' | 'in_progress' | 'arriving' | 'completed
 export class MotoristaPage implements OnInit, OnDestroy {
 
   driverRating = { averageScore: 0, totalRatings: 0 };
+  private tripService = inject(TripService);
+  private authService = inject(AuthService);
+  private isBrowser: boolean;
 
   constructor(
     private router: Router,
     private toastService: ToastService,
-    private ratingService: RatingService
-  ) {}
+    private ratingService: RatingService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
+
+    // 1. Fetch ratings
     this.ratingService.getDriverMediaAvaliacao().subscribe({
       next: (rating) => {
         this.driverRating = rating;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Erro ao buscar notas do motorista:', err);
+      }
+    });
+
+    // 2. Fetch driver active or next trip
+    this.fetchDriverNextTrip();
+
+    // 3. Update rate dynamically
+    this.authService.getDriverMe().subscribe(user => {
+       if (user && user.ratePerKm != null) {
+          this.pricing.ratePerKm = `R$${user.ratePerKm.toFixed(2).replace('.', ',')}/km`;
+          this.calculateEstimatedPrices(user.ratePerKm);
+          this.cdr.detectChanges();
+       }
+    });
+  }
+
+  fetchDriverNextTrip() {
+    this.tripService.getTripHistory(undefined, undefined, undefined, undefined, undefined, undefined, 0, 5).subscribe({
+      next: (page: any) => {
+        // Try finding one in progress
+        let activeTrip = page.content.find((t: any) => t.status === 'IN_PROGRESS');
+        if (!activeTrip) {
+          // If no active trip, grab first scheduled
+          activeTrip = page.content.find((t: any) => t.status === 'SCHEDULED');
+        }
+
+        if (activeTrip) {
+          const dt = new Date(activeTrip.date);
+          const day = String(dt.getDate() + 1).padStart(2, '0');
+          const monthStr = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'][dt.getMonth()];
+          
+          this.currentTrip = {
+            id: activeTrip.id,
+            availableSeats: activeTrip.availableSeats,
+            confirmedPassengers: activeTrip.passengerCount,
+            origin: activeTrip.departureCity,
+            destination: activeTrip.arrivalCity,
+            distance: `0km`,
+            distanceNum: 0,
+            departureLocation: 'Rodoviária', // Fallback
+            arrivalLocation: 'Terminal', // Fallback
+            date: `${day} ${monthStr}`,
+            time: activeTrip.time,
+            pricePerSeat: activeTrip.totalAmount // fallback
+          };
+          this.tripStatus = activeTrip.status === 'IN_PROGRESS' ? 'in_progress' : 'scheduled';
+        } else {
+          this.currentTrip = null;
+          this.tripStatus = 'none';
+        }
+
+        // Set past trips dynamically
+        this.pastTrips = page.content
+          .filter((t: any) => t.status === 'COMPLETED' || t.status === 'CANCELLED')
+          .slice(0, 3)
+          .map((trip: any) => {
+            const dt = new Date(trip.date);
+            const day = String(dt.getDate() + 1).padStart(2, '0');
+            const monthStr = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'][dt.getMonth()];
+            
+            return {
+              origin: trip.departureCity,
+              destination: trip.arrivalCity,
+              price: `R$${(trip.totalAmount || 0).toFixed(2).replace('.', ',')}`,
+              distance: trip.route || '---',
+              date: `${day} ${monthStr}`,
+              time: trip.time
+            };
+          });
+      },
+      error: (err: any) => {
+        console.error('Failed fetching driver trip', err);
+        this.currentTrip = null;
+        this.tripStatus = 'none';
       }
     });
   }
 
 
   // ===== Trip Status =====
-  tripStatus: TripStatus = 'scheduled'; // Estado padrão com viagem agendada
+  tripStatus: TripStatus = 'none'; // Estado padrão silencioso sem mock
 
   // ===== Timer =====
   elapsedTime = 0; // em segundos
@@ -49,35 +137,7 @@ export class MotoristaPage implements OnInit, OnDestroy {
   distanceRemaining = '230km';
 
   // ===== Current Trip =====
-  // Dados de exemplo - quando integrar com backend, pode ser null para mostrar estado 'none'
-  currentTrip: any = {
-    availableSeats: 14,
-    confirmedPassengers: 12,
-    origin: 'Garanhuns',
-    destination: 'Recife',
-    distance: '230km',
-    distanceNum: 230,
-    departureLocation: 'Rodoviária - Garanhuns',
-    arrivalLocation: 'Rodoviária - Recife',
-    date: '10 Fev',
-    time: '08:00',
-    pricePerSeat: 45.00,
-  };
-
-  // Dados de exemplo para quando tiver viagem (backup)
-  private sampleTrip = {
-    availableSeats: 14,
-    confirmedPassengers: 12,
-    origin: 'Garanhuns',
-    destination: 'Recife',
-    distance: '230km',
-    distanceNum: 230,
-    departureLocation: 'Rodoviária - Garanhuns',
-    arrivalLocation: 'Rodoviária - Recife',
-    date: '10 Fev',
-    time: '08:00',
-    pricePerSeat: 45.00,
-  };
+  currentTrip: any = null;
 
   // ===== Passengers (para viagem em andamento) =====
   passengers = [
@@ -107,31 +167,31 @@ export class MotoristaPage implements OnInit, OnDestroy {
   }
 
   cancelCurrentTrip(): void {
-    if (this.tripStatus === 'in_progress') {
-      this.resetTrip();
-      this.toastService.error('Viagem em andamento cancelada');
-    } else {
-      this.resetTrip();
-      this.toastService.success('Viagem cancelada');
-    }
+    if (!this.currentTrip) return;
+    this.updateTripStatusOnBackend('CANCELLED', () => {
+       this.resetTrip();
+       this.toastService.success('Viagem cancelada com sucesso');
+    });
   }
 
   startTrip(): void {
     if (!this.currentTrip) return;
-    this.tripStatus = 'in_progress';
-    this.elapsedTime = 0;
-    this.tripProgress = 0;
-    this.estimatedArrival = this.calculateEstimatedArrival();
-    this.distanceTraveled = '0km';
-    this.distanceRemaining = this.currentTrip.distance;
+    this.updateTripStatusOnBackend('IN_PROGRESS', () => {
+      this.tripStatus = 'in_progress';
+      this.elapsedTime = 0;
+      this.tripProgress = 0;
+      this.estimatedArrival = this.calculateEstimatedArrival();
+      this.distanceTraveled = '0km';
+      this.distanceRemaining = this.currentTrip.distance;
 
-    this.toastService.success('Viagem iniciada! Boa viagem!');
+      this.toastService.success('Viagem iniciada! Boa viagem!');
 
-    // Iniciar cronômetro
-    this.timerInterval = setInterval(() => {
-      this.elapsedTime++;
-      this.updateTripProgress();
-    }, 1000);
+      // Iniciar cronômetro
+      this.timerInterval = setInterval(() => {
+        this.elapsedTime++;
+        this.updateTripProgress();
+      }, 1000);
+    });
   }
 
   pauseTrip(): void {
@@ -148,29 +208,48 @@ export class MotoristaPage implements OnInit, OnDestroy {
   }
 
   finishTrip(): void {
-    this.tripStatus = 'completed';
-    this.tripProgress = 100;
-    this.distanceTraveled = this.currentTrip.distance;
-    this.distanceRemaining = '0km';
+    if (!this.currentTrip) return;
+    this.updateTripStatusOnBackend('COMPLETED', () => {
+      this.tripStatus = 'completed';
+      this.tripProgress = 100;
+      this.distanceTraveled = this.currentTrip.distance;
+      this.distanceRemaining = '0km';
 
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+      }
 
-    this.toastService.success('Viagem finalizada com sucesso!');
+      this.toastService.success('Viagem finalizada com sucesso!');
 
-    // Mostrar resumo após 5 segundos
-    setTimeout(() => {
-      this.resetTrip();
-    }, 5000);
+      // Fetch fresh empty trips again
+      setTimeout(() => {
+        this.fetchDriverNextTrip();
+      }, 3000);
+    });
+  }
+
+  private calculateEstimatedPrices(rate: number): void {
+    const distances = [50, 100, 250];
+    this.pricing.routes = distances.map(d => ({
+      distance: `${d}km`,
+      price: `R$${(d * rate).toFixed(2).replace('.', ',')}`
+    }));
+  }
+
+  private updateTripStatusOnBackend(status: string, callback: () => void) {
+      this.tripService.updateTripStatus(this.currentTrip.id, status).subscribe({
+         next: () => callback(),
+         error: (err: any) => {
+            console.error('Failed to change trip status', err);
+            this.toastService.error('Erro na alteração do status da viagem.');
+         }
+      })
   }
 
   private resetTrip(): void {
-    // TODO: Quando integrar com backend, usar 'none' se não houver próxima viagem
     this.tripStatus = 'scheduled';
-    // Restaurar dados de exemplo
-    this.currentTrip = { ...this.sampleTrip };
+    this.currentTrip = null;
     this.elapsedTime = 0;
     this.tripProgress = 0;
     if (this.timerInterval) {
@@ -253,16 +332,7 @@ export class MotoristaPage implements OnInit, OnDestroy {
   }
 
   // ===== Past Trips =====
-  pastTrips = [
-    {
-      origin: 'Garanhuns',
-      destination: 'Recife',
-      price: 'R$400,00',
-      distance: '60km',
-      date: '10 Fev',
-      time: '08:00',
-    },
-  ];
+  pastTrips: any[] = [];
 
   // ===== Report Data =====
   report = {
@@ -281,7 +351,7 @@ export class MotoristaPage implements OnInit, OnDestroy {
 
   // ===== Pricing =====
   pricing = {
-    ratePerKm: 'R$0,70/km',
+    ratePerKm: '---/km',
     routes: [
       { distance: '50km', price: 'R$35,00' },
       { distance: '100km', price: 'R$70,00' },

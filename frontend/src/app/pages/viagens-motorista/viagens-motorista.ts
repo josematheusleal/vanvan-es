@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { PastTrip } from '../../models/trip.model';
+import { TripService } from '../../services/trip.service';
 
 @Component({
   selector: 'app-viagens-motorista',
@@ -16,7 +17,8 @@ export class ViagensMotorista {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private tripService: TripService
   ) {
     // Carregar viagens quando o usuário estiver disponível
     effect(() => {
@@ -37,94 +39,8 @@ export class ViagensMotorista {
   selectedFilter: 'all' | 'completed' | 'cancelled' = 'all';
 
   // ===== Trips Data =====
-  // TODO: Substituir por dados da API quando disponível
-  pastTrips: PastTrip[] = [
-    {
-      id: '1',
-      origin: 'Garanhuns',
-      originLocation: 'Rodoviária de Garanhuns',
-      originReference: 'Em frente ao relógio das flores',
-      destination: 'Recife',
-      destinationLocation: 'Terminal Integrado de Passageiros',
-      destinationReference: 'TIP - Recife',
-      price: 'R$45,00',
-      distance: '230km',
-      date: '10/02/2026',
-      time: '08:00',
-      passengers: 12,
-      status: 'completed',
-      vehicleName: 'Mercedes-Benz Sprinter 2022',
-      vehiclePlate: 'ABC1D23'
-    },
-    {
-      id: '2',
-      origin: 'Recife',
-      originLocation: 'Terminal Integrado de Passageiros',
-      originReference: 'TIP - Recife',
-      destination: 'Garanhuns',
-      destinationLocation: 'Rodoviária de Garanhuns',
-      destinationReference: 'Em frente ao relógio das flores',
-      price: 'R$45,00',
-      distance: '230km',
-      date: '10/02/2026',
-      time: '14:00',
-      passengers: 8,
-      status: 'completed',
-      vehicleName: 'Mercedes-Benz Sprinter 2022',
-      vehiclePlate: 'ABC1D23'
-    },
-    {
-      id: '3',
-      origin: 'Garanhuns',
-      originLocation: 'Rodoviária de Garanhuns',
-      originReference: 'Em frente ao relógio das flores',
-      destination: 'Caruaru',
-      destinationLocation: 'Rodoviária de Caruaru',
-      destinationReference: 'Centro',
-      price: 'R$30,00',
-      distance: '120km',
-      date: '08/02/2026',
-      time: '07:00',
-      passengers: 14,
-      status: 'completed',
-      vehicleName: 'Mercedes-Benz Sprinter 2022',
-      vehiclePlate: 'ABC1D23'
-    },
-    {
-      id: '4',
-      origin: 'Garanhuns',
-      originLocation: 'Rodoviária de Garanhuns',
-      originReference: 'Em frente ao relógio das flores',
-      destination: 'Maceió',
-      destinationLocation: 'Terminal Rodoviário de Maceió',
-      destinationReference: 'Centro',
-      price: 'R$55,00',
-      distance: '280km',
-      date: '05/02/2026',
-      time: '06:00',
-      passengers: 0,
-      status: 'cancelled',
-      vehicleName: 'Mercedes-Benz Sprinter 2022',
-      vehiclePlate: 'ABC1D23'
-    },
-    {
-      id: '5',
-      origin: 'Caruaru',
-      originLocation: 'Rodoviária de Caruaru',
-      originReference: 'Centro',
-      destination: 'Recife',
-      destinationLocation: 'Terminal Integrado de Passageiros',
-      destinationReference: 'TIP - Recife',
-      price: 'R$25,00',
-      distance: '130km',
-      date: '03/02/2026',
-      time: '09:00',
-      passengers: 10,
-      status: 'completed',
-      vehicleName: 'Mercedes-Benz Sprinter 2022',
-      vehiclePlate: 'ABC1D23'
-    }
-  ];
+  pastTrips: PastTrip[] = [];
+
 
   // ===== Computed =====
   get filteredTrips(): PastTrip[] {
@@ -157,14 +73,39 @@ export class ViagensMotorista {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // TODO: Implementar chamada à API quando disponível
-    // this.tripService.getDriverTrips(userId).subscribe({...})
+    // Utilizando o backend via TripService (a busca de history driverId = userId é via /api/trips/history)
+    this.tripService.getTripHistory(undefined, undefined, userId).subscribe({
+      next: (response) => {
+        this.pastTrips = response.content.map(trip => ({
+          id: trip.id.toString(),
+          origin: trip.departureCity,
+          originLocation: '---', // backend omit details on history list usually
+          originReference: '',
+          destination: trip.arrivalCity,
+          destinationLocation: '---',
+          destinationReference: '',
+          price: `R$${(trip.totalAmount || 0).toFixed(2).replace('.', ',')}`,
+          distance: trip.route || 'N/A',
+          date: new Date(trip.date).toLocaleDateString('pt-BR'), // convert "YYYY-MM-DD" para "DD/MM/YYYY" conforme UI
+          time: trip.time,
+          passengers: trip.passengerCount || 0,
+          status: (trip.status === 'SCHEDULED' || trip.status === 'IN_PROGRESS')
+                  ? undefined 
+                  : trip.status === 'CANCELLED' ? 'cancelled' : 'completed',
+          vehicleName: trip.driverName, // Hack até obtermos nome do veículo do history list
+          vehiclePlate: '' 
+        }));
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching driver trips history', err);
+        this.pastTrips = []; // fallback to empty state
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
 
-    // Simulando carregamento
-    setTimeout(() => {
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }, 500);
   }
 
   setFilter(filter: 'all' | 'completed' | 'cancelled'): void {

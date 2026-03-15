@@ -99,7 +99,7 @@
                       'bg-yellow-100 text-yellow-700': trip.status === 'SCHEDULED',
                       'bg-red-100 text-red-700':       trip.status === 'CANCELLED'
                     }">
-                {{ statusLabel[trip.status] ?? trip.status }}
+                {{ statusLabel[trip.status] || trip.status }}
               </span>
             </div>
 

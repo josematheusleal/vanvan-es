@@ -12,6 +12,7 @@ export interface UserProfile {
   role: string;
   registrationStatus?: string; // PENDING | APPROVED | REJECTED (drivers only)
   rejectionReason?: string;
+  ratePerKm?: number;
 }
 
 @Injectable({
@@ -126,6 +127,14 @@ export class AuthService {
   /** Fetch the authenticated user's profile from backend */
   getMe(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.USER_API_URL}/me`);
+  }
+
+  getDriverMe(): Observable<UserProfile> {
+     return this.getMe();
+  }
+
+  updateDriverRate(ratePerKm: number): Observable<{ratePerKm: number, message: string}> {
+     return this.http.put<{ratePerKm: number, message: string}>(`${this.USER_API_URL}/rate`, { ratePerKm });
   }
 
   /** Fire-and-forget profile fetch for constructor/startup */

@@ -1,9 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, afterNextRender } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, afterNextRender, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteMap, RoutePoint } from '../../components/route-map/route-map';
 import { Tag, TagVariant } from '../../components/tags/tags';
 import { Skeleton } from '../../components/skeleton/skeleton';
+import { TripService, TripDetailsDTO, PassengerDTO } from '../../services/trip.service';
 
 export interface TripPassenger {
   id: string;
@@ -52,14 +53,15 @@ export interface TripDetail {
 })
 export class TripDetails implements OnInit {
   tripId: string = '';
-  trip: TripDetail | null = null;
+  trip: any | null = null;
   isLoading = true;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-  ) {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+  private tripService = inject(TripService);
+
+  constructor() {
     afterNextRender(() => {
       this.loadTrip();
     });
@@ -70,85 +72,97 @@ export class TripDetails implements OnInit {
   }
 
   private loadTrip(): void {
+    if (!this.tripId) return;
+
     this.isLoading = true;
+    this.tripService.getTripDetails(Number(this.tripId)).subscribe({
+      next: (dto) => {
+        this.trip = this.mapToUiDetail(dto);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load trip details', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
-    // TODO: Replace with real API call — tripService.getTripById(this.tripId)
-    setTimeout(() => {
-      this.trip = {
-        id: this.tripId || '1',
-        origin: 'Garanhuns',
-        originLocation: 'Rodoviária de Garanhuns',
-        originReference: 'Em frente ao relógio das flores',
-        destination: 'Recife',
-        destinationLocation: 'Terminal Integrado de Passageiros',
-        destinationReference: 'TIP – Recife',
-        date: '10/03/2026',
-        time: '08:00',
-        price: 'R$45,00',
-        distance: '230 km',
-        duration: '3h 20min',
-        availableSeats: 6,
-        totalSeats: 15,
-        status: 'scheduled',
-        driverName: 'Carlos Silva',
-        driverPhone: '(87) 99999-1234',
-        driverRating: 4.8,
-        vehicleModel: 'Mercedes-Benz Sprinter 2022',
-        vehiclePlate: 'ABC1D23',
-        vehicleImage: 'assets/VAN-EMPTY.png',
-        originCoords: { lat: -8.8828, lng: -36.4964 },
-        destinationCoords: { lat: -8.0476, lng: -34.8770 },
-        passengers: [
-          { id: '1', name: 'Ana Maria Souza', phone: '(81) 99876-5432', boardingPoint: 'Rodoviária', status: 'confirmed' },
-          { id: '2', name: 'João Pedro Lima', phone: '(81) 98765-4321', boardingPoint: 'Rodoviária', status: 'confirmed' },
-          { id: '3', name: 'Maria Clara Oliveira', phone: '(87) 99654-3210', boardingPoint: 'Praça Mestre Dominguinhos', status: 'confirmed' },
-          { id: '4', name: 'Lucas Henrique', phone: '(81) 97543-2109', boardingPoint: 'Rodoviária', status: 'pending' },
-          { id: '5', name: 'Fernanda Costa', phone: '(87) 96432-1098', boardingPoint: 'Rodoviária', status: 'confirmed' },
-          { id: '6', name: 'Rafael Santos', phone: '(81) 95321-0987', boardingPoint: 'Praça Mestre Dominguinhos', status: 'confirmed' },
-          { id: '7', name: 'Beatriz Almeida', phone: '(87) 94210-9876', boardingPoint: 'Rodoviária', status: 'confirmed' },
-          { id: '8', name: 'Gabriel Ferreira', phone: '(81) 93109-8765', boardingPoint: 'Rodoviária', status: 'confirmed' },
-          { id: '9', name: 'Isabela Rodrigues', phone: '(87) 92098-7654', boardingPoint: 'Praça Mestre Dominguinhos', status: 'cancelled' },
-        ],
-        hasAirConditioning: true,
-        acceptsPets: false,
-        hasLargeLuggage: true,
-      };
+  private mapToUiDetail(dto: TripDetailsDTO): any {
+    // Parsing date
+    const dt = new Date(dto.date);
+    const day = String(dt.getDate() + 1).padStart(2, '0');
+    const month = String(dt.getMonth() + 1).padStart(2, '0');
+    const year = dt.getFullYear();
 
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }, 800);
+    return {
+      id: dto.id.toString(),
+      origin: dto.departureCity,
+      originLocation: dto.departureStreet || dto.departureCity,
+      originReference: dto.departureReferencePoint || '-',
+      destination: dto.arrivalCity,
+      destinationLocation: dto.arrivalStreet || dto.arrivalCity,
+      destinationReference: dto.arrivalReferencePoint || '-',
+      date: `${day}/${month}/${year}`,
+      time: dto.time,
+      price: `R$${dto.totalAmount.toFixed(2).replace('.', ',')}`,
+      distance: `${dto.distanceKm} km`,
+      duration: `${dto.durationMinutes} min`,
+      availableSeats: dto.availableSeats,
+      totalSeats: dto.totalSeats,
+      status: dto.status,
+      driverName: dto.driverName,
+      driverPhone: 'Em breve',
+      driverRating: 4.8,
+      vehicleModel: dto.vehicleModel || 'Van Padrão',
+      vehiclePlate: dto.vehiclePlate || 'XXXX-XXX',
+      vehicleImage: 'assets/VAN-EMPTY.png',
+      originCoords: { lat: -8.8828, lng: -36.4964 }, // Hardcoded map coords initially
+      destinationCoords: { lat: -8.0476, lng: -34.8770 },
+      passengers: dto.passengers.map((p, i) => ({
+        id: (i + 1).toString(),
+        name: p.name,
+        phone: p.phone,
+        boardingPoint: dto.departureCity,
+        status: 'confirmed'
+      })),
+      hasAirConditioning: true,
+      acceptsPets: false,
+      hasLargeLuggage: true,
+    };
   }
 
   get statusLabel(): string {
     switch (this.trip?.status) {
-      case 'scheduled': return 'Agendada';
-      case 'in-progress': return 'Em andamento';
-      case 'completed': return 'Finalizada';
-      case 'cancelled': return 'Cancelada';
-      default: return '';
+      case 'SCHEDULED': return 'Agendada';
+      case 'IN_PROGRESS': return 'Em andamento';
+      case 'COMPLETED': return 'Finalizada';
+      case 'CANCELLED': return 'Cancelada';
+      default: return 'Agendada';
     }
   }
 
   get statusVariant(): TagVariant {
     switch (this.trip?.status) {
-      case 'scheduled': return 'warning';
-      case 'in-progress': return 'info';
-      case 'completed': return 'success';
-      case 'cancelled': return 'error';
+      case 'SCHEDULED': return 'warning';
+      case 'IN_PROGRESS': return 'info';
+      case 'COMPLETED': return 'success';
+      case 'CANCELLED': return 'error';
       default: return 'warning';
     }
   }
 
   get confirmedCount(): number {
-    return this.trip?.passengers.filter(p => p.status === 'confirmed').length ?? 0;
+    return this.trip?.passengers.filter((p: any) => p.status === 'confirmed').length ?? 0;
   }
 
   get pendingCount(): number {
-    return this.trip?.passengers.filter(p => p.status === 'pending').length ?? 0;
+    return this.trip?.passengers.filter((p: any) => p.status === 'pending').length ?? 0;
   }
 
   get cancelledCount(): number {
-    return this.trip?.passengers.filter(p => p.status === 'cancelled').length ?? 0;
+    return this.trip?.passengers.filter((p: any) => p.status === 'cancelled').length ?? 0;
   }
 
   get occupancyPercent(): number {

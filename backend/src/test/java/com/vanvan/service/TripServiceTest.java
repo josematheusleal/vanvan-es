@@ -109,6 +109,8 @@ class TripServiceTest {
         trip1.setPassengers(List.of(passenger));
         trip1.setTotalAmount(100.0);
         trip1.setStatus(TripStatus.COMPLETED);
+        trip1.setTotalSeats(4);
+        trip1.setAvailableSeats(3);
 
         Page<Trip> pageTrips = new PageImpl<>(List.of(trip1));
 
@@ -155,6 +157,8 @@ class TripServiceTest {
         trip.setPassengers(List.of(passenger1, passenger2));
         trip.setTotalAmount(200.0);
         trip.setStatus(TripStatus.CANCELLED);
+        trip.setTotalSeats(4);
+        trip.setAvailableSeats(2);
 
         Page<Trip> pageTrips = new PageImpl<>(List.of(trip));
 
@@ -327,6 +331,8 @@ class TripServiceTest {
         savedTrip.setTotalAmount(195.0);
         savedTrip.setDistanceKm(130.0);
         savedTrip.setDurationMinutes(90.0);
+        savedTrip.setTotalSeats(1);
+        savedTrip.setAvailableSeats(0);
 
         when(tripRepository.save(any())).thenReturn(savedTrip);
 
@@ -374,6 +380,8 @@ class TripServiceTest {
         savedTrip.setPassengers(List.of(passenger));
         savedTrip.setStatus(TripStatus.SCHEDULED);
         savedTrip.setTotalAmount(100.0);
+        savedTrip.setTotalSeats(4);
+        savedTrip.setAvailableSeats(3);
 
         when(tripRepository.save(any())).thenReturn(savedTrip);
 
@@ -507,6 +515,8 @@ class TripServiceTest {
         trip.setArrival(arrival);
         trip.setPassengers(List.of(p1, p2));
         trip.setStatus(TripStatus.IN_PROGRESS);
+        trip.setTotalSeats(4);
+        trip.setAvailableSeats(2);
 
         return trip;
     }
@@ -529,6 +539,7 @@ class TripServiceTest {
         dto.setDeparture(departure);
         dto.setArrival(arrival);
         dto.setPassengerIds(List.of(UUID.randomUUID()));
+        dto.setTotalSeats(4);
         dto.setPerKmRate(1.5);
         return dto;
     }

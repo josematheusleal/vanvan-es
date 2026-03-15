@@ -128,5 +128,21 @@ public class UserService {
 
     }
 
+    // Update driver's custom Rate per Km
+    @Transactional
+    public Double updateDriverRate(User user, Double ratePerKm) {
+        if (!(user instanceof Driver driver)) {
+            throw new IllegalArgumentException("Apenas motoristas podem ajustar a tarifa.");
+        }
+
+        if (ratePerKm < 0.50 || ratePerKm > 1.50) { // Exemplo de limites de segurança
+            throw new IllegalArgumentException("Tarifa fora dos limites permitidos.");
+        }
+
+        driver.setRatePerKm(ratePerKm);
+        driverRepository.save(driver);
+
+        return driver.getRatePerKm();
+    }
 
 }
