@@ -1,6 +1,8 @@
 package com.vanvan.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vanvan.dto.*;
 import com.vanvan.enums.RegistrationStatus;
 import com.vanvan.exception.GlobalExceptionHandler;
@@ -12,24 +14,21 @@ import com.vanvan.service.VehicleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,52 +39,49 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// 1. Apenas declara o WebMvcTest limpo
-@WebMvcTest(controllers = AdminController.class)
-// 2. Desativa a execução dos filtros de segurança no MockMvc
-@AutoConfigureMockMvc(addFilters = false) 
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
 class AdminControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
+    @Mock
     private AdminService adminService;
 
-    @MockitoBean
+    @Mock
     private PricingService pricingService;
 
-    @MockitoBean
+    @Mock
     private VehicleService vehicleService;
 
-    private static final UserDetails userDetailsMock = mock(UserDetails.class);
+    @InjectMocks
+    private AdminController adminController;
 
-    @TestConfiguration
-    static class WebConfig implements WebMvcConfigurer {
-        @Override
-        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-            resolvers.add(new HandlerMethodArgumentResolver() {
-                @Override
-                public boolean supportsParameter(MethodParameter parameter) {
-                    return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
-                }
-
-                @Override
-                public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                              NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-                    return userDetailsMock;
-                }
-            });
-        }
-    }
+    private UserDetails userDetailsMock;
+    
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     @BeforeEach
-    void setUp() {
-        reset(userDetailsMock);
+    void setup() {
+        userDetailsMock = mock(UserDetails.class);
+        HandlerMethodArgumentResolver authResolver = new HandlerMethodArgumentResolver() {
+            @Override
+            public boolean supportsParameter(MethodParameter parameter) {
+                return parameter.hasParameterAnnotation(
+                        org.springframework.security.core.annotation.AuthenticationPrincipal.class);
+            }
+            @Override
+            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                          NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                return userDetailsMock;
+            }
+        };
+
+        mockMvc = MockMvcBuilders.standaloneSetup(adminController)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(), authResolver)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Test
@@ -101,6 +97,7 @@ class AdminControllerTest {
         UUID id = UUID.randomUUID();
         doThrow(new IllegalArgumentException("Erro de negócio"))
                 .when(adminService).deleteClient(id);
+
         mockMvc.perform(delete("/api/admin/clients/{id}", id))
                 .andExpect(status().isBadRequest());
     }
@@ -131,8 +128,10 @@ class AdminControllerTest {
                 "52998224725", "12345678900", LocalDate.of(1990, 1, 1),
                 RegistrationStatus.APPROVED, null);
         when(adminService.updateDriverStatus(any(), any())).thenReturn(dto);
+        
         String body = objectMapper.writeValueAsString(
                 new DriverStatusUpdateDTO(RegistrationStatus.APPROVED, null));
+                
         mockMvc.perform(put("/api/admin/drivers/" + UUID.randomUUID() + "/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -147,8 +146,10 @@ class AdminControllerTest {
                 "52998224725", "12345678900", LocalDate.of(1990, 1, 1),
                 RegistrationStatus.APPROVED, null);
         when(adminService.updateDriver(any(), any())).thenReturn(dto);
+        
         String body = objectMapper.writeValueAsString(
                 new DriverUpdateDTO("João", null, null, null, null, null));
+                
         mockMvc.perform(put("/api/admin/drivers/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -172,6 +173,7 @@ class AdminControllerTest {
         Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
                 "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
         when(adminService.getClientById(any())).thenReturn(passenger);
+        
         mockMvc.perform(get("/api/admin/clients/" + UUID.randomUUID()))
                 .andExpect(status().isOk());
     }
@@ -184,6 +186,7 @@ class AdminControllerTest {
         when(adminService.createClient(any())).thenReturn(passenger);
 
         String body = objectMapper.writeValueAsString(passenger);
+        
         mockMvc.perform(post("/api/admin/clients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -199,6 +202,7 @@ class AdminControllerTest {
         Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
                 "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
         String body = objectMapper.writeValueAsString(passenger);
+        
         mockMvc.perform(post("/api/admin/clients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -213,6 +217,7 @@ class AdminControllerTest {
         when(adminService.updateClient(any(), any())).thenReturn(passenger);
 
         String body = objectMapper.writeValueAsString(passenger);
+        
         mockMvc.perform(put("/api/admin/clients/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -228,6 +233,7 @@ class AdminControllerTest {
         Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
                 "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
         String body = objectMapper.writeValueAsString(passenger);
+        
         mockMvc.perform(put("/api/admin/clients/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -247,8 +253,10 @@ class AdminControllerTest {
     void updatePricing_returns200() throws Exception {
         when(userDetailsMock.getUsername()).thenReturn("admin@email.com");
         when(pricingService.updatePricing(any(), any())).thenReturn(new Pricing());
+        
         String body = objectMapper.writeValueAsString(
                 new PricingUpdateDTO(10.0, 1.5, 2.5, 15.0));
+                
         mockMvc.perform(put("/api/admin/settings/pricing")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
