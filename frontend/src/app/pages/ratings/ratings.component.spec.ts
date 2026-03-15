@@ -6,25 +6,34 @@ import { of, throwError } from 'rxjs';
 import { RatingsComponent } from './ratings';
 import { RatingService, Rating } from '../../services/rating.service';
 import { ToastService } from '../../components/toast/toast.service';
+import { PageResponse } from '../../models/pagination.model';
 
 const mockRating = (overrides: Partial<Rating> = {}): Rating => ({
-  id: '1',
+  id: 1,
+  tripId: 1001,
+  driverId: 'driver-uuid-1',
+  driverName: 'João Souza',
+  passengerId: 'passenger-uuid-1',
+  passengerName: 'Maria Silva',
   score: 5,
   comment: 'Excelente viagem!',
-  clientName: 'Maria Silva',
-  driverName: 'João Souza',
-  tripId: 'TRP-001',
-  date: '2024-01-15T10:00:00Z',
-  reviewed: false,
-  hidden: false,
+  status: 'VISIBLE',
+  createdAt: '2024-01-15T10:00:00Z',
   ...overrides
+});
+
+const mockPage = (ratings: Rating[]): PageResponse<Rating> => ({
+  content: ratings,
+  totalElements: ratings.length,
+  totalPages: 1,
+  number: 0,
+  size: 100
 });
 
 function makeRatingMock(ratings: Rating[] = [mockRating()]) {
   return {
-    listar: vi.fn().mockReturnValue(of(ratings)),
-    marcarComoAnalisado: vi.fn().mockReturnValue(of({ ...mockRating(), reviewed: true })),
-    ocultarComentario: vi.fn().mockReturnValue(of({ ...mockRating(), hidden: true }))
+    listar: vi.fn().mockReturnValue(of(mockPage(ratings))),
+    ocultarComentario: vi.fn().mockReturnValue(of(mockRating({ status: 'HIDDEN' })))
   };
 }
 
@@ -35,9 +44,9 @@ describe('RatingsComponent', () => {
 
   beforeEach(() => {
     ratingMock = makeRatingMock([
-      mockRating({ id: '1', score: 5, reviewed: false }),
-      mockRating({ id: '2', score: 2, reviewed: false }),
-      mockRating({ id: '3', score: 4, reviewed: true }),
+      mockRating({ id: 1, score: 5, status: 'VISIBLE' }),
+      mockRating({ id: 2, score: 2, status: 'VISIBLE' }),
+      mockRating({ id: 3, score: 4, status: 'HIDDEN' }),
     ]);
     toastMock = { success: vi.fn(), error: vi.fn() };
 
@@ -57,7 +66,7 @@ describe('RatingsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  // ─── ngOnInit ────────────────────────────────────────────────────────────
+  // ─── ngOnInit / carregarAvaliacoes ────────────────────────────────────────
 
   describe('ngOnInit', () => {
     it('should load ratings on init', () => {
@@ -77,6 +86,24 @@ describe('RatingsComponent', () => {
       expect(toastMock.error).toHaveBeenCalled();
       expect(component.carregando()).toBe(false);
     });
+
+    it('should pass status=hidden to service when filter is hidden', () => {
+      component.statusFiltro.set('hidden');
+      component.carregarAvaliacoes();
+      expect(ratingMock.listar).toHaveBeenCalledWith('hidden');
+    });
+
+    it('should pass undefined status when filter is all', () => {
+      component.statusFiltro.set('all');
+      component.carregarAvaliacoes();
+      expect(ratingMock.listar).toHaveBeenCalledWith(undefined);
+    });
+
+    it('should filter negative ratings client-side', () => {
+      component.statusFiltro.set('negative');
+      component.ngOnInit();
+      expect(component.listaAvaliacoes().every(r => r.score <= 3)).toBe(true);
+    });
   });
 
   // ─── computed stats ───────────────────────────────────────────────────────
@@ -84,16 +111,12 @@ describe('RatingsComponent', () => {
   describe('computed stats', () => {
     beforeEach(() => component.ngOnInit());
 
-    it('totalPositivas should count ratings with score > 3', () => {
+    it('totalPositivas should count ratings with score >= 4', () => {
       expect(component.totalPositivas()).toBe(2); // scores 5 and 4
     });
 
     it('totalNegativas should count ratings with score <= 3', () => {
       expect(component.totalNegativas()).toBe(1); // score 2
-    });
-
-    it('totalPendentes should count unreviewed ratings', () => {
-      expect(component.totalPendentes()).toBe(2); // ids 1 and 2
     });
 
     it('mediaGeral should calculate average score', () => {
@@ -112,7 +135,7 @@ describe('RatingsComponent', () => {
   describe('getContagem', () => {
     beforeEach(() => component.ngOnInit());
 
-    it('should return total for "all"', () => {
+    it('should return total count for "all"', () => {
       expect(component.getContagem('all')).toBe(3);
     });
 
@@ -120,29 +143,8 @@ describe('RatingsComponent', () => {
       expect(component.getContagem('negative')).toBe(1);
     });
 
-    it('should return pending count for "unreviewed"', () => {
-      expect(component.getContagem('unreviewed')).toBe(2);
-    });
-  });
-
-  // ─── marcarComoAnalisado ─────────────────────────────────────────────────
-
-  describe('marcarComoAnalisado', () => {
-    beforeEach(() => component.ngOnInit());
-
-    it('should update rating in list and show success toast', () => {
-      const rating = component.listaAvaliacoes().find(r => r.id === '1')!;
-      component.marcarComoAnalisado(rating);
-      const updated = component.listaAvaliacoes().find(r => r.id === '1')!;
-      expect(updated.reviewed).toBe(true);
-      expect(toastMock.success).toHaveBeenCalled();
-    });
-
-    it('should show error toast on failure', () => {
-      ratingMock.marcarComoAnalisado.mockReturnValue(throwError(() => new Error('fail')));
-      const rating = component.listaAvaliacoes()[0];
-      component.marcarComoAnalisado(rating);
-      expect(toastMock.error).toHaveBeenCalled();
+    it('should return count of HIDDEN ratings for "hidden"', () => {
+      expect(component.getContagem('hidden')).toBe(1); // id 3 has status HIDDEN
     });
   });
 
@@ -154,13 +156,32 @@ describe('RatingsComponent', () => {
       vi.spyOn(window, 'confirm').mockReturnValue(true);
     });
 
-    it('should update rating hidden=true and show success toast', () => {
-      ratingMock.ocultarComentario.mockReturnValue(of({ ...mockRating({ id: '1' }), hidden: true }));
-      const rating = component.listaAvaliacoes().find(r => r.id === '1')!;
+    it('should call ocultarComentario on service with rating id', () => {
+      const rating = component.listaAvaliacoes()[0];
       component.ocultarComentario(rating);
-      const updated = component.listaAvaliacoes().find(r => r.id === '1')!;
-      expect(updated.hidden).toBe(true);
+      expect(ratingMock.ocultarComentario).toHaveBeenCalledWith(rating.id);
+    });
+
+    it('should update rating status to HIDDEN in list', () => {
+      const hiddenRating = mockRating({ id: 1, status: 'HIDDEN' });
+      ratingMock.ocultarComentario.mockReturnValue(of(hiddenRating));
+      const rating = component.listaAvaliacoes()[0];
+      component.ocultarComentario(rating);
+      const updated = component.listaAvaliacoes().find(r => r.id === 1);
+      expect(updated?.status).toBe('HIDDEN');
+    });
+
+    it('should show success toast after hiding', () => {
+      const rating = component.listaAvaliacoes()[0];
+      component.ocultarComentario(rating);
       expect(toastMock.success).toHaveBeenCalled();
+    });
+
+    it('should show error toast on failure', () => {
+      ratingMock.ocultarComentario.mockReturnValue(throwError(() => new Error('fail')));
+      const rating = component.listaAvaliacoes()[0];
+      component.ocultarComentario(rating);
+      expect(toastMock.error).toHaveBeenCalled();
     });
 
     it('should NOT call service when user cancels confirm', () => {
@@ -168,6 +189,17 @@ describe('RatingsComponent', () => {
       const rating = component.listaAvaliacoes()[0];
       component.ocultarComentario(rating);
       expect(ratingMock.ocultarComentario).not.toHaveBeenCalled();
+    });
+  });
+
+  // ─── limparBusca ─────────────────────────────────────────────────────────
+
+  describe('limparBusca', () => {
+    it('should reset termoBusca and reload', () => {
+      component.termoBusca.set('alguma coisa');
+      component.limparBusca();
+      expect(component.termoBusca()).toBe('');
+      expect(ratingMock.listar).toHaveBeenCalled();
     });
   });
 
