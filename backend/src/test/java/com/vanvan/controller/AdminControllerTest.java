@@ -1,10 +1,9 @@
 package com.vanvan.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vanvan.dto.*;
 import com.vanvan.enums.RegistrationStatus;
+import com.vanvan.exception.GlobalExceptionHandler;
 import com.vanvan.model.Passenger;
 import com.vanvan.model.Pricing;
 import com.vanvan.service.AdminService;
@@ -13,21 +12,23 @@ import com.vanvan.service.VehicleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,46 +39,53 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(AdminController.class)
+@AutoConfigureMockMvc(addFilters = false) // Desliga a segurança para testes isolados do controller
+@Import(GlobalExceptionHandler.class) // Garante que seus erros 400 sejam capturados
 class AdminControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock private AdminService adminService;
-    @Mock private PricingService pricingService;
-    @Mock private VehicleService vehicleService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @InjectMocks private AdminController adminController;
+    @MockitoBean
+    private AdminService adminService;
 
-    private UserDetails userDetailsMock;
+    @MockitoBean
+    private PricingService pricingService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    @MockitoBean
+    private VehicleService vehicleService;
+
+    // Mock estático para ser injetado no contexto do Spring
+    private static final UserDetails userDetailsMock = mock(UserDetails.class);
+
+    // Configuração limpa e nativa para injetar o mock do AuthenticationPrincipal
+    @TestConfiguration
+    static class WebConfig implements WebMvcConfigurer {
+        @Override
+        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+            resolvers.add(new HandlerMethodArgumentResolver() {
+                @Override
+                public boolean supportsParameter(MethodParameter parameter) {
+                    return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+                }
+
+                @Override
+                public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                              NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                    return userDetailsMock;
+                }
+            });
+        }
+    }
 
     @BeforeEach
     void setUp() {
-        userDetailsMock = mock(UserDetails.class);
-
-        HandlerMethodArgumentResolver authResolver = new HandlerMethodArgumentResolver() {
-            @Override
-            public boolean supportsParameter(MethodParameter parameter) {
-                return parameter.hasParameterAnnotation(
-                        org.springframework.security.core.annotation.AuthenticationPrincipal.class);
-            }
-            @Override
-            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                          NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-                return userDetailsMock;
-            }
-        };
-
-        mockMvc = MockMvcBuilders.standaloneSetup(adminController)
-                .setCustomArgumentResolvers(
-                        new PageableHandlerMethodArgumentResolver(),
-                        authResolver)
-                .setControllerAdvice(new com.vanvan.exception.GlobalExceptionHandler())
-                .build();
+        // Reseta o mock antes de cada teste para evitar poluição
+        reset(userDetailsMock);
     }
 
     @Test
@@ -174,9 +182,11 @@ class AdminControllerTest {
         Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
                 "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
         when(adminService.createClient(any())).thenReturn(passenger);
+
+        String body = objectMapper.writeValueAsString(passenger);
         mockMvc.perform(post("/api/admin/clients")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content(body))
                 .andExpect(status().isOk());
     }
 
@@ -185,9 +195,13 @@ class AdminControllerTest {
     void createClient_throws_returns400() throws Exception {
         when(adminService.createClient(any()))
                 .thenThrow(new IllegalArgumentException("Email já existe"));
+
+        Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
+                "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
+        String body = objectMapper.writeValueAsString(passenger);
         mockMvc.perform(post("/api/admin/clients")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content(body))
                 .andExpect(status().isBadRequest());
     }
 
@@ -197,9 +211,11 @@ class AdminControllerTest {
         Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
                 "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
         when(adminService.updateClient(any(), any())).thenReturn(passenger);
+
+        String body = objectMapper.writeValueAsString(passenger);
         mockMvc.perform(put("/api/admin/clients/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content(body))
                 .andExpect(status().isOk());
     }
 
@@ -208,9 +224,13 @@ class AdminControllerTest {
     void updateClient_throws_returns400() throws Exception {
         when(adminService.updateClient(any(), any()))
                 .thenThrow(new IllegalArgumentException("Cliente não encontrado"));
+
+        Passenger passenger = new Passenger("Alice", "52998224725", "81988888888",
+                "alice@email.com", "senha", LocalDate.of(2000, 1, 1));
+        String body = objectMapper.writeValueAsString(passenger);
         mockMvc.perform(put("/api/admin/clients/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content(body))
                 .andExpect(status().isBadRequest());
     }
 
