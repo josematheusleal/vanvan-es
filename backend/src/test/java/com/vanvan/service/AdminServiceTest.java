@@ -40,7 +40,7 @@ class AdminServiceTest {
 
     @InjectMocks private AdminService adminService;
 
-    // listDrivers
+    //listDrivers 
 
     @Test
     @DisplayName("Deve barrar rejeição sem motivo")
@@ -103,7 +103,8 @@ class AdminServiceTest {
         UUID idInexistente = UUID.randomUUID();
         DriverStatusUpdateDTO dto = new DriverStatusUpdateDTO(RegistrationStatus.APPROVED, null);
         when(driverRepository.findById(idInexistente)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> adminService.updateDriverStatus(idInexistente, dto));
+        assertThrows(UserNotFoundException.class,
+                () -> adminService.updateDriverStatus(idInexistente, dto));
     }
 
     @Test
@@ -122,10 +123,12 @@ class AdminServiceTest {
     void listDriversWithStatus() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Driver> page = new PageImpl<>(List.of(new Driver()));
-        when(driverRepository.findByRegistrationStatus(RegistrationStatus.PENDING, pageable)).thenReturn(page);
+        when(driverRepository.findByRegistrationStatus(RegistrationStatus.PENDING, pageable))
+                .thenReturn(page);
         var result = adminService.listDrivers(RegistrationStatus.PENDING, pageable);
         assertNotNull(result);
-        verify(driverRepository, times(1)).findByRegistrationStatus(RegistrationStatus.PENDING, pageable);
+        verify(driverRepository, times(1))
+                .findByRegistrationStatus(RegistrationStatus.PENDING, pageable);
     }
 
     @Test
@@ -260,10 +263,7 @@ class AdminServiceTest {
 
         when(userRepository.existsByEmail("novo@email.com")).thenReturn(false);
         when(userRepository.existsByCpf("52998224725")).thenReturn(false);
-        when(passengerRepository.save(any())).thenAnswer(i -> {
-            Passenger p = i.getArgument(0);
-            return p;
-        });
+        when(passengerRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         var result = adminService.createClient(dto);
         assertNotNull(result);
@@ -296,6 +296,7 @@ class AdminServiceTest {
     }
 
     // updateClient
+
     @Test
     @DisplayName("Deve atualizar cliente com sucesso")
     void updateClientSuccess() {
