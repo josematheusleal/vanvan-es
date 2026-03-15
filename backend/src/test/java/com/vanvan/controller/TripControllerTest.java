@@ -7,17 +7,14 @@ import com.vanvan.service.TripService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,29 +25,21 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(TripController.class)
 class TripControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock private TripService tripService;
-
-    @InjectMocks
-    private TripController tripController;
+    @MockitoBean
+    private TripService tripService;
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(tripController)
-                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-                .setControllerAdvice(new com.vanvan.exception.GlobalExceptionHandler())
-                .build();
-    }
-
     @Test
+    @WithMockUser(roles = "ADMIN")
     void getTripById_returns200() throws Exception {
         TripDetailsDTO dto = new TripDetailsDTO(
                 1L, LocalDate.now(), LocalTime.of(10, 0),
@@ -64,6 +53,7 @@ class TripControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void listTrips_returns200() throws Exception {
         when(tripService.getTripHistory(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new PageImpl<>(List.of()));
@@ -75,6 +65,7 @@ class TripControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "DRIVER")
     void updateStatus_returns200() throws Exception {
         TripDetailsDTO dto = new TripDetailsDTO(
                 1L, LocalDate.now(), LocalTime.of(10, 0),
@@ -88,11 +79,13 @@ class TripControllerTest {
 
         mockMvc.perform(patch("/api/trips/1/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content(objectMapper.writeValueAsString(body))
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void getMonitoring_returns200() throws Exception {
         when(tripService.getMonitoringData(any(), any()))
                 .thenReturn(new PageImpl<>(List.of()));
