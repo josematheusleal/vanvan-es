@@ -1,5 +1,8 @@
 package com.vanvan.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -22,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
@@ -90,9 +94,16 @@ class AdminControllerTest {
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
+        // Ensina o Jackson a converter a classe abstrata User para Passenger durante os testes
         SimpleModule module = new SimpleModule();
-        module.addAbstractTypeMapping(User.class, Passenger.class);
+        module.addDeserializer(User.class, new JsonDeserializer<User>() {
+            @Override
+            public User deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                return p.getCodec().treeToValue(p.readValueAsTree(), Passenger.class);
+            }
+        });
         objectMapper.registerModule(module);
+
         AbstractHttpMessageConverter<Object> customConverter = new AbstractHttpMessageConverter<Object>(MediaType.APPLICATION_JSON) {
             @Override
             protected boolean supports(Class<?> clazz) {
@@ -115,7 +126,7 @@ class AdminControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(adminController)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(), authResolver)
                 .setControllerAdvice(new GlobalExceptionHandler())
-                .setMessageConverters(customConverter) // Injetamos nossa solução limpa
+                .setMessageConverters(customConverter)
                 .build();
     }
 
@@ -148,7 +159,9 @@ class AdminControllerTest {
     @Test
     @DisplayName("Deve listar motoristas - Status 200")
     void listDrivers_returns200() throws Exception {
-        when(adminService.listDrivers(any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(adminService.listDrivers(any(), any()))
+                .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 10), 0));
+                
         mockMvc.perform(get("/api/admin/drivers")
                         .param("page", "0")
                         .param("size", "10"))
@@ -194,8 +207,10 @@ class AdminControllerTest {
     @Test
     @DisplayName("Deve listar clientes - Status 200")
     void listClients_returns200() throws Exception {
+        // Usando PageRequest.of(0,10) para evitar o erro de serialização do Unpaged
         when(adminService.listClients(any(), any(), any(), any()))
-                .thenReturn(new PageImpl<>(List.of()));
+                .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 10), 0));
+                
         mockMvc.perform(get("/api/admin/clients")
                         .param("page", "0")
                         .param("size", "10"))
