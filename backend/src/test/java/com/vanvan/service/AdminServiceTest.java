@@ -1,5 +1,6 @@
 package com.vanvan.service;
 
+import com.vanvan.dto.ClientRequestDTO;
 import com.vanvan.dto.DriverAdminResponseDTO;
 import com.vanvan.dto.DriverStatusUpdateDTO;
 import com.vanvan.dto.DriverUpdateDTO;
@@ -7,7 +8,6 @@ import com.vanvan.enums.RegistrationStatus;
 import com.vanvan.exception.UserNotFoundException;
 import com.vanvan.model.Driver;
 import com.vanvan.model.Passenger;
-import com.vanvan.model.User;
 import com.vanvan.repository.DriverRepository;
 import com.vanvan.repository.PassengerRepository;
 import com.vanvan.repository.UserRepository;
@@ -251,53 +251,68 @@ class AdminServiceTest {
     @Test
     @DisplayName("Deve criar cliente com sucesso")
     void createClient_success() {
-        User user = new Passenger();
-        user.setEmail("novo@email.com");
-        user.setCpf("52998224725");
+        ClientRequestDTO dto = new ClientRequestDTO();
+        dto.setEmail("novo@email.com");
+        dto.setCpf("52998224725");
+        dto.setName("Alice");
+        dto.setPhone("81988888888");
+        dto.setBirthDate(LocalDate.of(2000, 1, 1));
+
         when(userRepository.existsByEmail("novo@email.com")).thenReturn(false);
         when(userRepository.existsByCpf("52998224725")).thenReturn(false);
-        when(userRepository.save(any())).thenReturn(user);
-        User result = adminService.createClient(user);
+        when(passengerRepository.save(any())).thenAnswer(i -> {
+            Passenger p = i.getArgument(0);
+            return p;
+        });
+
+        var result = adminService.createClient(dto);
         assertNotNull(result);
-        verify(userRepository).save(user);
+        verify(passengerRepository).save(any(Passenger.class));
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando email já existe")
     void createClient_emailExists_throws() {
-        User user = new Passenger();
-        user.setEmail("existente@email.com");
-        user.setCpf("52998224725");
+        ClientRequestDTO dto = new ClientRequestDTO();
+        dto.setEmail("existente@email.com");
+        dto.setCpf("52998224725");
+
         when(userRepository.existsByEmail("existente@email.com")).thenReturn(true);
-        assertThrows(IllegalArgumentException.class, () -> adminService.createClient(user));
+
+        assertThrows(IllegalArgumentException.class, () -> adminService.createClient(dto));
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando CPF já existe")
     void createClient_cpfExists_throws() {
-        User user = new Passenger();
-        user.setEmail("novo@email.com");
-        user.setCpf("52998224725");
+        ClientRequestDTO dto = new ClientRequestDTO();
+        dto.setEmail("novo@email.com");
+        dto.setCpf("52998224725");
+
         when(userRepository.existsByEmail("novo@email.com")).thenReturn(false);
         when(userRepository.existsByCpf("52998224725")).thenReturn(true);
-        assertThrows(IllegalArgumentException.class, () -> adminService.createClient(user));
+
+        assertThrows(IllegalArgumentException.class, () -> adminService.createClient(dto));
     }
 
     // updateClient
-
     @Test
     @DisplayName("Deve atualizar cliente com sucesso")
     void updateClientSuccess() {
         UUID id = UUID.randomUUID();
-        User existingUser = new Passenger();
+        Passenger existingUser = new Passenger();
         existingUser.setName("Antigo");
-        User updatedInfo = new Passenger();
-        updatedInfo.setName("Novo");
-        updatedInfo.setEmail("novo@email.com");
-        updatedInfo.setPhone("81999999999");
+
+        ClientRequestDTO dto = new ClientRequestDTO();
+        dto.setName("Novo");
+        dto.setEmail("novo@email.com");
+        dto.setPhone("81999999999");
+
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenReturn(existingUser);
-        adminService.updateClient(id, updatedInfo);
+        when(userRepository.save(any())).thenReturn(existingUser);
+
+        adminService.updateClient(id, dto);
+
         assertEquals("Novo", existingUser.getName());
         assertEquals("novo@email.com", existingUser.getEmail());
         assertEquals("81999999999", existingUser.getPhone());
@@ -308,14 +323,18 @@ class AdminServiceTest {
     @DisplayName("Deve manter dados antigos se atualização for parcial")
     void updateClientPartialSuccess() {
         UUID id = UUID.randomUUID();
-        User existingUser = new Passenger();
+        Passenger existingUser = new Passenger();
         existingUser.setName("Nome Antigo");
         existingUser.setPhone("81988888888");
-        User updatedInfo = new Passenger();
-        updatedInfo.setName("Nome Novo");
+
+        ClientRequestDTO dto = new ClientRequestDTO();
+        dto.setName("Nome Novo");
+
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenReturn(existingUser);
-        adminService.updateClient(id, updatedInfo);
+        when(userRepository.save(any())).thenReturn(existingUser);
+
+        adminService.updateClient(id, dto);
+
         assertEquals("Nome Novo", existingUser.getName());
         assertEquals("81988888888", existingUser.getPhone());
     }
