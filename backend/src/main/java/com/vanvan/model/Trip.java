@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -56,15 +54,24 @@ public class Trip {
     private List<Passenger> passengers = new ArrayList<>(); //passageiros da viagem
 
     @Column(nullable = false)
-    private BigDecimal totalAmount; //valor total arrecadado
+    private double totalAmount; //valor total arrecadado
 
     @Column(nullable = false)
     private TripStatus status; //status atual da viagem
 
+    @Column
+    private Double distanceKm;
+
+    @Column
+    private Double taxByKM;
+
+    @Column
+    private Double durationMinutes;
 
     //metodos da estrutura de dados
     public void addPassenger(Passenger passenger) {
         this.passengers.add(passenger);
+        //this.totalAmount = this.totalAmount.add(BigDecimal.valueOf(this.taxByKM * distanceKm)); so se for ter endpoint de adicionar passageiro a viagem
         passenger.getTrips().add(this);
     }
 

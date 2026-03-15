@@ -195,4 +195,15 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<String> handleInvalidTransition(InvalidStatusTransitionException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UnknownErrorException.class)
+    public ResponseEntity<String> handleUnknownError(InvalidStatusTransitionException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+
 }

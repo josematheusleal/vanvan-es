@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -30,30 +29,34 @@ public class TripDetailsDTO {
 
     private String arrivalCity; //cidade de chegada
 
-    private BigDecimal totalAmount; //valor total arrecadado
+    private Double perKmRate;
+
+    private Double distanceKm;
+
+    private Double durationMinutes;
+
+    private Double totalAmount;
 
     private TripStatus status; //status da viagem
 
     public static TripDetailsDTO fromEntity(Trip trip) {
-
-        List<PassengerDTO> passengerDTOs =
-                trip.getPassengers()
-                        .stream()
-                        .map(p -> new PassengerDTO(
-                                p.getId(),
-                                p.getName()))
-                        .toList();
-
         return new TripDetailsDTO(
                 trip.getId(),
                 trip.getDate(),
                 trip.getTime(),
                 trip.getDriver().getName(),
-                passengerDTOs,
+                trip.getPassengers()
+                        .stream()
+                        .map(p -> new PassengerDTO(p.getId(), p.getName()))
+                        .toList(),
                 trip.getDeparture().getCity(),
                 trip.getArrival().getCity(),
+                trip.getTaxByKM(),
+                trip.getDistanceKm(),
+                trip.getDurationMinutes(),
                 trip.getTotalAmount(),
                 trip.getStatus()
         );
     }
+
 }

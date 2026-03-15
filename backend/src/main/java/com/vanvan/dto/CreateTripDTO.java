@@ -1,10 +1,10 @@
 package com.vanvan.dto;
 
-import com.vanvan.enums.TripStatus;
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -23,20 +23,21 @@ public class CreateTripDTO {
     @NotNull(message = "Horário da viagem é obrigatório")
     private LocalTime time;
 
-    @NotBlank(message = "Local de partida é obrigatório")
+    @NotNull(message = "Local de partida é obrigatório")
+    @Valid
     private LocationDTO departure;
 
-    @NotBlank(message = "Local de chegada é obrigatório")
+    @NotNull(message = "Local de chegada é obrigatório")
+    @Valid
     private LocationDTO arrival;
 
     @NotNull(message = "Lista de passageiros não pode ser nula")
     @Size(min = 1, message = "A viagem deve ter pelo menos um passageiro")
     private List<UUID> passengerIds;
 
-    @NotNull(message = "Valor total é obrigatório")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Valor deve ser maior que zero")
-    private BigDecimal totalAmount;
+    @DecimalMin(value = "0.0", inclusive = false, message = "Preço deve ser maior que zero")
+    @DecimalMax(value = "200.00", message = "Preço por passageiro não pode exceder R$ 200,00")//para uma viagem de escopo medio esta bom kkkkkkk
+    @Nullable
+    private Double perKmRate;
 
-    @NotNull(message = "Status é obrigatório")
-    private TripStatus status;
 }

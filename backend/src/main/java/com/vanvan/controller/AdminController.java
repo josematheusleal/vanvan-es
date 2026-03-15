@@ -1,8 +1,6 @@
 package com.vanvan.controller;
 
 import com.vanvan.dto.*;
-import com.vanvan.enums.TripStatus;
-import com.vanvan.service.TripService;
 import org.springframework.web.bind.annotation.*;
 import com.vanvan.dto.DriverAdminResponseDTO;
 import com.vanvan.dto.DriverStatusUpdateDTO;
@@ -15,9 +13,6 @@ import com.vanvan.enums.RegistrationStatus;
 import com.vanvan.service.AdminService;
 import com.vanvan.service.PricingService;
 
-import com.vanvan.model.User;
-import com.vanvan.enums.RegistrationStatus;
-import com.vanvan.service.AdminService;
 import com.vanvan.service.VehicleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
