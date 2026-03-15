@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -23,7 +22,7 @@ public class TripHistoryDTO {
 
     private Integer passengerCount; //quantidade de passageiros
 
-    private BigDecimal totalAmount; //valor total arrecadado
+    private Double totalAmount; //valor total arrecadado
 
     private TripStatus status; //status da viagem
 }

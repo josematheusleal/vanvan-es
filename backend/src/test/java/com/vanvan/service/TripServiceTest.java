@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.*;
 class TripServiceTest {
 
     private TripRepository tripRepository;
-    private SimpMessagingTemplate messagingTemplate; // ← campo declarado
+    private SimpMessagingTemplate messagingTemplate;
     private TripService tripService;
 
     @BeforeEach
@@ -40,14 +39,25 @@ class TripServiceTest {
         tripRepository = mock(TripRepository.class);
         DriverRepository driverRepository = mock(DriverRepository.class);
         PassengerRepository passengerRepository = mock(PassengerRepository.class);
-        messagingTemplate = mock(SimpMessagingTemplate.class); // ← mockado
-        tripService = new TripService(tripRepository, driverRepository, passengerRepository, messagingTemplate);
+        messagingTemplate = mock(SimpMessagingTemplate.class);
+        GeocodingService geocodingService = mock(GeocodingService.class);
+        RoutingService routingService = mock(RoutingService.class);
+        PricingService pricingService = mock(PricingService.class);
+
+        tripService = new TripService(
+                tripRepository,
+                driverRepository,
+                passengerRepository,
+                messagingTemplate,
+                geocodingService,
+                routingService,
+                pricingService
+        );
     }
 
     @Test
     void testGetTripDetails_notFound() {
         when(tripRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(TripNotFoundException.class, () -> tripService.getTripDetails(1L));
     }
 
@@ -75,7 +85,7 @@ class TripServiceTest {
         trip1.setArrival(arrival);
 
         trip1.setPassengers(List.of(passenger));
-        trip1.setTotalAmount(BigDecimal.valueOf(100.0));
+        trip1.setTotalAmount(100.0); // double primitivo
         trip1.setStatus(TripStatus.COMPLETED);
 
         Page<Trip> pageTrips = new PageImpl<>(List.of(trip1));
@@ -119,7 +129,7 @@ class TripServiceTest {
         trip.setArrival(arrival);
 
         trip.setPassengers(List.of(passenger1, passenger2));
-        trip.setTotalAmount(new BigDecimal("200.0"));
+        trip.setTotalAmount(200.0); // double primitivo
         trip.setStatus(TripStatus.CANCELLED);
 
         Page<Trip> pageTrips = new PageImpl<>(List.of(trip));
@@ -139,7 +149,7 @@ class TripServiceTest {
         assertEquals("CityStart -> CityEnd", dto.getRoute());
         assertEquals(2, dto.getPassengerCount());
         assertEquals(TripStatus.CANCELLED, dto.getStatus());
-        assertEquals(new BigDecimal("200.0"), dto.getTotalAmount());
+        assertEquals(Double.valueOf(200.0), dto.getTotalAmount());
         assertEquals("DriverX", dto.getDriverName());
     }
 
@@ -228,6 +238,7 @@ class TripServiceTest {
 
         tripService.broadcastActiveTrips();
 
+        // corrigido: removido Optional.ofNullable que envolvia o matcher
         verify(messagingTemplate, times(1))
                 .convertAndSend(eq("/topic/monitoring"), Optional.ofNullable(ArgumentMatchers.any()));
     }
@@ -241,6 +252,7 @@ class TripServiceTest {
 
         tripService.broadcastActiveTrips();
 
+        // corrigido: removido Optional.ofNullable que envolvia o matcher
         verify(messagingTemplate, times(1))
                 .convertAndSend(eq("/topic/monitoring"), Optional.ofNullable(ArgumentMatchers.any()));
     }
@@ -248,15 +260,13 @@ class TripServiceTest {
     // ── helper ───────────────────────────────────────────────────
 
     private Trip buildTripInProgress() {
-        // Vehicle mockado corretamente
         Vehicle vehicle = mock(Vehicle.class);
         when(vehicle.getModelName()).thenReturn("Sprinter");
         when(vehicle.getLicensePlate()).thenReturn("ABC1D23");
 
-        // Driver instanciado normalmente — getVehicles() retorna lista real
         Driver driver = new Driver();
         driver.setName("Driver Monitor");
-        driver.setVehicles(List.of(vehicle)); // ← setter direto, sem mock em classe concreta
+        driver.setVehicles(List.of(vehicle));
 
         Location departure = new Location();
         departure.setCity("OrigemCity");

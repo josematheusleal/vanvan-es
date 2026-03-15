@@ -6,6 +6,7 @@ import com.vanvan.dto.TripHistoryDTO;
 import com.vanvan.dto.TripMonitorDTO;
 import com.vanvan.enums.TripStatus;
 import com.vanvan.service.TripService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public class TripController {
 
 @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN','DRIVER')")
-    public TripDetailsDTO createTrip(@RequestBody CreateTripDTO dto) {
+    public TripDetailsDTO createTrip(@Valid @RequestBody CreateTripDTO dto) {
         return tripService.createTrip(dto);
     }
 
