@@ -1,6 +1,5 @@
 package com.vanvan.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vanvan.config.security.JwtFilter;
 import com.vanvan.config.security.JwtService;
 import com.vanvan.model.Passenger;
@@ -58,7 +57,6 @@ class AuthControllerTest {
     @MockitoBean private UserService userService;
     @MockitoBean private JwtService jwtService;
     @MockitoBean private UserRepository userRepository;
-    @MockitoBean private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser
