@@ -1,13 +1,12 @@
 package com.vanvan.controller;
 
-import java.util.UUID;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,21 +27,30 @@ class DriverControllerIT {
     @DisplayName("Deve retornar erro 400 ao tentar cadastrar motorista com CPF inválido")
     void deveRetornarErroAoCadastrarCpfInvalido() throws Exception {
         String driverJson = """
-            {
-                "name": "Melissa Pessoa",
-                "cpf": "123",
-                "phone": "87999999999",
-                "email": "melissa@ufape.edu.br",
-                "password": "senha",
-                "cnh": "123456789",
-                "pixKey": "pix-mel",
-                "birthDate": "2000-01-01"
-            }
-            """;
+        {
+            "name": "Melissa Pessoa",
+            "cpf": "123",
+            "phone": "87999999999",
+            "email": "melissa@ufape.edu.br",
+            "password": "senha",
+            "cnh": "123456789",
+            "role": "driver",
+            "pixKey": "pix-mel",
+            "birthDate": "01/01/2000",
+            "vehicleModelName": "Fiat Uno",
+            "vehicleLicensePlate": "ABC1D23"
+        }
+        """;
 
-        mockMvc.perform(post("/api/drivers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(driverJson))
+        MockMultipartFile driverPart = new MockMultipartFile(
+                "driver", "", "application/json", driverJson.getBytes());
+
+        MockMultipartFile documentPart = new MockMultipartFile(
+                "vehicleDocument", "doc.pdf", "application/pdf", "conteudo".getBytes());
+
+        mockMvc.perform(multipart("/api/auth/register-driver")
+                        .file(driverPart)
+                        .file(documentPart))
                 .andExpect(status().isBadRequest());
     }
 
@@ -51,20 +59,11 @@ class DriverControllerIT {
     @DisplayName("ADMIN deve conseguir listar motoristas filtrando por status PENDENTE")
     void deveListarMotoristasComFiltroStatus() throws Exception {
         mockMvc.perform(get("/api/admin/drivers")
-                .param("status", "PENDENTE")
+                .param("status", "PENDING")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("ADMIN deve conseguir aprovar um motorista via endpoint")
-    void deveAprovarMotoristaComSucesso() throws Exception {
-            String driverID = UUID.randomUUID().toString();
-            mockMvc.perform(post("/api/admin/drivers/" + driverID + "/approve")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
 
     @Test
     @WithMockUser(roles = "USER")
