@@ -52,8 +52,6 @@ public class AdminController {
         return ResponseEntity.ok(adminService.updateDriver(id, dto));
     }
 
-    /*@GetMapping("/viagens/historico")
-    public */
 
     @DeleteMapping("/drivers/{id}")
     public ResponseEntity<String> deleteDriver(@PathVariable UUID id) {
