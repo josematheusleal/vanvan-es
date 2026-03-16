@@ -543,4 +543,190 @@ class TripServiceTest {
         dto.setPerKmRate(1.5);
         return dto;
     }
+
+    // ── bookTrip — passageiro não encontrado ─────────────────────
+
+    @Test
+    void bookTrip_passengerNaoEncontrado_throws() {
+        UUID passengerId = UUID.randomUUID();
+
+        Trip trip = new Trip();
+        trip.setId(1L);
+        trip.setStatus(TripStatus.SCHEDULED);
+        trip.setAvailableSeats(2);
+        trip.setPassengers(new java.util.ArrayList<>());
+        trip.setDriver(new Driver());
+
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.empty());
+
+        Authentication auth = mock(Authentication.class);
+        when(auth.getPrincipal()).thenReturn(passengerId);
+        SecurityContext ctx = mock(SecurityContext.class);
+        when(ctx.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(ctx);
+
+        assertThrows(IllegalArgumentException.class, () -> tripService.bookTrip(1L));
+        SecurityContextHolder.clearContext();
+    }
+
+// ── cancelBooking — passageiro não encontrado ─────────────────
+
+    @Test
+    void cancelBooking_passengerNaoEncontrado_throws() {
+        UUID passengerId = UUID.randomUUID();
+
+        Trip trip = new Trip();
+        trip.setId(1L);
+        trip.setStatus(TripStatus.SCHEDULED);
+        trip.setPassengers(new java.util.ArrayList<>());
+        trip.setDriver(new Driver());
+
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.empty());
+
+        Authentication auth = mock(Authentication.class);
+        when(auth.getPrincipal()).thenReturn(passengerId);
+        SecurityContext ctx = mock(SecurityContext.class);
+        when(ctx.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(ctx);
+
+        assertThrows(IllegalArgumentException.class, () -> tripService.cancelBooking(1L));
+        SecurityContextHolder.clearContext();
+    }
+
+// ── recalculateTripTotalAmount ────────────────────────────────
+
+    @Test
+    void recalculateTripTotalAmount_usaMinimumFareQuandoMaior() {
+        Pricing pricing = new Pricing();
+        pricing.setMinimumFare(50.0);
+        pricing.setPerKmRate(1.0);
+
+        Passenger p = new Passenger("P1", "71428793860", "11111111111",
+                "p1@x.com", "pass", LocalDate.of(2000, 1, 1));
+
+        Trip trip = new Trip();
+        trip.setTaxByKM(1.0);
+        trip.setDistanceKm(10.0); // 1.0 * 10.0 = 10.0 < minimumFare(50.0)
+        trip.setPassengers(List.of(p));
+
+        when(pricingService.getPricing()).thenReturn(pricing);
+
+        tripService.recalculateTripTotalAmount(trip);
+
+        // deve usar minimumFare: 50.0 * 1 passageiro = 50.0
+        assertEquals(50.0, trip.getTotalAmount());
+    }
+
+    @Test
+    void recalculateTripTotalAmount_usaPerKmRateQuandoMaior() {
+        Pricing pricing = new Pricing();
+        pricing.setMinimumFare(5.0);
+        pricing.setPerKmRate(2.0);
+
+        Passenger p = new Passenger("P1", "71428793860", "11111111111",
+                "p1@x.com", "pass", LocalDate.of(2000, 1, 1));
+
+        Trip trip = new Trip();
+        trip.setTaxByKM(2.0);
+        trip.setDistanceKm(100.0); // 2.0 * 100.0 = 200.0 > minimumFare(5.0)
+        trip.setPassengers(List.of(p));
+
+        when(pricingService.getPricing()).thenReturn(pricing);
+
+        tripService.recalculateTripTotalAmount(trip);
+
+        // deve usar perKmRate: 200.0 * 1 passageiro = 200.0
+        assertEquals(200.0, trip.getTotalAmount());
+    }
+
+// ── createTrip — passengerIds lista vazia ────────────────────
+
+    @Test
+    void createTrip_passengerIdsVazio_semPassageiros() {
+        UUID driverId = UUID.randomUUID();
+        Driver driver = new Driver();
+        driver.setId(driverId);
+        driver.setName("Motorista");
+
+        Pricing pricing = new Pricing();
+        pricing.setMinimumFare(10.0);
+        pricing.setPerKmRate(1.5);
+
+        CreateTripDTO dto = buildCreateTripDTO(driverId);
+        dto.setPassengerIds(List.of()); // lista vazia, diferente de nulo
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(geocodingService.getCoordinates(any())).thenReturn(new double[]{-8.28, -35.97});
+        when(routingService.calculateRoute(any(), any()))
+                .thenReturn(new RoutingService.RouteResult(100.0, 60.0));
+        when(pricingService.getPricing()).thenReturn(pricing);
+
+        Trip savedTrip = new Trip();
+        savedTrip.setId(1L);
+        savedTrip.setDriver(driver);
+        savedTrip.setDeparture(new Location("Caruaru", "", ""));
+        savedTrip.setArrival(new Location("Garanhuns", "", ""));
+        savedTrip.setDate(dto.getDate());
+        savedTrip.setTime(dto.getTime());
+        savedTrip.setPassengers(List.of());
+        savedTrip.setStatus(TripStatus.SCHEDULED);
+        savedTrip.setTotalAmount(0.0);
+        savedTrip.setTotalSeats(4);
+        savedTrip.setAvailableSeats(4);
+
+        when(tripRepository.save(any())).thenReturn(savedTrip);
+
+        TripDetailsDTO result = tripService.createTrip(dto);
+        assertNotNull(result);
+        assertEquals(TripStatus.SCHEDULED, result.getStatus());
+    }
+
+// ── getTotalAmount — minimumFare como piso ───────────────────
+
+    @Test
+    void createTrip_totalAmount_usaMinimumFareQuandoRotaCurta() {
+        UUID driverId = UUID.randomUUID();
+        Driver driver = new Driver();
+        driver.setId(driverId);
+        driver.setName("Motorista");
+
+        Passenger passenger = new Passenger("P1", "71428793860", "11111111111",
+                "p1@x.com", "pass", LocalDate.of(2000, 1, 1));
+        passenger.setId(UUID.randomUUID());
+
+        Pricing pricing = new Pricing();
+        pricing.setMinimumFare(100.0); // alto
+        pricing.setPerKmRate(1.5);
+
+        CreateTripDTO dto = buildCreateTripDTO(driverId);
+        dto.setPassengerIds(List.of(passenger.getId()));
+        dto.setPerKmRate(1.5);
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(geocodingService.getCoordinates(any())).thenReturn(new double[]{-8.28, -35.97});
+        when(routingService.calculateRoute(any(), any()))
+                .thenReturn(new RoutingService.RouteResult(1.0, 5.0)); // distância curtíssima
+        when(pricingService.getPricing()).thenReturn(pricing);
+        when(passengerRepository.findAllById(any())).thenReturn(List.of(passenger));
+
+        Trip savedTrip = new Trip();
+        savedTrip.setId(1L);
+        savedTrip.setDriver(driver);
+        savedTrip.setDeparture(new Location("Caruaru", "", ""));
+        savedTrip.setArrival(new Location("Garanhuns", "", ""));
+        savedTrip.setDate(dto.getDate());
+        savedTrip.setTime(dto.getTime());
+        savedTrip.setPassengers(List.of(passenger));
+        savedTrip.setStatus(TripStatus.SCHEDULED);
+        savedTrip.setTotalAmount(100.0);
+        savedTrip.setTotalSeats(4);
+        savedTrip.setAvailableSeats(3);
+
+        when(tripRepository.save(any())).thenReturn(savedTrip);
+
+        TripDetailsDTO result = tripService.createTrip(dto);
+        assertNotNull(result);
+    }
 }

@@ -81,7 +81,7 @@ public class AdminService {
 
     public Page<ClientResponseDTO> listClients(String name, String cpf, String email, Pageable pageable) {
         return passengerRepository.findByFilters(name, cpf, email, pageable)
-                .map(passenger -> ClientResponseDTO.from(passenger));
+                .map(ClientResponseDTO::from);
     }
 
     public Passenger getClientById(UUID id) {

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vanvan.model.Driver;
 import com.vanvan.model.User;
-import com.vanvan.model.User;
 import com.vanvan.repository.UserRepository;
 import com.vanvan.service.UserService;
 
