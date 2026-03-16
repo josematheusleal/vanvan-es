@@ -23,6 +23,10 @@ public class CreateTripDTO {
     @NotNull(message = "Horário da viagem é obrigatório")
     private LocalTime time;
 
+    @NotNull(message = "Capacidade de assentos é obrigatória")
+    @Min(value = 1, message = "A viagem deve ter pelo menos 1 assento")
+    private Integer totalSeats;
+
     @NotNull(message = "Local de partida é obrigatório")
     @Valid
     private LocationDTO departure;
@@ -31,8 +35,7 @@ public class CreateTripDTO {
     @Valid
     private LocationDTO arrival;
 
-    @NotNull(message = "Lista de passageiros não pode ser nula")
-    @Size(min = 1, message = "A viagem deve ter pelo menos um passageiro")
+    @Nullable
     private List<UUID> passengerIds;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Preço deve ser maior que zero")

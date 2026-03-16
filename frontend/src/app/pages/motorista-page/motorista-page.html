@@ -420,60 +420,75 @@
 
         <!-- Viagens Anteriores Card -->
         <div
-          class="glass-card square-card rounded-[24px] p-5 flex flex-col items-center justify-between gap-3 hover-lift">
-          <h2 class="text-header-3 text-text">Viagens anteriores</h2>
+          class="glass-card square-card rounded-[24px] p-5 flex flex-col items-center gap-3 hover-lift relative"
+          [class.justify-between]="pastTrips.length > 0" [class.justify-center]="pastTrips.length === 0">
 
-          <!-- Past trip details -->
-          <div *ngFor="let trip of pastTrips"
-            class="glass-inner rounded-[12px] px-5 py-[10px] flex flex-col gap-[10px] w-full flex-1 justify-center">
-            <!-- Route -->
-            <div class="flex items-center justify-between w-full">
-              <span class="text-medium text-text leading-[1.2]">{{ trip.origin }}</span>
-              <div class="size-6 shrink-0 bg-text"
-                style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;">
-              </div>
-              <span class="text-medium text-text leading-[1.2]">{{ trip.destination }}</span>
-            </div>
-            <!-- Price + Distance -->
-            <div class="flex items-center justify-between w-full">
-              <div class="flex gap-[5px] items-center">
-                <div class="size-6 shrink-0 bg-subtle-text"
-                  style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;">
-                </div>
-                <span class="text-small text-subtle-text">{{ trip.price }}</span>
-              </div>
-              <div class="flex gap-[5px] items-center">
-                <div class="size-6 shrink-0 bg-subtle-text"
-                  style="-webkit-mask: url(assets/icons/routing.svg) no-repeat center / contain; mask: url(assets/icons/routing.svg) no-repeat center / contain;">
-                </div>
-                <span class="text-small text-subtle-text">{{ trip.distance }}</span>
+          <h2 class="text-header-3 text-text w-full text-center"
+              [class.absolute]="pastTrips.length === 0" [class.top-5]="pastTrips.length === 0">Viagens anteriores</h2>
+
+          <!-- Empty state -->
+          <div *ngIf="pastTrips.length === 0" class="flex flex-col items-center justify-center gap-4 flex-1 mt-6">
+            <div class="glass-inner size-16 rounded-full flex items-center justify-center">
+              <div class="size-8 bg-subtle-text opacity-50"
+                style="-webkit-mask: url(assets/icons/clock.svg) no-repeat center / contain; mask: url(assets/icons/clock.svg) no-repeat center / contain;">
               </div>
             </div>
-            <!-- Date + Time -->
-            <div class="flex items-center justify-between w-full">
-              <div class="flex gap-[5px] items-center">
-                <div class="size-6 shrink-0 bg-subtle-text"
-                  style="-webkit-mask: url(assets/icons/calendar.svg) no-repeat center / contain; mask: url(assets/icons/calendar.svg) no-repeat center / contain;">
-                </div>
-                <span class="text-small text-subtle-text">{{ trip.date }}</span>
-              </div>
-              <div class="flex gap-[5px] items-center">
-                <div class="size-6 shrink-0 bg-subtle-text"
-                  style="-webkit-mask: url(assets/icons/clock.svg) no-repeat center / contain; mask: url(assets/icons/clock.svg) no-repeat center / contain;">
-                </div>
-                <span class="text-small text-subtle-text">{{ trip.time }}</span>
-              </div>
-            </div>
+            <span class="text-body text-subtle-text font-medium text-center">Nenhuma viagem</span>
           </div>
 
-          <!-- Ver mais button -->
-          <button (click)="verMaisViagens()"
-            class="glass-inner-strong rounded-[12px] border border-light px-5 py-4 w-full flex gap-[10px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
-            <div class="size-6 shrink-0 bg-secondary"
-              style="-webkit-mask: url(assets/icons/refresh-left-square.svg) no-repeat center / contain; mask: url(assets/icons/refresh-left-square.svg) no-repeat center / contain;">
+          <!-- Past trip details -->
+          <ng-container *ngIf="pastTrips.length > 0">
+            <div *ngFor="let trip of pastTrips"
+              class="glass-inner rounded-[12px] px-5 py-[10px] flex flex-col gap-[10px] w-full flex-1 justify-center">
+              <!-- Route -->
+              <div class="flex items-center justify-between w-full">
+                <span class="text-medium text-text leading-[1.2]">{{ trip.origin }}</span>
+                <div class="size-6 shrink-0 bg-text"
+                  style="-webkit-mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain; mask: url(assets/icons/arrow_forward.svg) no-repeat center / contain;">
+                </div>
+                <span class="text-medium text-text leading-[1.2]">{{ trip.destination }}</span>
+              </div>
+              <!-- Price + Distance -->
+              <div class="flex items-center justify-between w-full">
+                <div class="flex gap-[5px] items-center">
+                  <div class="size-6 shrink-0 bg-subtle-text"
+                    style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;">
+                  </div>
+                  <span class="text-small text-subtle-text">{{ trip.price }}</span>
+                </div>
+                <div class="flex gap-[5px] items-center">
+                  <div class="size-6 shrink-0 bg-subtle-text"
+                    style="-webkit-mask: url(assets/icons/routing.svg) no-repeat center / contain; mask: url(assets/icons/routing.svg) no-repeat center / contain;">
+                  </div>
+                  <span class="text-small text-subtle-text">{{ trip.distance }}</span>
+                </div>
+              </div>
+              <!-- Date + Time -->
+              <div class="flex items-center justify-between w-full">
+                <div class="flex gap-[5px] items-center">
+                  <div class="size-6 shrink-0 bg-subtle-text"
+                    style="-webkit-mask: url(assets/icons/calendar.svg) no-repeat center / contain; mask: url(assets/icons/calendar.svg) no-repeat center / contain;">
+                  </div>
+                  <span class="text-small text-subtle-text">{{ trip.date }}</span>
+                </div>
+                <div class="flex gap-[5px] items-center">
+                  <div class="size-6 shrink-0 bg-subtle-text"
+                    style="-webkit-mask: url(assets/icons/clock.svg) no-repeat center / contain; mask: url(assets/icons/clock.svg) no-repeat center / contain;">
+                  </div>
+                  <span class="text-small text-subtle-text">{{ trip.time }}</span>
+                </div>
+              </div>
             </div>
-            <span class="text-header-3 text-secondary">Ver mais</span>
-          </button>
+
+            <!-- Ver mais button -->
+            <button (click)="verMaisViagens()"
+              class="glass-inner-strong rounded-[12px] border border-light px-5 py-4 w-full flex gap-[10px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <div class="size-6 shrink-0 bg-secondary"
+                style="-webkit-mask: url(assets/icons/refresh-left-square.svg) no-repeat center / contain; mask: url(assets/icons/refresh-left-square.svg) no-repeat center / contain;">
+              </div>
+              <span class="text-header-3 text-secondary">Ver mais</span>
+            </button>
+          </ng-container>
         </div>
 
       </div>

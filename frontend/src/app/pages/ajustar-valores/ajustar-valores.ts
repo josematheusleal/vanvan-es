@@ -50,9 +50,9 @@ export class AjustarValores {
   errorMessage = '';
   successMessage = '';
   private configLoaded = false;
+  private currentUser: any = null;
 
   // ===== Pricing Configuration =====
-  // TODO: Carregar do backend quando disponível
   pricingConfig: PricingConfig = {
     defaultRatePerKm: 0.70,   // R$0,70/km definido pelo admin
     driverRatePerKm: 0.70,    // Valor atual do motorista
@@ -115,17 +115,27 @@ export class AjustarValores {
   private loadPricingConfig(userId: string): void {
     this.isLoading = true;
     this.errorMessage = '';
+    
+    // Refresh user configuration via `/me`
+    this.authService.getDriverMe().subscribe({
+      next: (data) => {
+        this.currentUser = data;
+        const serverRate = data.ratePerKm != null ? data.ratePerKm : this.pricingConfig.defaultRatePerKm;
+        
+        this.pricingConfig.driverRatePerKm = serverRate;
+        this.editingRate = serverRate;
 
-    // TODO: Implementar chamada à API quando disponível
-    // this.pricingService.getDriverPricing(userId).subscribe({...})
-
-    // Simulando carregamento
-    setTimeout(() => {
-      this.editingRate = this.pricingConfig.driverRatePerKm;
-      this.updateRoutePreview();
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }, 500);
+        this.updateRoutePreview();
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed fetching driver details:', err);
+        this.errorMessage = 'Erro ao carregar configurações de tarifa.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   updateRoutePreview(): void {
@@ -177,16 +187,21 @@ export class AjustarValores {
     this.isSaving = true;
     this.errorMessage = '';
 
-    // TODO: Implementar chamada à API quando disponível
-    // this.pricingService.updateDriverRate(userId, this.editingRate).subscribe({...})
-
-    // Simulando salvamento
-    setTimeout(() => {
-      this.pricingConfig.driverRatePerKm = this.editingRate;
-      this.isSaving = false;
-      this.toastService.success('Valor atualizado com sucesso!');
-      this.cdr.detectChanges();
-    }, 800);
+    this.authService.updateDriverRate(this.editingRate).subscribe({
+      next: (response) => {
+        this.pricingConfig.driverRatePerKm = response.ratePerKm || this.editingRate;
+        this.editingRate = this.pricingConfig.driverRatePerKm;
+        this.isSaving = false;
+        this.toastService.success('Valor atualizado com sucesso!');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Falha ao atualizar tarifa', err);
+        this.errorMessage = 'Falha comunicando a atualização de tarifa.';
+        this.isSaving = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   cancelChanges(): void {

@@ -1,6 +1,7 @@
 package com.vanvan.repository;
 import com.vanvan.enums.TripStatus;
 import com.vanvan.model.Driver;
+import com.vanvan.model.Passenger;
 import com.vanvan.model.Trip;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -100,6 +101,81 @@ public class TripSpecification {
             }
 
             //combina todos os filtros aplicados
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Trip> search(
+            LocalDate date,
+            String departureCity,
+            String arrivalCity,
+            Integer passengerCount,
+            TripStatus status
+    ) {
+        return (root, query, cb) -> {
+            query.distinct(true);
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (date != null) {
+                predicates.add(cb.equal(root.get("date"), date));
+            }
+
+            if (departureCity != null && !departureCity.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("departure").get("city")), "%" + departureCity.toLowerCase() + "%"));
+            }
+
+            if (arrivalCity != null && !arrivalCity.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("arrival").get("city")), "%" + arrivalCity.toLowerCase() + "%"));
+            }
+
+            if (passengerCount != null && passengerCount > 0) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("availableSeats"), passengerCount));
+            }
+
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Trip> passengerHistory(
+            LocalDate startDate, LocalDate endDate,
+            String departureCity,
+            String arrivalCity,
+            UUID passengerId,
+            TripStatus status
+    ) {
+        return (root, query, cb) -> {
+            query.distinct(true);
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), startDate));
+            }
+
+            if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("date"), endDate));
+            }
+
+            if (departureCity != null && !departureCity.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("departure").get("city")), "%" + departureCity.toLowerCase() + "%"));
+            }
+
+            if (arrivalCity != null && !arrivalCity.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("arrival").get("city")), "%" + arrivalCity.toLowerCase() + "%"));
+            }
+
+            if (passengerId != null) {
+                Join<Trip, Passenger> passengers = root.join("passengers");
+                predicates.add(cb.equal(passengers.get("id"), passengerId));
+            }
+
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

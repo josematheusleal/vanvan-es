@@ -200,99 +200,95 @@
         <h1 class="text-header-2 text-text text-center w-full tracking-[-0.8px]">Ofertar viagem</h1>
 
         <!-- ===== FORM FIELDS ===== -->
-        <div class="flex flex-col gap-4 w-full">
+        <div class="flex flex-col gap-2 w-full">
 
           <!-- ===== PARTIDA (Departure) ===== -->
-          <div class="flex flex-col gap-2 w-full">
-
-            <!-- Partida - Cidade -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Partida</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.departureCity"
-                  placeholder="Cidade de partida"
-                  class="textfield-input"
-                />
-              </div>
+          <div class="flex flex-col gap-[3px] w-full relative partida-dropdown-container">
+            <label class="text-body text-text font-medium leading-[1.2]">Partida</label>
+            <div class="textfield-ofertar flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Cidade de partida"
+                [(ngModel)]="partidaQuery"
+                (input)="onPartidaInput()"
+                (focus)="partidaSuggestions.length > 0 && (showPartidaDropdown = true)"
+                autocomplete="off"
+                class="textfield-input flex-1"
+              />
             </div>
-
-            <!-- Local da partida -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Local da partida</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.departureLocation"
-                  placeholder="Nome da rua / avenida"
-                  class="textfield-input"
-                />
-              </div>
-            </div>
-
-            <!-- Ponto de referência (Partida) -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Ponto de referência</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.departureReference"
-                  placeholder="Ex: em frente ao relógio das flores"
-                  class="textfield-input"
-                />
+            <!-- Dropdown -->
+            <div *ngIf="showPartidaDropdown" class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 max-h-[200px] overflow-y-auto border border-light">
+              <div *ngFor="let city of partidaSuggestions"
+                   (mousedown)="selectPartida(city)"
+                   class="px-4 py-2 cursor-pointer hover:bg-light transition-colors font-sans text-body text-dark">
+                {{ city.label }}
               </div>
             </div>
           </div>
+
+          <div class="flex flex-col gap-2 w-full">
+            <div class="flex flex-col gap-[3px] w-full">
+              <label class="text-body text-text font-medium leading-[1.2]">Local de partida</label>
+              <div class="textfield-ofertar">
+                <input type="text" [(ngModel)]="tripOffer.departureLocation" placeholder="Ex: Rodoviária" class="textfield-input" />
+              </div>
+            </div>
+            <div class="flex flex-col gap-[3px] w-full">
+              <label class="text-body text-text font-medium leading-[1.2]">Ponto de referência</label>
+              <div class="textfield-ofertar">
+                <input type="text" [(ngModel)]="tripOffer.departureReference" placeholder="Ex: Em frente à padaria" class="textfield-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="h-4"></div> <!-- Spacer between Departure and Arrival -->
 
           <!-- ===== DESTINO (Destination) ===== -->
-          <div class="flex flex-col gap-2 w-full">
-
-            <!-- Destino - Cidade -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Destino</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.destinationCity"
-                  placeholder="Cidade de destino"
-                  class="textfield-input"
-                />
-              </div>
+          <div class="flex flex-col gap-[3px] w-full relative destino-dropdown-container">
+            <label class="text-body text-text font-medium leading-[1.2]">Destino</label>
+            <div class="textfield-ofertar flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Cidade de destino"
+                [(ngModel)]="destinoQuery"
+                (input)="onDestinoInput()"
+                (focus)="destinoSuggestions.length > 0 && (showDestinoDropdown = true)"
+                autocomplete="off"
+                class="textfield-input flex-1"
+              />
             </div>
-
-            <!-- Local do destino -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Local do destino</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.destinationLocation"
-                  placeholder="Nome da rua / avenida"
-                  class="textfield-input"
-                />
-              </div>
-            </div>
-
-            <!-- Ponto de referência (Destino) -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Ponto de referência</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.destinationReference"
-                  placeholder="Ex: Terminal rodoviário"
-                  class="textfield-input"
-                />
+            <!-- Dropdown -->
+            <div *ngIf="showDestinoDropdown" class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 max-h-[200px] overflow-y-auto border border-light">
+              <div *ngFor="let city of destinoSuggestions"
+                   (mousedown)="selectDestino(city)"
+                   class="px-4 py-2 cursor-pointer hover:bg-light transition-colors font-sans text-body text-dark">
+                {{ city.label }}
               </div>
             </div>
           </div>
 
-          <!-- ===== DATA E HORÁRIO ===== -->
           <div class="flex flex-col gap-2 w-full">
+            <div class="flex flex-col gap-[3px] w-full">
+              <label class="text-body text-text font-medium leading-[1.2]">Local de destino</label>
+              <div class="textfield-ofertar">
+                <input type="text" [(ngModel)]="tripOffer.destinationLocation" placeholder="Ex: Rodoviária" class="textfield-input" />
+              </div>
+            </div>
+            <div class="flex flex-col gap-[3px] w-full">
+              <label class="text-body text-text font-medium leading-[1.2]">Ponto de referência</label>
+              <div class="textfield-ofertar">
+                <input type="text" [(ngModel)]="tripOffer.destinationReference" placeholder="Ex: Ao lado do mercado" class="textfield-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="h-4"></div> <!-- Spacer before Date/Time -->
+
+          <!-- ===== DATA E HORÁRIO ===== -->
+          <div class="flex gap-4 w-full">
 
             <!-- Data -->
-            <div class="flex flex-col gap-[3px] w-full">
+            <div class="flex flex-col gap-[3px] flex-1">
               <label class="text-body text-text font-medium leading-[1.2]">Data</label>
               <div class="textfield-ofertar">
                 <input
@@ -310,7 +306,7 @@
             </div>
 
             <!-- Horário -->
-            <div class="flex flex-col gap-[3px] w-full">
+            <div class="flex flex-col gap-[3px] flex-1">
               <label class="text-body text-text font-medium leading-[1.2]">Horário</label>
               <div class="textfield-ofertar">
                 <input
@@ -457,53 +453,7 @@
           <!-- Separator -->
           <div class="w-full h-px bg-subtle-text/30"></div>
 
-          <!-- Pricing Section -->
-          <div class="flex flex-col gap-4 w-full">
 
-            <!-- Suggested Price Label -->
-            <div class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Valor da passagem sugerido:</label>
-
-              <!-- Price + Distance Row -->
-              <div class="flex items-center justify-between w-full">
-                <div class="flex gap-[3px] items-center">
-                  <div class="size-6 shrink-0 bg-text"
-                    style="-webkit-mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain; mask: url(assets/icons/dollar-circle.svg) no-repeat center / contain;">
-                  </div>
-                  <span class="text-body text-text font-medium">{{ suggestedPrice }}</span>
-                </div>
-
-                <!-- Dashed line separator -->
-                <div class="flex-1 mx-3 border-t border-dashed border-subtle-text/40"></div>
-
-                <div class="flex gap-[5px] items-center">
-                  <div class="size-[18px] shrink-0 bg-text"
-                    style="-webkit-mask: url(assets/icons/routing.svg) no-repeat center / contain; mask: url(assets/icons/routing.svg) no-repeat center / contain;">
-                  </div>
-                  <span class="text-body text-text font-medium">{{ suggestedDistance }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Change Price Toggle -->
-            <div class="flex items-center justify-between w-full">
-              <span class="text-subtitle text-text">Alterar valor da passagem?</span>
-              <app-toggle [(checked)]="changePrice"></app-toggle>
-            </div>
-
-            <!-- Custom Price Input (only when toggle is on) -->
-            <div *ngIf="changePrice" class="flex flex-col gap-[3px] w-full">
-              <label class="text-body text-text font-medium leading-[1.2]">Insira o valor desejado</label>
-              <div class="textfield-ofertar">
-                <input
-                  type="text"
-                  [(ngModel)]="tripOffer.customPrice"
-                  placeholder="R$40,00"
-                  class="textfield-input"
-                />
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>

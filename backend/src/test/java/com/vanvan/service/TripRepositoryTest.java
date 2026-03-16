@@ -78,6 +78,8 @@ class TripRepositoryTest {
         trip1.setTime(LocalTime.of(10, 0));
         trip1.setTotalAmount(150.00); // double primitivo
         trip1.setStatus(TripStatus.COMPLETED);
+        trip1.setTotalSeats(5);
+        trip1.setAvailableSeats(0);
         trip1.setPassengers(passengers.subList(0, 5));
         passengers.subList(0, 5).forEach(p -> p.getTrips().add(trip1));
 
@@ -89,6 +91,8 @@ class TripRepositoryTest {
         trip2.setTime(LocalTime.of(15, 30));
         trip2.setTotalAmount(200.00); // double primitivo
         trip2.setStatus(TripStatus.IN_PROGRESS);
+        trip2.setTotalSeats(5);
+        trip2.setAvailableSeats(0);
         trip2.setPassengers(passengers.subList(5, 10));
         passengers.subList(5, 10).forEach(p -> p.getTrips().add(trip2));
 
@@ -172,6 +176,8 @@ class TripRepositoryTest {
             trip.setArrival(new Location("CityB", "ruab", ""));
             trip.setTotalAmount(50.0); // double primitivo
             trip.setStatus(TripStatus.COMPLETED);
+            trip.setTotalSeats(4);
+            trip.setAvailableSeats(3);
             tripRepository.save(trip);
         }
 
@@ -240,6 +246,8 @@ class TripRepositoryTest {
         trip4.setArrival(new Location("Olinda", "", ""));
         trip4.setStatus(TripStatus.COMPLETED);
         trip4.setTotalAmount(200.0);
+        trip4.setTotalSeats(4);
+        trip4.setAvailableSeats(3);
         tripRepository.save(trip4);
 
         Trip trip3 = new Trip();
@@ -251,6 +259,8 @@ class TripRepositoryTest {
         trip3.setArrival(new Location("Garanhuns", "", ""));
         trip3.setStatus(TripStatus.COMPLETED);
         trip3.setTotalAmount(200.0);
+        trip3.setTotalSeats(4);
+        trip3.setAvailableSeats(3);
         tripRepository.save(trip3);
 
         Specification<Trip> spec = TripSpecification.filter(null, null, null, "Recife", null, null);
@@ -271,5 +281,238 @@ class TripRepositoryTest {
                 TripStatus.COMPLETED
         );
         assertNotNull(spec);
+    }
+    // ── TripSpecification.filter ──────────────────────────────────
+
+    @Test
+    void filter_semNenhumParametro_retornaTodos() {
+        Specification<Trip> spec = TripSpecification.filter(
+                null, null, null, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void filter_porDriverId_retornaViagensDoMotorista() {
+        UUID driverId = trip1.getDriver().getId();
+        Specification<Trip> spec = TripSpecification.filter(
+                null, null, driverId, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(t -> t.getDriver().getId().equals(driverId)));
+    }
+
+    @Test
+    void filter_porDriverIdInexistente_retornaVazio() {
+        Specification<Trip> spec = TripSpecification.filter(
+                null, null, UUID.randomUUID(), null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void filter_porPeriodo_retornaApenasDentroDoIntervalo() {
+        Specification<Trip> spec = TripSpecification.filter(
+                LocalDate.now(), LocalDate.now(), null, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals(TripStatus.COMPLETED, result.getFirst().getStatus());
+    }
+
+    @Test
+    void filter_porArrivalCity_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.filter(
+                null, null, null, null, "CityB", null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals("CityB", result.getFirst().getArrival().getCity());
+    }
+
+    @Test
+    void filter_departureCityVazio_ignoraFiltro() {
+        Specification<Trip> spec = TripSpecification.filter(
+                null, null, null, "   ", null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void filter_arrivalCityVazio_ignoraFiltro() {
+        Specification<Trip> spec = TripSpecification.filter(
+                null, null, null, null, "   ", null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void filter_combinado_retornaCorreto() {
+        UUID driverId = trip1.getDriver().getId();
+        Specification<Trip> spec = TripSpecification.filter(
+                LocalDate.now(), LocalDate.now().plusDays(2),
+                driverId, "CityA", "CityB", TripStatus.COMPLETED
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals("CityA", result.getFirst().getDeparture().getCity());
+    }
+
+// ── TripSpecification.search ──────────────────────────────────
+
+    @Test
+    void search_semFiltros_retornaTodosScheduled() {
+        Specification<Trip> spec = TripSpecification.search(
+                null, null, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertNotNull(result);
+    }
+
+    @Test
+    void search_porData_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.search(
+                LocalDate.now(), null, null, null, TripStatus.COMPLETED
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void search_porDepartureCity_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.search(
+                null, "CityA", null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void search_porArrivalCity_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.search(
+                null, null, "CityD", null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void search_porPassengerCount_retornaComAssentosDisponiveis() {
+        Specification<Trip> spec = TripSpecification.search(
+                null, null, null, 0, null // passengerCount=0, ignora filtro
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void search_departureCityVazio_ignoraFiltro() {
+        Specification<Trip> spec = TripSpecification.search(
+                null, "  ", null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void search_arrivalCityVazio_ignoraFiltro() {
+        Specification<Trip> spec = TripSpecification.search(
+                null, null, "  ", null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+// ── TripSpecification.passengerHistory ───────────────────────
+
+    @Test
+    void passengerHistory_semFiltros_retornaTodos() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, null, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void passengerHistory_porStartDate_retornaAPartirDaData() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                LocalDate.now().plusDays(1), null, null, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals(TripStatus.IN_PROGRESS, result.getFirst().getStatus());
+    }
+
+    @Test
+    void passengerHistory_porEndDate_retornaAteAData() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, LocalDate.now(), null, null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals(TripStatus.COMPLETED, result.getFirst().getStatus());
+    }
+
+    @Test
+    void passengerHistory_porDepartureCity_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, "CityA", null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void passengerHistory_porArrivalCity_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, null, "CityD", null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void passengerHistory_porPassengerId_retornaViagensDessePasageiro() {
+        UUID passengerId = trip1.getPassengers().getFirst().getId();
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, null, null, passengerId, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals(trip1.getId(), result.getFirst().getId());
+    }
+
+    @Test
+    void passengerHistory_porStatus_retornaCorreto() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, null, null, null, TripStatus.IN_PROGRESS
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(1, result.size());
+        assertEquals(TripStatus.IN_PROGRESS, result.getFirst().getStatus());
+    }
+
+    @Test
+    void passengerHistory_departureCityVazio_ignoraFiltro() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, "  ", null, null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void passengerHistory_arrivalCityVazio_ignoraFiltro() {
+        Specification<Trip> spec = TripSpecification.passengerHistory(
+                null, null, null, "  ", null, null
+        );
+        List<Trip> result = tripRepository.findAll(spec);
+        assertEquals(2, result.size());
     }
 }

@@ -59,6 +59,12 @@ public class Trip {
     @Column(nullable = false)
     private TripStatus status; //status atual da viagem
 
+    @Column(nullable = false)
+    private Integer totalSeats; // capacidade total da viagem
+
+    @Column(nullable = false)
+    private Integer availableSeats; // assentos disponiveis
+
     @Column
     private Double distanceKm;
 

@@ -367,12 +367,19 @@
               <a [routerLink]="['/viagem', '1']" class="font-sans text-small text-subtle-text underline cursor-pointer">Detalhes</a>
             </div>
           </div>
-          <div class="m-2">
+          <div class="m-2 flex flex-col gap-2">
             <!-- Viajar Novamente Button -->
             <app-buttons variant="primary" [fullWidth]="true" customClass="!bg-secondary">
               <div class="size-5 bg-white shrink-0"
                    style="-webkit-mask: url(assets/icons/refresh-2.svg) no-repeat center / contain; mask: url(assets/icons/refresh-2.svg) no-repeat center / contain;"></div>
               VIAJAR NOVAMENTE
+            </app-buttons>
+
+            <!-- Avaliar Viagem Button -->
+            <app-buttons *ngIf="trip.statusLabel === 'Finalizado'" variant="secondary" [fullWidth]="true" customClass="!bg-light !text-text !hover:bg-accent" (click)="openEvaluatePopup(trip)">
+              <div class="size-5 bg-text shrink-0"
+                   style="-webkit-mask: url(assets/icons/star.svg) no-repeat center / contain; mask: url(assets/icons/star.svg) no-repeat center / contain;"></div>
+              AVALIAR VIAGEM
             </app-buttons>
           </div>
 
@@ -541,6 +548,49 @@
           <div class="size-5 bg-white shrink-0"
                style="-webkit-mask: url(assets/icons/close.svg) no-repeat center / contain; mask: url(assets/icons/close.svg) no-repeat center / contain;"></div>
           CANCELAR
+        </app-buttons>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EVALUATE TRIP POPUP ===== -->
+  <div *ngIf="showEvaluatePopup"
+       class="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
+       (click)="closeEvaluatePopup()">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Modal Card -->
+    <div *ngIf="evaluateTripRef as trip"
+         class="relative z-10 bg-white rounded-[24px] py-6 px-10 flex flex-col gap-5 max-w-[500px] w-full mx-4 shadow-lg items-center text-center"
+         (click)="$event.stopPropagation()">
+
+      <h2 class="font-sans text-header-2 text-text">Avalie sua viagem</h2>
+      <p class="font-sans text-small text-subtle-text">
+        Como foi sua viagem de <span class="font-bold text-text">{{ trip.origin }}</span> para <span class="font-bold text-text">{{ trip.destination }}</span><span *ngIf="trip.driverName"> com o motorista <span class="font-bold text-text">{{ trip.driverName }}</span></span>?
+      </p>
+
+      <!-- Stars -->
+      <div class="flex items-center gap-3 my-2">
+        <button *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" class="cursor-pointer transition-transform hover:scale-110">
+          <div class="size-10" [ngClass]="star <= currentRating ? 'bg-secondary' : 'bg-accent'"
+               style="-webkit-mask: url(assets/icons/star.svg) no-repeat center / contain; mask: url(assets/icons/star.svg) no-repeat center / contain;"></div>
+        </button>
+      </div>
+
+      <!-- Optional Comment Field -->
+      <textarea rows="3"
+                class="w-full mt-2 p-4 rounded-[16px] border border-accent bg-light text-small text-text placeholder-subtle-text resize-none focus:outline-none focus:border-secondary transition-colors"
+                placeholder="Deixe um comentário (opcional)..."
+                (input)="updateComment($event)"></textarea>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3 w-full mt-2 justify-center">
+        <app-buttons variant="tertiary" [fullWidth]="true" (click)="closeEvaluatePopup()" customClass="!bg-light">
+          CANCELAR
+        </app-buttons>
+        <app-buttons variant="primary" [fullWidth]="true" (click)="submitEvaluation()" [disabled]="currentRating === 0">
+          ENVIAR
         </app-buttons>
       </div>
     </div>
